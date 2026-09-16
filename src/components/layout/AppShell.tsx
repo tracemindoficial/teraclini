@@ -40,8 +40,8 @@ export function AppShell({
   children,
 }: {
   title: string;
-  description?: string;
-  action?: ReactNode;
+  description?: string | undefined;
+  action?: ReactNode | undefined;
   children: ReactNode;
 }) {
   const [searchOpen, setSearchOpen] = useState(false);

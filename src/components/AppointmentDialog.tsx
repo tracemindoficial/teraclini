@@ -47,9 +47,9 @@ export function AppointmentDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  appointment?: AppointmentWithRefs;
-  defaultDate?: Date;
-  defaultPatientId?: string;
+  appointment?: AppointmentWithRefs | undefined;
+  defaultDate?: Date | undefined;
+  defaultPatientId?: string | undefined;
 }) {
   const { data: patients } = usePatients();
   const { data: locations } = useLocations();
