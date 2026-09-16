@@ -174,7 +174,7 @@ export function useDeleteGuardian(patientId: string) {
 const APPOINTMENT_SELECT =
   "*, patient:patients(id, full_name), location:locations(id, name, type)";
 
-export function useAppointments(params: { from: string; to: string; locationId?: string }) {
+export function useAppointments(params: { from: string; to: string; locationId?: string | undefined }) {
   return useQuery({
     queryKey: ["appointments", params.from, params.to, params.locationId ?? "all"],
     queryFn: async () => {
@@ -334,7 +334,7 @@ export function useSaveAnamnesis() {
   });
 }
 
-export function useDocuments(patientId?: string) {
+export function useDocuments(patientId?: string | undefined) {
   return useQuery({
     queryKey: ["documents", patientId ?? "all"],
     queryFn: async () => {

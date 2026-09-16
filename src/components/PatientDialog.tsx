@@ -43,8 +43,8 @@ export function PatientDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  patient?: Patient;
-  onSaved?: (patient: Patient) => void;
+  patient?: Patient | undefined;
+  onSaved?: ((patient: Patient) => void) | undefined;
 }) {
   const [values, setValues] = useState(EMPTY);
   const [guardian, setGuardian] = useState({ full_name: "", relationship: "", phone: "", email: "" });

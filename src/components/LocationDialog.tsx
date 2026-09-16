@@ -34,8 +34,8 @@ export function LocationDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  location?: Location;
-  onSaved?: (location: Location) => void;
+  location?: Location | undefined;
+  onSaved?: ((location: Location) => void) | undefined;
 }) {
   const [values, setValues] = useState(EMPTY);
   const saveLocation = useSaveLocation();
