@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
+import { describeAuthError, logAuthEvent, withTimeout } from "@/lib/auth-errors";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -27,6 +28,8 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const submitting = useRef(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,47 +38,97 @@ function AuthPage() {
     });
   }, [navigate]);
 
+  function validate(): string | null {
+    if (mode === "signup" && fullName.trim().length < 2) return "Informe seu nome completo.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) return "Informe um e-mail válido.";
+    if (password.length < 8) return "A senha deve ter pelo menos 8 caracteres.";
+    if (mode === "signup" && !/[A-Za-z]/.test(password))
+      return "A senha deve conter letras e números.";
+    return null;
+  }
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+    if (submitting.current) return; // impede envios duplicados
+    const invalid = validate();
+    setFormError(invalid);
+    if (invalid) return;
+
+    submitting.current = true;
     setLoading(true);
+    const startedAt = Date.now();
+    const step = mode === "signup" ? "signup" : "signin";
+    logAuthEvent(step, "start");
     try {
       if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: window.location.origin,
-            data: { full_name: fullName },
-          },
-        });
+        const { data, error } = await withTimeout(
+          supabase.auth.signUp({
+            email: email.trim(),
+            password,
+            options: {
+              emailRedirectTo: window.location.origin,
+              data: { full_name: fullName.trim() },
+            },
+          }),
+        );
         if (error) throw error;
+        // Supabase devolve usuário sem identidades quando o e-mail já existe.
+        if (data.user && (data.user.identities?.length ?? 0) === 0) {
+          throw { code: "user_already_exists" };
+        }
         if (!data.session) {
-          toast.success("Conta criada. Confirme seu e-mail para entrar.");
+          // Sem sessão imediata: confirmação pendente, estado explícito para o usuário.
+          setFormError(
+            "Conta criada. Confirme seu e-mail para entrar — verifique também a caixa de spam.",
+          );
+          logAuthEvent(step, "success", { code: "pending_confirmation" });
           return;
         }
-        navigate({ to: "/meu-dia", replace: true });
+        logAuthEvent(step, "success", { durationMs: Date.now() - startedAt });
+        toast.success("Sua conta foi criada com sucesso.");
+        navigate({ to: "/onboarding", replace: true });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await withTimeout(
+          supabase.auth.signInWithPassword({ email: email.trim(), password }),
+        );
         if (error) throw error;
+        logAuthEvent(step, "success", { durationMs: Date.now() - startedAt });
         navigate({ to: "/meu-dia", replace: true });
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Não foi possível continuar.");
+      const failure = describeAuthError(error);
+      logAuthEvent(step, "failure", {
+        code: failure.code,
+        durationMs: Date.now() - startedAt,
+      });
+      setFormError(failure.message);
+      toast.error(failure.message);
     } finally {
+      submitting.current = false;
       setLoading(false);
     }
   }
 
   async function handleGoogle() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
-      toast.error("Não foi possível entrar com o Google.");
-      return;
+    if (submitting.current) return;
+    submitting.current = true;
+    setLoading(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        logAuthEvent("oauth_google", "failure", { code: "oauth_error" });
+        setFormError("Não foi possível entrar com o Google. Tente novamente.");
+        toast.error("Não foi possível entrar com o Google.");
+        return;
+      }
+      if (result.redirected) return;
+      navigate({ to: "/meu-dia", replace: true });
+    } finally {
+      submitting.current = false;
+      setLoading(false);
     }
-    if (result.redirected) return;
-    navigate({ to: "/meu-dia", replace: true });
   }
 
   return (
@@ -128,12 +181,28 @@ function AuthPage() {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required
-                minLength={6}
+                minLength={8}
                 autoComplete={mode === "signin" ? "current-password" : "new-password"}
               />
+              {mode === "signup" ? (
+                <p className="text-xs text-muted-foreground">
+                  Mínimo de 8 caracteres, com letras e números.
+                </p>
+              ) : null}
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {mode === "signin" ? "Entrar" : "Criar conta"}
+            {formError ? (
+              <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {formError}
+              </p>
+            ) : null}
+            <Button type="submit" className="w-full" disabled={loading} aria-busy={loading}>
+              {loading
+                ? mode === "signin"
+                  ? "Entrando..."
+                  : "Criando conta..."
+                : mode === "signin"
+                  ? "Entrar"
+                  : "Criar conta"}
             </Button>
           </form>
 
@@ -143,13 +212,16 @@ function AuthPage() {
             <span className="h-px flex-1 bg-border" />
           </div>
 
-          <Button variant="outline" className="w-full" onClick={handleGoogle}>
+          <Button variant="outline" className="w-full" onClick={handleGoogle} disabled={loading}>
             Continuar com Google
           </Button>
 
           <button
             type="button"
-            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+            onClick={() => {
+              setFormError(null);
+              setMode(mode === "signin" ? "signup" : "signin");
+            }}
             className="mt-5 w-full text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
           >
             {mode === "signin" ? "Não tenho conta ainda" : "Já tenho uma conta"}
