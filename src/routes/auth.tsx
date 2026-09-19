@@ -218,7 +218,10 @@ function AuthPage() {
 
           <button
             type="button"
-            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+            onClick={() => {
+              setFormError(null);
+              setMode(mode === "signin" ? "signup" : "signin");
+            }}
             className="mt-5 w-full text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
           >
             {mode === "signin" ? "Não tenho conta ainda" : "Já tenho uma conta"}
