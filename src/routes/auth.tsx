@@ -181,12 +181,28 @@ function AuthPage() {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required
-                minLength={6}
+                minLength={8}
                 autoComplete={mode === "signin" ? "current-password" : "new-password"}
               />
+              {mode === "signup" ? (
+                <p className="text-xs text-muted-foreground">
+                  Mínimo de 8 caracteres, com letras e números.
+                </p>
+              ) : null}
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {mode === "signin" ? "Entrar" : "Criar conta"}
+            {formError ? (
+              <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {formError}
+              </p>
+            ) : null}
+            <Button type="submit" className="w-full" disabled={loading} aria-busy={loading}>
+              {loading
+                ? mode === "signin"
+                  ? "Entrando..."
+                  : "Criando conta..."
+                : mode === "signin"
+                  ? "Entrar"
+                  : "Criar conta"}
             </Button>
           </form>
 
@@ -196,7 +212,7 @@ function AuthPage() {
             <span className="h-px flex-1 bg-border" />
           </div>
 
-          <Button variant="outline" className="w-full" onClick={handleGoogle}>
+          <Button variant="outline" className="w-full" onClick={handleGoogle} disabled={loading}>
             Continuar com Google
           </Button>
 
