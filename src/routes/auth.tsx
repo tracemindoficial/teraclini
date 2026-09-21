@@ -17,6 +17,8 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Acesse seu espaço profissional no Projeto Prática." },
       { property: "og:title", content: "Entrar — Projeto Prática" },
       { property: "og:description", content: "Acesse seu espaço profissional." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AuthPage,

@@ -24,6 +24,14 @@ import {
 } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/atendimentos/$id")({
+  head: () => ({ meta: [
+    { title: "Atendimento — Projeto Prática" },
+    { name: "description", content: "Registro privado de atendimento e evolução." },
+    { property: "og:title", content: "Atendimento — Projeto Prática" },
+    { property: "og:description", content: "Registro privado de atendimento e evolução." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: AppointmentPage,
 });
 

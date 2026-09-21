@@ -4,6 +4,14 @@ import { AppShell } from "@/components/layout/AppShell";
 import { useAppointments, usePatients, usePendingEvolutions, useLocations } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/relatorios")({
+  head: () => ({ meta: [
+    { title: "Meus Relatórios — Projeto Prática" },
+    { name: "description", content: "Visão resumida da sua prática profissional." },
+    { property: "og:title", content: "Meus Relatórios — Projeto Prática" },
+    { property: "og:description", content: "Visão resumida da sua prática profissional." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: ReportsPage,
 });
 

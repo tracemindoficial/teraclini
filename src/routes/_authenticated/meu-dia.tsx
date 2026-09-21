@@ -23,6 +23,14 @@ import {
 } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/meu-dia")({
+  head: () => ({ meta: [
+    { title: "Meu Dia — Projeto Prática" },
+    { name: "description", content: "Atendimentos, pendências e atalhos do seu espaço profissional." },
+    { property: "og:title", content: "Meu Dia — Projeto Prática" },
+    { property: "og:description", content: "Atendimentos, pendências e atalhos do seu espaço profissional." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: MeuDia,
 });
 
