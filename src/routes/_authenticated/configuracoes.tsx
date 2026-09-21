@@ -77,17 +77,6 @@ function SettingsPage() {
             onChange={(event) => setValues({ ...values, full_name: event.target.value })}
           />
         </div>
-        {values.profession === "Outra" ? (
-          <div className="space-y-1.5">
-            <Label htmlFor="other-profession">Qual é sua profissão?</Label>
-            <Input
-              id="other-profession"
-              value={values.other_profession}
-              onChange={(event) => setValues({ ...values, other_profession: event.target.value })}
-              required
-            />
-          </div>
-        ) : null}
         <div className="space-y-1.5">
           <Label>Profissão</Label>
           <Select
@@ -106,6 +95,17 @@ function SettingsPage() {
             </SelectContent>
           </Select>
         </div>
+        {values.profession === "Outra" ? (
+          <div className="space-y-1.5">
+            <Label htmlFor="other-profession">Qual é sua profissão?</Label>
+            <Input
+              id="other-profession"
+              value={values.other_profession}
+              onChange={(event) => setValues({ ...values, other_profession: event.target.value })}
+              required
+            />
+          </div>
+        ) : null}
         <div className="space-y-1.5">
           <Label>Registro profissional</Label>
           <Input
