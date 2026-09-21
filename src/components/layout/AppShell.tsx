@@ -154,20 +154,24 @@ export function AppShell({
             </Link>
           );
         })}
-        <button
+        <Button
+          type="button"
+          variant="ghost"
           onClick={() => setSearchOpen(true)}
-          className="flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-muted-foreground"
+          className="h-auto flex-1 flex-col items-center gap-1 rounded-none py-2.5 text-[11px] font-medium text-muted-foreground"
         >
           <Search className="size-5" />
           Busca
-        </button>
-        <button
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
           onClick={() => setMenuOpen(true)}
-          className="flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-muted-foreground"
+          className="h-auto flex-1 flex-col items-center gap-1 rounded-none py-2.5 text-[11px] font-medium text-muted-foreground"
         >
           <Menu className="size-5" />
           Mais
-        </button>
+        </Button>
       </nav>
 
       <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
