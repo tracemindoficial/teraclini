@@ -33,9 +33,25 @@ function AuthPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/meu-dia", replace: true });
-    });
+    let active = true;
+    async function continueAuthenticatedSession() {
+      const { data } = await supabase.auth.getSession();
+      if (!active || !data.session) return;
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("onboarding_completed")
+        .eq("id", data.session.user.id)
+        .maybeSingle();
+      if (!active) return;
+      navigate({
+        to: profile?.onboarding_completed ? "/meu-dia" : "/onboarding",
+        replace: true,
+      });
+    }
+    void continueAuthenticatedSession();
+    return () => {
+      active = false;
+    };
   }, [navigate]);
 
   function validate(): string | null {
@@ -115,7 +131,7 @@ function AuthPage() {
     setLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: `${window.location.origin}/auth`,
       });
       if (result.error) {
         logAuthEvent("oauth_google", "failure", { code: "oauth_error" });
@@ -124,7 +140,23 @@ function AuthPage() {
         return;
       }
       if (result.redirected) return;
-      navigate({ to: "/meu-dia", replace: true });
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData.session?.user.id;
+      if (!userId) throw new Error("Sessão não estabelecida após o acesso com Google.");
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("onboarding_completed")
+        .eq("id", userId)
+        .maybeSingle();
+      navigate({
+        to: profile?.onboarding_completed ? "/meu-dia" : "/onboarding",
+        replace: true,
+      });
+    } catch (error) {
+      const failure = describeAuthError(error);
+      logAuthEvent("oauth_google", "failure", { code: failure.code });
+      setFormError("Não foi possível concluir o acesso com Google. Tente novamente.");
+      toast.error("Não foi possível concluir o acesso com Google.");
     } finally {
       submitting.current = false;
       setLoading(false);
