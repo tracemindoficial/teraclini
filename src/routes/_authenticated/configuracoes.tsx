@@ -30,17 +30,20 @@ function SettingsPage() {
     city: "",
     state: "",
     care_mode: "ambos" as CareMode,
+    other_profession: "",
   });
 
   useEffect(() => {
     if (!profile) return;
+    const listedProfession = Boolean(profile.profession && PROFESSIONS.includes(profile.profession));
     setValues({
       full_name: profile.full_name ?? "",
-      profession: profile.profession ?? "",
+      profession: listedProfession ? (profile.profession ?? "") : profile.profession ? "Outra" : "",
       professional_registry: profile.professional_registry ?? "",
       city: profile.city ?? "",
       state: profile.state ?? "",
       care_mode: profile.care_mode ?? "ambos",
+      other_profession: listedProfession ? "" : (profile.profession ?? ""),
     });
   }, [profile]);
 
@@ -49,7 +52,10 @@ function SettingsPage() {
     try {
       await updateProfile.mutateAsync({
         full_name: values.full_name,
-        profession: values.profession || null,
+        profession:
+          values.profession === "Outra"
+            ? values.other_profession.trim() || null
+            : values.profession || null,
         professional_registry: values.professional_registry || null,
         city: values.city || null,
         state: values.state || null,
@@ -71,6 +77,17 @@ function SettingsPage() {
             onChange={(event) => setValues({ ...values, full_name: event.target.value })}
           />
         </div>
+        {values.profession === "Outra" ? (
+          <div className="space-y-1.5">
+            <Label htmlFor="other-profession">Qual é sua profissão?</Label>
+            <Input
+              id="other-profession"
+              value={values.other_profession}
+              onChange={(event) => setValues({ ...values, other_profession: event.target.value })}
+              required
+            />
+          </div>
+        ) : null}
         <div className="space-y-1.5">
           <Label>Profissão</Label>
           <Select

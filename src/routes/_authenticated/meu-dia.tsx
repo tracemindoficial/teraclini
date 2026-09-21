@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { CalendarPlus, MapPin, Plus, Search, UserPlus } from "lucide-react";
 
@@ -36,7 +36,7 @@ function dayBounds(date = new Date()) {
 
 function MeuDia() {
   const navigate = useNavigate();
-  const { data: profile, isLoading: profileLoading } = useProfile();
+  const { data: profile } = useProfile();
   const bounds = dayBounds();
   const { data: appointments, isLoading } = useAppointments(bounds);
   const { data: pending } = usePendingEvolutions();
@@ -44,12 +44,6 @@ function MeuDia() {
   const [appointmentOpen, setAppointmentOpen] = useState(false);
   const [patientOpen, setPatientOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
-
-  useEffect(() => {
-    if (!profileLoading && profile && !profile.onboarding_completed) {
-      navigate({ to: "/onboarding", replace: true });
-    }
-  }, [profile, profileLoading, navigate]);
 
   const now = new Date();
   const next = (appointments ?? []).find((item) => new Date(item.ends_at) > now);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -12,95 +12,140 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PatientDialog } from "@/components/PatientDialog";
-import { LOCATION_TYPES, PROFESSIONS, type CareMode, type LocationType } from "@/lib/domain";
-import { useSaveLocation, useUpdateProfile, useProfile } from "@/lib/data";
-import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { PROFESSIONS } from "@/lib/domain";
+import { useProfile, useUpdateProfile } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
+  head: () => ({
+    meta: [
+      { title: "Primeiro acesso — Projeto Prática" },
+      { name: "description", content: "Configure seu espaço profissional individual." },
+      { property: "og:title", content: "Primeiro acesso — Projeto Prática" },
+      { property: "og:description", content: "Configure seu espaço profissional individual." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: Onboarding,
 });
 
-const CARE_MODES: { value: CareMode; label: string }[] = [
-  { value: "presencial", label: "Presencial" },
-  { value: "online", label: "Online" },
-  { value: "ambos", label: "Presencial e online" },
-];
+type OnboardingValues = {
+  full_name: string;
+  profession: string;
+  other_profession: string;
+  professional_registry: string;
+  city: string;
+  state: string;
+};
+
+const EMPTY_VALUES: OnboardingValues = {
+  full_name: "",
+  profession: "",
+  other_profession: "",
+  professional_registry: "",
+  city: "",
+  state: "",
+};
 
 function Onboarding() {
-  const [step, setStep] = useState(1);
-  const [patientDialogOpen, setPatientDialogOpen] = useState(false);
-  const { data: profile } = useProfile();
+  const { data: profile, isLoading } = useProfile();
   const updateProfile = useUpdateProfile();
-  const saveLocation = useSaveLocation();
   const navigate = useNavigate();
+  const hydrated = useRef(false);
+  const [values, setValues] = useState(EMPTY_VALUES);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const [values, setValues] = useState({
-    full_name: "",
-    profession: "",
-    professional_registry: "",
-    city: "",
-    state: "",
-    care_mode: "ambos" as CareMode,
-  });
-  const [location, setLocation] = useState({
-    name: "",
-    type: "clinica" as LocationType,
-    address: "",
-  });
+  useEffect(() => {
+    if (!profile || hydrated.current) return;
+    const listedProfession = profile.profession && PROFESSIONS.includes(profile.profession);
+    setValues({
+      full_name: profile.full_name ?? "",
+      profession: listedProfession ? (profile.profession ?? "") : profile.profession ? "Outra" : "",
+      other_profession: listedProfession ? "" : (profile.profession ?? ""),
+      professional_registry: profile.professional_registry ?? "",
+      city: profile.city ?? "",
+      state: profile.state ?? "",
+    });
+    hydrated.current = true;
+  }, [profile]);
 
-  async function finish() {
+  function validationError() {
+    if (values.full_name.trim().length < 2) return "Informe seu nome.";
+    if (!values.profession) return "Selecione sua profissão.";
+    if (values.profession === "Outra" && values.other_profession.trim().length < 2) {
+      return "Informe sua profissão.";
+    }
+    return null;
+  }
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (updateProfile.isPending) return;
+    const invalid = validationError();
+    setFormError(invalid);
+    if (invalid) return;
+
     try {
+      const { data: authData } = await supabase.auth.getUser();
+      const metadata = authData.user?.user_metadata as
+        | { avatar_url?: unknown; picture?: unknown }
+        | undefined;
+      const avatarCandidate = metadata?.avatar_url ?? metadata?.picture;
+      const avatarUrl = typeof avatarCandidate === "string" ? avatarCandidate : profile?.avatar_url;
       await updateProfile.mutateAsync({
-        full_name: values.full_name.trim() || profile?.full_name || "",
-        profession: values.profession || null,
-        professional_registry: values.professional_registry || null,
-        city: values.city || null,
-        state: values.state || null,
-        care_mode: values.care_mode,
+        full_name: values.full_name.trim(),
+        profession:
+          values.profession === "Outra"
+            ? values.other_profession.trim()
+            : values.profession,
+        professional_registry: values.professional_registry.trim() || null,
+        city: values.city.trim() || null,
+        state: values.state.trim().toUpperCase() || null,
+        avatar_url: avatarUrl || null,
         onboarding_completed: true,
       });
-      if (location.name.trim()) {
-        await saveLocation.mutateAsync({
-          name: location.name.trim(),
-          type: location.type,
-          address: location.address || null,
-        });
-      }
-      return true;
+      toast.success("Seu espaço profissional está pronto.");
+      navigate({ to: "/meu-dia", replace: true });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Não foi possível salvar.");
-      return false;
+      console.error("[onboarding]", {
+        step: "save_profile",
+        outcome: "failure",
+        code: error instanceof Error ? error.name : "unknown",
+      });
+      setFormError("Não conseguimos salvar seus dados. Tente novamente.");
+      toast.error("Não conseguimos salvar seus dados.");
     }
   }
 
-  async function goToStep4() {
-    if (await finish()) setStep(4);
-  }
-
   return (
-    <div className="mx-auto flex min-h-screen max-w-xl flex-col justify-center px-5 py-10">
-      <p className="text-sm font-medium text-primary">Etapa {step} de 4</p>
+    <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col justify-center px-5 py-8 sm:py-12">
+      <p className="text-sm font-medium text-primary">Bem-vindo</p>
+      <section className="surface mt-3 p-5 sm:p-7">
+        <h1 className="text-2xl">Vamos configurar seu espaço profissional</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Para começar, precisamos apenas do seu nome e da sua profissão.
+        </p>
 
-      {step === 1 ? (
-        <Card
-          title="Vamos configurar seu espaço profissional"
-          onNext={() => setStep(2)}
-          nextDisabled={!values.full_name.trim()}
-        >
-          <Field label="Seu nome">
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
+          <Field id="full-name" label="Seu nome" required>
             <Input
+              id="full-name"
               value={values.full_name}
               onChange={(event) => setValues({ ...values, full_name: event.target.value })}
-              placeholder={profile?.full_name ?? ""}
+              autoComplete="name"
+              disabled={isLoading || updateProfile.isPending}
+              aria-invalid={Boolean(formError && values.full_name.trim().length < 2)}
             />
           </Field>
-          <Field label="Profissão">
+
+          <Field id="profession" label="Profissão" required>
             <Select
               value={values.profession}
-              onValueChange={(value) => setValues({ ...values, profession: value })}
+              onValueChange={(profession) => setValues({ ...values, profession })}
+              disabled={isLoading || updateProfile.isPending}
             >
-              <SelectTrigger>
+              <SelectTrigger id="profession" aria-label="Profissão">
                 <SelectValue placeholder="Selecionar" />
               </SelectTrigger>
               <SelectContent>
@@ -112,160 +157,96 @@ function Onboarding() {
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Registro profissional (quando aplicável)">
+
+          {values.profession === "Outra" ? (
+            <Field id="other-profession" label="Qual é sua profissão?" required>
+              <Input
+                id="other-profession"
+                value={values.other_profession}
+                onChange={(event) => setValues({ ...values, other_profession: event.target.value })}
+                disabled={updateProfile.isPending}
+              />
+            </Field>
+          ) : null}
+
+          <Field id="professional-registry" label="Registro profissional" optional>
             <Input
+              id="professional-registry"
               value={values.professional_registry}
               onChange={(event) =>
                 setValues({ ...values, professional_registry: event.target.value })
               }
+              disabled={updateProfile.isPending}
             />
           </Field>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Cidade">
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field id="city" label="Cidade" optional>
               <Input
+                id="city"
                 value={values.city}
                 onChange={(event) => setValues({ ...values, city: event.target.value })}
+                autoComplete="address-level2"
+                disabled={updateProfile.isPending}
               />
             </Field>
-            <Field label="Estado">
+            <Field id="state" label="Estado" optional>
               <Input
+                id="state"
                 value={values.state}
                 onChange={(event) => setValues({ ...values, state: event.target.value })}
+                autoComplete="address-level1"
+                maxLength={30}
+                disabled={updateProfile.isPending}
               />
             </Field>
           </div>
-        </Card>
-      ) : null}
 
-      {step === 2 ? (
-        <Card title="Como você atende?" onBack={() => setStep(1)} onNext={() => setStep(3)}>
-          <div className="grid gap-2">
-            {CARE_MODES.map((mode) => (
-              <button
-                key={mode.value}
-                type="button"
-                onClick={() => setValues({ ...values, care_mode: mode.value })}
-                className={cn(
-                  "rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors",
-                  values.care_mode === mode.value
-                    ? "border-primary bg-secondary text-secondary-foreground"
-                    : "hover:bg-accent",
-                )}
-              >
-                {mode.label}
-              </button>
-            ))}
-          </div>
-        </Card>
-      ) : null}
+          {formError ? (
+            <div role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              <p>{formError}</p>
+              {formError.includes("Não conseguimos") ? (
+                <Button type="submit" variant="link" className="mt-1 h-auto p-0 text-destructive">
+                  Tentar novamente
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
 
-      {step === 3 ? (
-        <Card
-          title="Onde você atende?"
-          description="Você pode cadastrar outros locais depois."
-          onBack={() => setStep(2)}
-          onNext={goToStep4}
-          nextLabel="Continuar"
-        >
-          <Field label="Nome do local">
-            <Input
-              value={location.name}
-              onChange={(event) => setLocation({ ...location, name: event.target.value })}
-              placeholder="Clínica A, Consultório próprio, Online..."
-            />
-          </Field>
-          <Field label="Tipo">
-            <Select
-              value={location.type}
-              onValueChange={(value) => setLocation({ ...location, type: value as LocationType })}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {LOCATION_TYPES.map((type) => (
-                  <SelectItem key={type.value} value={type.value}>
-                    {type.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Endereço (opcional)">
-            <Input
-              value={location.address}
-              onChange={(event) => setLocation({ ...location, address: event.target.value })}
-            />
-          </Field>
-        </Card>
-      ) : null}
-
-      {step === 4 ? (
-        <div className="surface mt-4 p-6">
-          <h1 className="text-2xl">Tudo pronto!</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Você quer começar cadastrando seu primeiro paciente?
-          </p>
-          <div className="mt-6 flex flex-col gap-2 sm:flex-row">
-            <Button onClick={() => setPatientDialogOpen(true)}>Cadastrar paciente</Button>
-            <Button variant="outline" onClick={() => navigate({ to: "/meu-dia" })}>
-              Fazer isso depois
-            </Button>
-          </div>
-        </div>
-      ) : null}
-
-      <PatientDialog
-        open={patientDialogOpen}
-        onOpenChange={setPatientDialogOpen}
-        onSaved={() => navigate({ to: "/meu-dia" })}
-      />
-    </div>
+          <Button
+            type="submit"
+            className="w-full sm:w-auto"
+            disabled={isLoading || updateProfile.isPending}
+            aria-busy={updateProfile.isPending}
+          >
+            {updateProfile.isPending ? "Salvando..." : "Continuar para Meu Dia"}
+          </Button>
+        </form>
+      </section>
+    </main>
   );
 }
 
-function Card({
-  title,
-  description,
+function Field({
+  id,
+  label,
+  required = false,
+  optional = false,
   children,
-  onBack,
-  onNext,
-  nextLabel = "Continuar",
-  nextDisabled,
 }: {
-  title: string;
-  description?: string;
+  id: string;
+  label: string;
+  required?: boolean;
+  optional?: boolean;
   children: React.ReactNode;
-  onBack?: () => void;
-  onNext: () => void;
-  nextLabel?: string;
-  nextDisabled?: boolean;
 }) {
   return (
-    <div className="surface mt-4 p-6">
-      <h1 className="text-2xl">{title}</h1>
-      {description ? <p className="mt-1.5 text-sm text-muted-foreground">{description}</p> : null}
-      <div className="mt-6 space-y-4">{children}</div>
-      <div className="mt-8 flex justify-between gap-2">
-        {onBack ? (
-          <Button variant="ghost" onClick={onBack}>
-            Voltar
-          </Button>
-        ) : (
-          <span />
-        )}
-        <Button onClick={onNext} disabled={nextDisabled}>
-          {nextLabel}
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
     <div className="space-y-1.5">
-      <Label>{label}</Label>
+      <Label htmlFor={id}>
+        {label}
+        {required ? <span className="text-destructive"> *</span> : null}
+        {optional ? <span className="font-normal text-muted-foreground"> (opcional)</span> : null}
+      </Label>
       {children}
     </div>
   );
