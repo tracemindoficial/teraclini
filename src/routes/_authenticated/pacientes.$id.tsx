@@ -42,6 +42,14 @@ import {
 } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/pacientes/$id")({
+  head: () => ({ meta: [
+    { title: "Prontuário do Paciente — Projeto Prática" },
+    { name: "description", content: "Prontuário privado do seu paciente." },
+    { property: "og:title", content: "Prontuário do Paciente — Projeto Prática" },
+    { property: "og:description", content: "Prontuário privado do seu paciente." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: PatientProfile,
 });
 

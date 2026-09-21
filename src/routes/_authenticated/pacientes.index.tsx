@@ -18,6 +18,14 @@ import { usePatients } from "@/lib/data";
 import { AGE_GROUPS, PATIENT_STATUSES, ageFromBirthDate, labelOf } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/pacientes/")({
+  head: () => ({ meta: [
+    { title: "Meus Pacientes — Projeto Prática" },
+    { name: "description", content: "Pacientes vinculados ao seu espaço profissional individual." },
+    { property: "og:title", content: "Meus Pacientes — Projeto Prática" },
+    { property: "og:description", content: "Pacientes vinculados ao seu espaço profissional individual." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: PatientsPage,
 });
 

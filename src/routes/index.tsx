@@ -17,6 +17,8 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "A clínica muda. Sua prática continua com você.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Landing,
