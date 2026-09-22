@@ -14,8 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_members: {
+        Row: {
+          account_id: string
+          created_at: string
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_members_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accounts: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          owner_user_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner_user_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner_user_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       activity_log: {
         Row: {
+          account_id: string
           action: string
           created_at: string
           entity_id: string | null
@@ -24,6 +87,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account_id?: string
           action: string
           created_at?: string
           entity_id?: string | null
@@ -32,6 +96,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account_id?: string
           action?: string
           created_at?: string
           entity_id?: string | null
@@ -39,10 +104,19 @@ export type Database = {
           id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "activity_log_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       anamneses: {
         Row: {
+          account_id: string
           appointment_id: string | null
           content: Json
           created_at: string
@@ -55,6 +129,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account_id?: string
           appointment_id?: string | null
           content?: Json
           created_at?: string
@@ -67,6 +142,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account_id?: string
           appointment_id?: string | null
           content?: Json
           created_at?: string
@@ -79,6 +155,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "anamneses_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "anamneses_appointment_id_fkey"
             columns: ["appointment_id"]
@@ -97,6 +180,7 @@ export type Database = {
       }
       appointments: {
         Row: {
+          account_id: string
           created_at: string
           ends_at: string
           id: string
@@ -111,6 +195,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account_id?: string
           created_at?: string
           ends_at: string
           id?: string
@@ -125,6 +210,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account_id?: string
           created_at?: string
           ends_at?: string
           id?: string
@@ -139,6 +225,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "appointments_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "appointments_location_id_fkey"
             columns: ["location_id"]
@@ -155,8 +248,50 @@ export type Database = {
           },
         ]
       }
+      audit_events: {
+        Row: {
+          account_id: string
+          action: string
+          actor_user_id: string | null
+          changed_fields: string[]
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+        }
+        Insert: {
+          account_id: string
+          action: string
+          actor_user_id?: string | null
+          changed_fields?: string[]
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+        }
+        Update: {
+          account_id?: string
+          action?: string
+          actor_user_id?: string | null
+          changed_fields?: string[]
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_events_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
+          account_id: string
           category: Database["public"]["Enums"]["document_category"]
           created_at: string
           id: string
@@ -169,6 +304,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account_id?: string
           category?: Database["public"]["Enums"]["document_category"]
           created_at?: string
           id?: string
@@ -181,6 +317,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account_id?: string
           category?: Database["public"]["Enums"]["document_category"]
           created_at?: string
           id?: string
@@ -194,6 +331,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "documents_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "documents_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
@@ -204,6 +348,7 @@ export type Database = {
       }
       evolutions: {
         Row: {
+          account_id: string
           appointment_id: string
           content: string
           created_at: string
@@ -214,6 +359,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account_id?: string
           appointment_id: string
           content: string
           created_at?: string
@@ -224,6 +370,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account_id?: string
           appointment_id?: string
           content?: string
           created_at?: string
@@ -234,6 +381,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "evolutions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "evolutions_appointment_id_fkey"
             columns: ["appointment_id"]
@@ -252,6 +406,7 @@ export type Database = {
       }
       guardians: {
         Row: {
+          account_id: string
           created_at: string
           email: string | null
           full_name: string
@@ -264,6 +419,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account_id?: string
           created_at?: string
           email?: string | null
           full_name: string
@@ -276,6 +432,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account_id?: string
           created_at?: string
           email?: string | null
           full_name?: string
@@ -289,6 +446,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "guardians_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "guardians_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
@@ -299,6 +463,7 @@ export type Database = {
       }
       locations: {
         Row: {
+          account_id: string
           address: string | null
           city: string | null
           contact: string | null
@@ -313,6 +478,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account_id?: string
           address?: string | null
           city?: string | null
           contact?: string | null
@@ -327,6 +493,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account_id?: string
           address?: string | null
           city?: string | null
           contact?: string | null
@@ -340,10 +507,54 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "locations_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      onboarding_tasks: {
+        Row: {
+          account_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          task_key: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          task_key: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          task_key?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_tasks_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       patients: {
         Row: {
+          account_id: string
           address: string | null
           age_group: Database["public"]["Enums"]["age_group"]
           birth_date: string | null
@@ -361,6 +572,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account_id?: string
           address?: string | null
           age_group?: Database["public"]["Enums"]["age_group"]
           birth_date?: string | null
@@ -378,6 +590,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account_id?: string
           address?: string | null
           age_group?: Database["public"]["Enums"]["age_group"]
           birth_date?: string | null
@@ -394,10 +607,19 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "patients_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
+          account_id: string
           avatar_url: string | null
           care_mode: Database["public"]["Enums"]["care_mode"] | null
           city: string | null
@@ -411,6 +633,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          account_id?: string
           avatar_url?: string | null
           care_mode?: Database["public"]["Enums"]["care_mode"] | null
           city?: string | null
@@ -424,6 +647,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          account_id?: string
           avatar_url?: string | null
           care_mode?: Database["public"]["Enums"]["care_mode"] | null
           city?: string | null
@@ -436,17 +660,70 @@ export type Database = {
           state?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          account_id: string
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      current_account_id: { Args: never; Returns: string }
+      has_account_role: {
+        Args: {
+          _account_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id?: string
+        }
+        Returns: boolean
+      }
+      is_account_member: {
+        Args: { _account_id: string; _user_id?: string }
+        Returns: boolean
+      }
     }
     Enums: {
       age_group: "crianca" | "adolescente" | "adulto"
+      app_role: "owner" | "assistant" | "finance"
       appointment_modality: "presencial" | "online" | "domiciliar" | "outro"
       appointment_status:
         | "agendado"
@@ -599,6 +876,7 @@ export const Constants = {
   public: {
     Enums: {
       age_group: ["crianca", "adolescente", "adulto"],
+      app_role: ["owner", "assistant", "finance"],
       appointment_modality: ["presencial", "online", "domiciliar", "outro"],
       appointment_status: [
         "agendado",
