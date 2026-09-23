@@ -54,7 +54,10 @@ export function useUpdateProfile() {
         .single();
       return unwrap(result);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["profile"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["profile"] });
+      qc.invalidateQueries({ queryKey: ["onboarding-tasks"] });
+    },
   });
 }
 
@@ -80,7 +83,10 @@ export function useSaveLocation() {
         .single();
       return unwrap(result);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["locations"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["locations"] });
+      qc.invalidateQueries({ queryKey: ["onboarding-tasks"] });
+    },
   });
 }
 
@@ -130,6 +136,7 @@ export function useSavePatient() {
     onSuccess: (patient) => {
       qc.invalidateQueries({ queryKey: ["patients"] });
       qc.invalidateQueries({ queryKey: ["patient", patient.id] });
+      qc.invalidateQueries({ queryKey: ["onboarding-tasks"] });
     },
   });
 }
@@ -232,6 +239,7 @@ export function useSaveAppointment() {
       qc.invalidateQueries({ queryKey: ["patient-appointments"] });
       qc.invalidateQueries({ queryKey: ["appointment"] });
       qc.invalidateQueries({ queryKey: ["pending-evolutions"] });
+      qc.invalidateQueries({ queryKey: ["onboarding-tasks"] });
     },
   });
 }
