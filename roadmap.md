@@ -9,8 +9,8 @@
 - [x] Criar conta profissional extensível, membros e papéis separados
 - [x] Migrar os dados existentes para `account_id` sem perda
 - [x] Criar checklist retomável e auditoria sem conteúdo clínico
-- [ ] Exibir o checklist no Meu Dia e validar os fluxos existentes
-- [ ] Validar isolamento por conta, criação de novo usuário e regressão mobile
+- [x] Exibir o checklist no Meu Dia e validar os fluxos existentes
+- [x] Validar isolamento por conta, criação de novo usuário e regressão mobile
 
 ## Próximas fases
 - [ ] Fase 1 — Salas, disponibilidade, bloqueios e agenda completa
