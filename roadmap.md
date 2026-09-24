@@ -12,8 +12,16 @@
 - [x] Exibir o checklist no Meu Dia e validar os fluxos existentes
 - [x] Validar isolamento por conta, criação de novo usuário e regressão mobile
 
+## Fase 1 — Rotina e agenda completa
+- [ ] Auditar agenda, locais, navegação e regras existentes
+- [ ] Implementar salas, disponibilidade e bloqueios
+- [ ] Implementar tipos de atendimento e histórico de eventos
+- [ ] Completar visões Dia, Semana, Mês e Lista
+- [ ] Implementar criar, editar, mover, cancelar, reagendar, iniciar e concluir
+- [ ] Garantir conflitos atômicos por profissional, paciente, sala, disponibilidade e bloqueio
+- [ ] Validar persistência, isolamento, desktop e celular
+
 ## Próximas fases
-- [ ] Fase 1 — Salas, disponibilidade, bloqueios e agenda completa
 - [ ] Fase 2 — Prontuário robusto e registros versionados
 - [ ] Fase 3 — Pacotes e financeiro simples
 - [ ] Fase 4 — Relatórios, exportação e LGPD
