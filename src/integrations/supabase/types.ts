@@ -178,9 +178,113 @@ export type Database = {
           },
         ]
       }
+      appointment_events: {
+        Row: {
+          account_id: string
+          actor_user_id: string | null
+          appointment_id: string
+          changed_fields: string[]
+          created_at: string
+          event_type: string
+          id: string
+          new_ends_at: string | null
+          new_starts_at: string | null
+          previous_ends_at: string | null
+          previous_starts_at: string | null
+          reason: string | null
+        }
+        Insert: {
+          account_id: string
+          actor_user_id?: string | null
+          appointment_id: string
+          changed_fields?: string[]
+          created_at?: string
+          event_type: string
+          id?: string
+          new_ends_at?: string | null
+          new_starts_at?: string | null
+          previous_ends_at?: string | null
+          previous_starts_at?: string | null
+          reason?: string | null
+        }
+        Update: {
+          account_id?: string
+          actor_user_id?: string | null
+          appointment_id?: string
+          changed_fields?: string[]
+          created_at?: string
+          event_type?: string
+          id?: string
+          new_ends_at?: string | null
+          new_starts_at?: string | null
+          previous_ends_at?: string | null
+          previous_starts_at?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_events_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_events_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      appointment_types: {
+        Row: {
+          account_id: string
+          color_key: string
+          created_at: string
+          default_duration_minutes: number
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          account_id?: string
+          color_key?: string
+          created_at?: string
+          default_duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          color_key?: string
+          created_at?: string
+          default_duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_types_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointments: {
         Row: {
           account_id: string
+          appointment_type_id: string | null
+          cancellation_reason: string | null
+          completed_at: string | null
           created_at: string
           ends_at: string
           id: string
@@ -188,6 +292,8 @@ export type Database = {
           modality: Database["public"]["Enums"]["appointment_modality"]
           notes: string | null
           patient_id: string | null
+          room_id: string | null
+          started_at: string | null
           starts_at: string
           status: Database["public"]["Enums"]["appointment_status"]
           type: Database["public"]["Enums"]["appointment_type"]
@@ -196,6 +302,9 @@ export type Database = {
         }
         Insert: {
           account_id?: string
+          appointment_type_id?: string | null
+          cancellation_reason?: string | null
+          completed_at?: string | null
           created_at?: string
           ends_at: string
           id?: string
@@ -203,6 +312,8 @@ export type Database = {
           modality?: Database["public"]["Enums"]["appointment_modality"]
           notes?: string | null
           patient_id?: string | null
+          room_id?: string | null
+          started_at?: string | null
           starts_at: string
           status?: Database["public"]["Enums"]["appointment_status"]
           type?: Database["public"]["Enums"]["appointment_type"]
@@ -211,6 +322,9 @@ export type Database = {
         }
         Update: {
           account_id?: string
+          appointment_type_id?: string | null
+          cancellation_reason?: string | null
+          completed_at?: string | null
           created_at?: string
           ends_at?: string
           id?: string
@@ -218,6 +332,8 @@ export type Database = {
           modality?: Database["public"]["Enums"]["appointment_modality"]
           notes?: string | null
           patient_id?: string | null
+          room_id?: string | null
+          started_at?: string | null
           starts_at?: string
           status?: Database["public"]["Enums"]["appointment_status"]
           type?: Database["public"]["Enums"]["appointment_type"]
@@ -233,6 +349,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "appointments_appointment_type_id_fkey"
+            columns: ["appointment_type_id"]
+            isOneToOne: false
+            referencedRelation: "appointment_types"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "appointments_location_id_fkey"
             columns: ["location_id"]
             isOneToOne: false
@@ -244,6 +367,13 @@ export type Database = {
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
             referencedColumns: ["id"]
           },
         ]
@@ -285,6 +415,79 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      availability_rules: {
+        Row: {
+          account_id: string
+          created_at: string
+          end_time: string
+          id: string
+          is_active: boolean
+          location_id: string | null
+          modality: Database["public"]["Enums"]["appointment_modality"] | null
+          room_id: string | null
+          start_time: string
+          timezone: string
+          updated_at: string
+          valid_from: string | null
+          valid_until: string | null
+          weekday: number
+        }
+        Insert: {
+          account_id?: string
+          created_at?: string
+          end_time: string
+          id?: string
+          is_active?: boolean
+          location_id?: string | null
+          modality?: Database["public"]["Enums"]["appointment_modality"] | null
+          room_id?: string | null
+          start_time: string
+          timezone?: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+          weekday: number
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          end_time?: string
+          id?: string
+          is_active?: boolean
+          location_id?: string | null
+          modality?: Database["public"]["Enums"]["appointment_modality"] | null
+          room_id?: string | null
+          start_time?: string
+          timezone?: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_rules_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "availability_rules_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "availability_rules_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
             referencedColumns: ["id"]
           },
         ]
@@ -670,6 +873,115 @@ export type Database = {
           },
         ]
       }
+      rooms: {
+        Row: {
+          account_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          location_id: string
+          name: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          location_id: string
+          name: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          location_id?: string
+          name?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rooms_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rooms_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_blocks: {
+        Row: {
+          account_id: string
+          category: string
+          created_at: string
+          ends_at: string
+          id: string
+          location_id: string | null
+          reason: string
+          room_id: string | null
+          starts_at: string
+          updated_at: string
+        }
+        Insert: {
+          account_id?: string
+          category?: string
+          created_at?: string
+          ends_at: string
+          id?: string
+          location_id?: string | null
+          reason: string
+          room_id?: string | null
+          starts_at: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          category?: string
+          created_at?: string
+          ends_at?: string
+          id?: string
+          location_id?: string | null
+          reason?: string
+          room_id?: string | null
+          starts_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_blocks_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_blocks_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_blocks_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           account_id: string
@@ -728,6 +1040,7 @@ export type Database = {
       appointment_status:
         | "agendado"
         | "confirmado"
+        | "em_andamento"
         | "realizado"
         | "falta"
         | "cancelado"
@@ -881,6 +1194,7 @@ export const Constants = {
       appointment_status: [
         "agendado",
         "confirmado",
+        "em_andamento",
         "realizado",
         "falta",
         "cancelado",
