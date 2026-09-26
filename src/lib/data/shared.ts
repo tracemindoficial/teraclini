@@ -10,14 +10,18 @@ export type Appointment = Tables["appointments"]["Row"];
 export type Anamnesis = Tables["anamneses"]["Row"];
 export type Evolution = Tables["evolutions"]["Row"];
 export type PatientDocument = Tables["documents"]["Row"];
+export type Room = Tables["rooms"]["Row"];
+export type CustomAppointmentType = Tables["appointment_types"]["Row"];
 
 export type AppointmentWithRefs = Appointment & {
   patient: Pick<Patient, "id" | "full_name"> | null;
   location: Pick<Location, "id" | "name" | "type"> | null;
+  room: Pick<Room, "id" | "name"> | null;
+  appointment_type: Pick<CustomAppointmentType, "id" | "name" | "color_key"> | null;
 };
 
 export const APPOINTMENT_SELECT =
-  "*, patient:patients(id, full_name), location:locations(id, name, type)";
+  "*, patient:patients(id, full_name), location:locations(id, name, type), room:rooms(id, name), appointment_type:appointment_types(id, name, color_key)";
 
 export async function currentUserId() {
   const { data, error } = await supabase.auth.getUser();

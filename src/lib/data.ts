@@ -6,3 +6,4 @@ export * from "./data/appointments";
 export * from "./data/clinical";
 export * from "./data/documents";
 export * from "./data/dashboard";
+export * from "./data/schedule";
