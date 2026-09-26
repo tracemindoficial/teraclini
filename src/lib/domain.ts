@@ -50,10 +50,21 @@ export const APPOINTMENT_MODALITIES: { value: AppointmentModality; label: string
 export const APPOINTMENT_STATUSES: { value: AppointmentStatus; label: string }[] = [
   { value: "agendado", label: "Agendado" },
   { value: "confirmado", label: "Confirmado" },
+  { value: "em_andamento", label: "Em andamento" },
   { value: "realizado", label: "Realizado" },
   { value: "falta", label: "Falta" },
   { value: "cancelado", label: "Cancelado" },
 ];
+
+export const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+
+export const BLOCK_CATEGORIES = [
+  { value: "ferias", label: "Férias" },
+  { value: "feriado", label: "Feriado" },
+  { value: "compromisso", label: "Compromisso" },
+  { value: "reuniao", label: "Reunião" },
+  { value: "outro", label: "Outro" },
+] as const;
 
 export const DOCUMENT_CATEGORIES: { value: DocumentCategory; label: string }[] = [
   { value: "clinico", label: "Documento clínico" },
