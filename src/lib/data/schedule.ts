@@ -4,10 +4,10 @@ import type { Database } from "@/integrations/supabase/types";
 import { unwrap } from "./shared";
 
 type Tables = Database["public"]["Tables"];
-export type Room = Tables["rooms"]["Row"];
+type Room = Tables["rooms"]["Row"];
 export type AvailabilityRule = Tables["availability_rules"]["Row"];
 export type ScheduleBlock = Tables["schedule_blocks"]["Row"];
-export type CustomAppointmentType = Tables["appointment_types"]["Row"];
+type CustomAppointmentType = Tables["appointment_types"]["Row"];
 export type AppointmentEvent = Tables["appointment_events"]["Row"];
 
 function invalidateSchedule(qc: ReturnType<typeof useQueryClient>) {
