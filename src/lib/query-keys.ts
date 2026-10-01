@@ -20,4 +20,8 @@ export const queryKeys = {
   scheduleBlocks: ["schedule-blocks"] as const,
   appointmentTypes: ["appointment-types"] as const,
   appointmentEvents: (appointmentId: string) => ["appointment-events", appointmentId] as const,
+  registrationLinks: ["patient-registration-links"] as const,
+  registrationRequests: ["patient-registration-requests"] as const,
+  registrationRequest: (id: string) => ["patient-registration-request", id] as const,
+  registrationDuplicates: (id: string) => ["patient-registration-duplicates", id] as const,
 } as const;
