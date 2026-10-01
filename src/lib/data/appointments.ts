@@ -77,6 +77,7 @@ export function useSaveAppointment() {
       qc.invalidateQueries({ queryKey: queryKeys.appointment });
       qc.invalidateQueries({ queryKey: queryKeys.pendingEvolutions });
       qc.invalidateQueries({ queryKey: queryKeys.onboardingTasks });
+      qc.invalidateQueries({ queryKey: queryKeys.packages });
     },
   });
 }

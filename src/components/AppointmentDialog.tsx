@@ -28,6 +28,7 @@ import {
   useLocations,
   usePatients,
   useSaveAppointment,
+  usePackages,
   type AppointmentWithRefs,
 } from "@/lib/data";
 
@@ -47,6 +48,7 @@ export function AppointmentDialog({
   const { data: patients } = usePatients();
   const { data: locations } = useLocations();
   const saveAppointment = useSaveAppointment();
+  const { data: patientPackages } = usePackages(values.patient_id || undefined);
   const [patientDialogOpen, setPatientDialogOpen] = useState(false);
 
   const [values, setValues] = useState({
@@ -59,6 +61,7 @@ export function AppointmentDialog({
     modality: "presencial" as AppointmentModality,
     status: "agendado" as AppointmentStatus,
     notes: "",
+    package_id: "none",
   });
 
   useEffect(() => {
@@ -76,6 +79,7 @@ export function AppointmentDialog({
         modality: appointment.modality,
         status: appointment.status,
         notes: appointment.notes ?? "",
+        package_id: appointment.package_id ?? "none",
       });
       return;
     }
@@ -91,6 +95,7 @@ export function AppointmentDialog({
       modality: "presencial",
       status: "agendado",
       notes: "",
+      package_id: "none",
     }));
   }, [open, appointment, defaultDate, defaultPatientId]);
 
@@ -113,6 +118,7 @@ export function AppointmentDialog({
         modality: values.modality,
         status: values.status,
         notes: values.notes || null,
+        package_id: values.package_id === "none" ? null : values.package_id,
       });
       toast.success(appointment ? "Agendamento atualizado." : "Atendimento agendado.");
       onOpenChange(false);
@@ -249,6 +255,21 @@ export function AppointmentDialog({
                 </Select>
               </div>
             </div>
+
+            {values.patient_id ? (
+              <div className="space-y-1.5">
+                <Label>Pacote de sessões (opcional)</Label>
+                <Select value={values.package_id} onValueChange={(package_id) => setValues({ ...values, package_id })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Sem pacote</SelectItem>
+                    {(patientPackages ?? []).filter((item) => item.lifecycle_status === "ativo").map((item) => (
+                      <SelectItem key={item.id} value={item.id}>{item.appointment_type?.name ?? "Pacote"} · {item.quantity} sessões</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : null}
 
             {appointment ? (
               <div className="space-y-1.5">

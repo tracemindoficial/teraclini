@@ -32,7 +32,9 @@ export function AppointmentRow({
           </p>
         </div>
         <Badge variant="secondary" className="hidden shrink-0 sm:inline-flex">
-          {appointment.modality === "online"
+          {appointment.package_id
+            ? "Sessão de pacote"
+            : appointment.modality === "online"
             ? "Online"
             : (appointment.location?.name ?? "Presencial")}
         </Badge>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { CalendarPlus, ClipboardList, MapPin, Plus, Search, UserPlus } from "lucide-react";
+import { CalendarPlus, ClipboardList, MapPin, PackageCheck, Plus, Search, UserPlus } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { AppointmentDialog } from "@/components/AppointmentDialog";
@@ -11,7 +11,7 @@ import { AppointmentRow } from "@/components/appointments/AppointmentRow";
 import { Button } from "@/components/ui/button";
 import { SetupChecklist } from "@/components/onboarding/SetupChecklist";
 import { useOnboardingTasks } from "@/lib/account-data";
-import { useAppointments, usePendingEvolutions, useProfile, useRegistrationRequests } from "@/lib/data";
+import { packageStatus, useAppointments, usePackages, usePendingEvolutions, useProfile, useRegistrationRequests } from "@/lib/data";
 import { formatDateLong, greeting } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/meu-dia")({
@@ -50,6 +50,7 @@ function MeuDia() {
   const { data: pending } = usePendingEvolutions();
   const { data: onboardingTasks } = useOnboardingTasks();
   const { data: registrationRequests } = useRegistrationRequests();
+  const { data: packages } = usePackages();
 
   const [appointmentOpen, setAppointmentOpen] = useState(false);
   const [patientOpen, setPatientOpen] = useState(false);
@@ -63,6 +64,7 @@ function MeuDia() {
   const pendingRegistrations = registrationRequests?.filter(
     (request) => request.status === "awaiting_approval",
   ).length ?? 0;
+  const renewalPackages = (packages ?? []).filter((item) => packageStatus(item) === "renovacao");
 
   return (
     <AppShell
@@ -118,6 +120,12 @@ function MeuDia() {
         </section>
 
         <aside className="space-y-5">
+          {renewalPackages.length > 0 ? (
+            <Link to="/pacotes" search={{}} className="surface flex items-center gap-3 p-5 transition-shadow hover:shadow-[var(--shadow-lift)]">
+              <div className="grid size-10 place-items-center rounded-xl bg-secondary/50 text-primary"><PackageCheck className="size-5" /></div>
+              <div className="min-w-0 flex-1"><p className="text-sm font-semibold">Pacotes próximos da renovação</p><p className="text-xs text-muted-foreground">{renewalPackages.length} pacote{renewalPackages.length === 1 ? "" : "s"} requer{renewalPackages.length === 1 ? "" : "em"} atenção</p></div>
+            </Link>
+          ) : null}
           {pendingRegistrations > 0 ? (
             <Link
               to="/pacientes/pre-cadastros"

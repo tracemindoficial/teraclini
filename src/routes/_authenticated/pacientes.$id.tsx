@@ -7,6 +7,8 @@ import { AppointmentDialog } from "@/components/AppointmentDialog";
 import { PatientDialog } from "@/components/PatientDialog";
 import { AnamnesisDialog } from "@/components/AnamnesisDialog";
 import { DocumentsPanel } from "@/components/patients/DocumentsPanel";
+import { PackageCard } from "@/components/packages/PackageCard";
+import { PackageDialog } from "@/components/packages/PackageDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DetailRow } from "@/components/ui/detail-row";
@@ -18,6 +20,8 @@ import {
   useGuardians,
   usePatient,
   usePatientAppointments,
+  usePackages,
+  type CarePackageWithRefs,
   type Anamnesis,
 } from "@/lib/data";
 import {
@@ -53,11 +57,14 @@ function PatientProfile() {
   const { data: evolutions } = useEvolutions(id);
   const { data: anamneses } = useAnamneses(id);
   const { data: documents } = useDocuments(id);
+  const { data: packages } = usePackages(id);
 
   const [editOpen, setEditOpen] = useState(false);
   const [appointmentOpen, setAppointmentOpen] = useState(false);
   const [anamnesisOpen, setAnamnesisOpen] = useState(false);
   const [editingAnamnesis, setEditingAnamnesis] = useState<Anamnesis | undefined>();
+  const [packageOpen, setPackageOpen] = useState(false);
+  const [renewPackage, setRenewPackage] = useState<CarePackageWithRefs | undefined>();
 
   if (isLoading || !patient) {
     return (
@@ -120,6 +127,7 @@ function PatientProfile() {
           <TabsTrigger value="historico">Prontuário</TabsTrigger>
           <TabsTrigger value="anamneses">Anamneses</TabsTrigger>
           <TabsTrigger value="documentos">Documentos</TabsTrigger>
+          <TabsTrigger value="pacotes">Pacotes</TabsTrigger>
         </TabsList>
 
         <TabsContent value="resumo" className="mt-5 grid gap-4 lg:grid-cols-2">
@@ -289,6 +297,14 @@ function PatientProfile() {
         <TabsContent value="documentos" className="mt-5">
           <DocumentsPanel patientId={id} />
         </TabsContent>
+
+        <TabsContent value="pacotes" className="mt-5">
+          <Button className="gap-2" onClick={() => { setRenewPackage(undefined); setPackageOpen(true); }}><Plus className="size-4" />Novo pacote</Button>
+          <div className="mt-4 grid gap-4 xl:grid-cols-2">
+            {(packages ?? []).map((item) => <PackageCard key={item.id} item={item} onRenew={(source) => { setRenewPackage(source); setPackageOpen(true); }} />)}
+            {(packages ?? []).length === 0 ? <p className="text-sm text-muted-foreground">Nenhum pacote cadastrado.</p> : null}
+          </div>
+        </TabsContent>
       </Tabs>
 
       <PatientDialog open={editOpen} onOpenChange={setEditOpen} patient={patient} />
@@ -303,6 +319,7 @@ function PatientProfile() {
         patientId={id}
         anamnesis={editingAnamnesis}
       />
+      <PackageDialog open={packageOpen} onOpenChange={setPackageOpen} defaultPatientId={id} renewFrom={renewPackage} />
     </AppShell>
   );
 }
