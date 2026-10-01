@@ -2,10 +2,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { currentUserId, unwrap, type PatientDocument } from "./shared";
+import { queryKeys } from "@/lib/query-keys";
 
 export function useDocuments(patientId?: string | undefined) {
   return useQuery({
-    queryKey: ["documents", patientId ?? "all"],
+    queryKey: [...queryKeys.documents, patientId ?? "all"],
     queryFn: async () => {
       let query = supabase.from("documents").select("*").order("created_at", { ascending: false });
       if (patientId) query = query.eq("patient_id", patientId);
@@ -59,7 +60,7 @@ export function useUploadDocument() {
           .single(),
       ) as PatientDocument;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["documents"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.documents }),
   });
 }
 
@@ -71,7 +72,7 @@ export function useDeleteDocument() {
       const { error } = await supabase.from("documents").delete().eq("id", document.id);
       if (error) throw new Error(error.message);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["documents"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.documents }),
   });
 }
 

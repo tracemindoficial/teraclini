@@ -1,26 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
-import { unwrap } from "./shared";
+import { queryKeys } from "@/lib/query-keys";
+import { unwrap, type CustomAppointmentType, type Room, type Tables } from "./shared";
 
-type Tables = Database["public"]["Tables"];
-type Room = Tables["rooms"]["Row"];
 export type AvailabilityRule = Tables["availability_rules"]["Row"];
 export type ScheduleBlock = Tables["schedule_blocks"]["Row"];
-type CustomAppointmentType = Tables["appointment_types"]["Row"];
 export type AppointmentEvent = Tables["appointment_events"]["Row"];
 
 function invalidateSchedule(qc: ReturnType<typeof useQueryClient>) {
-  qc.invalidateQueries({ queryKey: ["rooms"] });
-  qc.invalidateQueries({ queryKey: ["availability"] });
-  qc.invalidateQueries({ queryKey: ["schedule-blocks"] });
-  qc.invalidateQueries({ queryKey: ["appointment-types"] });
-  qc.invalidateQueries({ queryKey: ["onboarding-tasks"] });
+  qc.invalidateQueries({ queryKey: queryKeys.rooms });
+  qc.invalidateQueries({ queryKey: queryKeys.availability });
+  qc.invalidateQueries({ queryKey: queryKeys.scheduleBlocks });
+  qc.invalidateQueries({ queryKey: queryKeys.appointmentTypes });
+  qc.invalidateQueries({ queryKey: queryKeys.onboardingTasks });
 }
 
 export function useRooms(locationId?: string) {
   return useQuery({
-    queryKey: ["rooms", locationId ?? "all"],
+    queryKey: [...queryKeys.rooms, locationId ?? "all"],
     queryFn: async () => {
       let query = supabase.from("rooms").select("*").order("name");
       if (locationId) query = query.eq("location_id", locationId);
@@ -40,7 +37,7 @@ export function useSaveRoom() {
 
 export function useAvailabilityRules() {
   return useQuery({
-    queryKey: ["availability"],
+    queryKey: queryKeys.availability,
     queryFn: async () =>
       unwrap(await supabase.from("availability_rules").select("*").order("weekday").order("start_time")) as AvailabilityRule[],
   });
@@ -68,7 +65,7 @@ export function useDeleteAvailabilityRule() {
 
 export function useScheduleBlocks(from?: string, to?: string) {
   return useQuery({
-    queryKey: ["schedule-blocks", from ?? "all", to ?? "all"],
+    queryKey: [...queryKeys.scheduleBlocks, from ?? "all", to ?? "all"],
     queryFn: async () => {
       let query = supabase.from("schedule_blocks").select("*").order("starts_at");
       if (from) query = query.gt("ends_at", from);
@@ -100,7 +97,7 @@ export function useDeleteScheduleBlock() {
 
 export function useAppointmentTypes() {
   return useQuery({
-    queryKey: ["appointment-types"],
+    queryKey: queryKeys.appointmentTypes,
     queryFn: async () =>
       unwrap(await supabase.from("appointment_types").select("*").eq("is_active", true).order("name")) as CustomAppointmentType[],
   });
@@ -117,7 +114,7 @@ export function useSaveAppointmentType() {
 
 export function useAppointmentEvents(appointmentId: string) {
   return useQuery({
-    queryKey: ["appointment-events", appointmentId],
+    queryKey: queryKeys.appointmentEvents(appointmentId),
     queryFn: async () =>
       unwrap(await supabase.from("appointment_events").select("*").eq("appointment_id", appointmentId).order("created_at", { ascending: false })) as AppointmentEvent[],
     enabled: Boolean(appointmentId),

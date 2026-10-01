@@ -19,4 +19,5 @@ export const queryKeys = {
   availability: ["availability"] as const,
   scheduleBlocks: ["schedule-blocks"] as const,
   appointmentTypes: ["appointment-types"] as const,
+  appointmentEvents: (appointmentId: string) => ["appointment-events", appointmentId] as const,
 } as const;
