@@ -291,6 +291,8 @@ export type Database = {
           location_id: string | null
           modality: Database["public"]["Enums"]["appointment_modality"]
           notes: string | null
+          package_id: string | null
+          package_session_value: number | null
           patient_id: string | null
           room_id: string | null
           started_at: string | null
@@ -311,6 +313,8 @@ export type Database = {
           location_id?: string | null
           modality?: Database["public"]["Enums"]["appointment_modality"]
           notes?: string | null
+          package_id?: string | null
+          package_session_value?: number | null
           patient_id?: string | null
           room_id?: string | null
           started_at?: string | null
@@ -331,6 +335,8 @@ export type Database = {
           location_id?: string | null
           modality?: Database["public"]["Enums"]["appointment_modality"]
           notes?: string | null
+          package_id?: string | null
+          package_session_value?: number | null
           patient_id?: string | null
           room_id?: string | null
           started_at?: string | null
@@ -360,6 +366,13 @@ export type Database = {
             columns: ["location_id"]
             isOneToOne: false
             referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "care_packages"
             referencedColumns: ["id"]
           },
           {
@@ -488,6 +501,150 @@ export type Database = {
             columns: ["room_id"]
             isOneToOne: false
             referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_package_events: {
+        Row: {
+          account_id: string
+          actor_user_id: string | null
+          changed_fields: string[]
+          created_at: string
+          event_type: string
+          id: string
+          package_id: string
+          related_package_id: string | null
+        }
+        Insert: {
+          account_id: string
+          actor_user_id?: string | null
+          changed_fields?: string[]
+          created_at?: string
+          event_type: string
+          id?: string
+          package_id: string
+          related_package_id?: string | null
+        }
+        Update: {
+          account_id?: string
+          actor_user_id?: string | null
+          changed_fields?: string[]
+          created_at?: string
+          event_type?: string
+          id?: string
+          package_id?: string
+          related_package_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_package_events_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_package_events_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "care_packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_package_events_related_package_id_fkey"
+            columns: ["related_package_id"]
+            isOneToOne: false
+            referencedRelation: "care_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_packages: {
+        Row: {
+          account_id: string
+          appointment_type_id: string | null
+          created_at: string
+          end_date: string | null
+          id: string
+          lifecycle_status: Database["public"]["Enums"]["care_package_lifecycle"]
+          notes: string | null
+          parent_package_id: string | null
+          patient_id: string
+          periodicity: Database["public"]["Enums"]["care_package_periodicity"]
+          quantity: number
+          renewal_alert_threshold: number
+          start_date: string
+          total_value: number | null
+          updated_at: string
+          user_id: string
+          value_per_session: number | null
+        }
+        Insert: {
+          account_id?: string
+          appointment_type_id?: string | null
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          lifecycle_status?: Database["public"]["Enums"]["care_package_lifecycle"]
+          notes?: string | null
+          parent_package_id?: string | null
+          patient_id: string
+          periodicity?: Database["public"]["Enums"]["care_package_periodicity"]
+          quantity: number
+          renewal_alert_threshold?: number
+          start_date: string
+          total_value?: number | null
+          updated_at?: string
+          user_id: string
+          value_per_session?: number | null
+        }
+        Update: {
+          account_id?: string
+          appointment_type_id?: string | null
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          lifecycle_status?: Database["public"]["Enums"]["care_package_lifecycle"]
+          notes?: string | null
+          parent_package_id?: string | null
+          patient_id?: string
+          periodicity?: Database["public"]["Enums"]["care_package_periodicity"]
+          quantity?: number
+          renewal_alert_threshold?: number
+          start_date?: string
+          total_value?: number | null
+          updated_at?: string
+          user_id?: string
+          value_per_session?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_packages_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_packages_appointment_type_id_fkey"
+            columns: ["appointment_type_id"]
+            isOneToOne: false
+            referencedRelation: "appointment_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_packages_parent_package_id_fkey"
+            columns: ["parent_package_id"]
+            isOneToOne: false
+            referencedRelation: "care_packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_packages_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
             referencedColumns: ["id"]
           },
         ]
@@ -1357,6 +1514,13 @@ export type Database = {
         | "anamnese"
         | "outro"
       care_mode: "presencial" | "online" | "ambos"
+      care_package_lifecycle: "ativo" | "cancelado"
+      care_package_periodicity:
+        | "semanal"
+        | "quinzenal"
+        | "mensal"
+        | "personalizada"
+        | "sem_periodicidade"
       document_category: "clinico" | "administrativo" | "anexo" | "outro"
       location_type:
         | "consultorio_proprio"
@@ -1513,6 +1677,14 @@ export const Constants = {
         "outro",
       ],
       care_mode: ["presencial", "online", "ambos"],
+      care_package_lifecycle: ["ativo", "cancelado"],
+      care_package_periodicity: [
+        "semanal",
+        "quinzenal",
+        "mensal",
+        "personalizada",
+        "sem_periodicidade",
+      ],
       document_category: ["clinico", "administrativo", "anexo", "outro"],
       location_type: [
         "consultorio_proprio",
