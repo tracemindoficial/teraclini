@@ -24,4 +24,7 @@ export const queryKeys = {
   registrationRequests: ["patient-registration-requests"] as const,
   registrationRequest: (id: string) => ["patient-registration-request", id] as const,
   registrationDuplicates: (id: string) => ["patient-registration-duplicates", id] as const,
+  packages: ["care-packages"] as const,
+  package: (id: string) => ["care-package", id] as const,
+  packageEvents: (id: string) => ["care-package-events", id] as const,
 } as const;

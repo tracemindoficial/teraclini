@@ -27,10 +27,10 @@
 - [ ] Fase 4 — Relatórios, exportação e LGPD
 
 ## Pacotes de atendimentos
-- [ ] Criar modelo seguro de pacotes, vínculos e histórico
-- [ ] Implementar criação, edição, cancelamento e renovação
-- [ ] Integrar sessões à agenda e calcular utilização pela situação do atendimento
-- [ ] Exibir pacotes na lista, paciente, atendimento e Meu Dia
+- [x] Criar modelo seguro de pacotes, vínculos e histórico
+- [x] Implementar criação, edição, cancelamento e renovação
+- [x] Integrar sessões à agenda e calcular utilização pela situação do atendimento
+- [x] Exibir pacotes na lista, paciente, atendimento e Meu Dia
 - [ ] Validar alertas, histórico, isolamento, desktop e celular
 
 ## Refatoração estrutural

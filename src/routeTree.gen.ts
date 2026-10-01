@@ -19,12 +19,14 @@ import { Route as AuthenticatedDocumentosRouteImport } from './routes/_authentic
 import { Route as AuthenticatedLocaisRouteImport } from './routes/_authenticated/locais'
 import { Route as AuthenticatedMeuDiaRouteImport } from './routes/_authenticated/meu-dia'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedPacotesRouteImport } from './routes/_authenticated/pacotes'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as PreCadastroTokenRouteImport } from './routes/pre-cadastro.$token'
 import { Route as AuthenticatedAtendimentosIdRouteImport } from './routes/_authenticated/atendimentos.$id'
 import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes.index'
 import { Route as AuthenticatedPacientesIdRouteImport } from './routes/_authenticated/pacientes.$id'
 import { Route as AuthenticatedPacientesPreCadastrosRouteImport } from './routes/_authenticated/pacientes.pre-cadastros'
+import { Route as AuthenticatedPacotesIdRouteImport } from './routes/_authenticated/pacotes.$id'
 import { Route as AuthenticatedPacientesPreCadastrosIdRouteImport } from './routes/_authenticated/pacientes.pre-cadastros.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -77,6 +79,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPacotesRoute = AuthenticatedPacotesRouteImport.update({
+  id: '/pacotes',
+  path: '/pacotes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
   id: '/relatorios',
   path: '/relatorios',
@@ -111,6 +118,11 @@ const AuthenticatedPacientesPreCadastrosRoute =
     path: '/pacientes/pre-cadastros',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPacotesIdRoute = AuthenticatedPacotesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedPacotesRoute,
+} as any)
 const AuthenticatedPacientesPreCadastrosIdRoute =
   AuthenticatedPacientesPreCadastrosIdRouteImport.update({
     id: '/$id',
@@ -128,11 +140,13 @@ export interface FileRoutesByFullPath {
   '/locais': typeof AuthenticatedLocaisRoute
   '/meu-dia': typeof AuthenticatedMeuDiaRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/pacotes': typeof AuthenticatedPacotesRouteWithChildren
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/pre-cadastro/$token': typeof PreCadastroTokenRoute
   '/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
+  '/pacotes/$id': typeof AuthenticatedPacotesIdRoute
   '/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
 }
@@ -146,11 +160,13 @@ export interface FileRoutesByTo {
   '/locais': typeof AuthenticatedLocaisRoute
   '/meu-dia': typeof AuthenticatedMeuDiaRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/pacotes': typeof AuthenticatedPacotesRouteWithChildren
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/pre-cadastro/$token': typeof PreCadastroTokenRoute
   '/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
+  '/pacotes/$id': typeof AuthenticatedPacotesIdRoute
   '/pacientes': typeof AuthenticatedPacientesIndexRoute
   '/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
 }
@@ -166,11 +182,13 @@ export interface FileRoutesById {
   '/_authenticated/locais': typeof AuthenticatedLocaisRoute
   '/_authenticated/meu-dia': typeof AuthenticatedMeuDiaRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/pacotes': typeof AuthenticatedPacotesRouteWithChildren
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/pre-cadastro/$token': typeof PreCadastroTokenRoute
   '/_authenticated/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
   '/_authenticated/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/_authenticated/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
+  '/_authenticated/pacotes/$id': typeof AuthenticatedPacotesIdRoute
   '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/_authenticated/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
 }
@@ -186,11 +204,13 @@ export interface FileRouteTypes {
     | '/locais'
     | '/meu-dia'
     | '/onboarding'
+    | '/pacotes'
     | '/relatorios'
     | '/pre-cadastro/$token'
     | '/atendimentos/$id'
     | '/pacientes/$id'
     | '/pacientes/pre-cadastros'
+    | '/pacotes/$id'
     | '/pacientes/'
     | '/pacientes/pre-cadastros/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -204,11 +224,13 @@ export interface FileRouteTypes {
     | '/locais'
     | '/meu-dia'
     | '/onboarding'
+    | '/pacotes'
     | '/relatorios'
     | '/pre-cadastro/$token'
     | '/atendimentos/$id'
     | '/pacientes/$id'
     | '/pacientes/pre-cadastros'
+    | '/pacotes/$id'
     | '/pacientes'
     | '/pacientes/pre-cadastros/$id'
   id:
@@ -223,11 +245,13 @@ export interface FileRouteTypes {
     | '/_authenticated/locais'
     | '/_authenticated/meu-dia'
     | '/_authenticated/onboarding'
+    | '/_authenticated/pacotes'
     | '/_authenticated/relatorios'
     | '/pre-cadastro/$token'
     | '/_authenticated/atendimentos/$id'
     | '/_authenticated/pacientes/$id'
     | '/_authenticated/pacientes/pre-cadastros'
+    | '/_authenticated/pacotes/$id'
     | '/_authenticated/pacientes/'
     | '/_authenticated/pacientes/pre-cadastros/$id'
   fileRoutesById: FileRoutesById
@@ -312,6 +336,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/pacotes': {
+      id: '/_authenticated/pacotes'
+      path: '/pacotes'
+      fullPath: '/pacotes'
+      preLoaderRoute: typeof AuthenticatedPacotesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/relatorios': {
       id: '/_authenticated/relatorios'
       path: '/relatorios'
@@ -354,6 +385,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPacientesPreCadastrosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/pacotes/$id': {
+      id: '/_authenticated/pacotes/$id'
+      path: '/$id'
+      fullPath: '/pacotes/$id'
+      preLoaderRoute: typeof AuthenticatedPacotesIdRouteImport
+      parentRoute: typeof AuthenticatedPacotesRoute
+    }
     '/_authenticated/pacientes/pre-cadastros/$id': {
       id: '/_authenticated/pacientes/pre-cadastros/$id'
       path: '/$id'
@@ -363,6 +401,17 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedPacotesRouteChildren {
+  AuthenticatedPacotesIdRoute: typeof AuthenticatedPacotesIdRoute
+}
+
+const AuthenticatedPacotesRouteChildren: AuthenticatedPacotesRouteChildren = {
+  AuthenticatedPacotesIdRoute: AuthenticatedPacotesIdRoute,
+}
+
+const AuthenticatedPacotesRouteWithChildren =
+  AuthenticatedPacotesRoute._addFileChildren(AuthenticatedPacotesRouteChildren)
 
 interface AuthenticatedPacientesPreCadastrosRouteChildren {
   AuthenticatedPacientesPreCadastrosIdRoute: typeof AuthenticatedPacientesPreCadastrosIdRoute
@@ -386,6 +435,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedLocaisRoute: typeof AuthenticatedLocaisRoute
   AuthenticatedMeuDiaRoute: typeof AuthenticatedMeuDiaRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedPacotesRoute: typeof AuthenticatedPacotesRouteWithChildren
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedAtendimentosIdRoute: typeof AuthenticatedAtendimentosIdRoute
   AuthenticatedPacientesIdRoute: typeof AuthenticatedPacientesIdRoute
@@ -400,6 +450,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLocaisRoute: AuthenticatedLocaisRoute,
   AuthenticatedMeuDiaRoute: AuthenticatedMeuDiaRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedPacotesRoute: AuthenticatedPacotesRouteWithChildren,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedAtendimentosIdRoute: AuthenticatedAtendimentosIdRoute,
   AuthenticatedPacientesIdRoute: AuthenticatedPacientesIdRoute,

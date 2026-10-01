@@ -75,6 +75,8 @@ function AppointmentPage() {
         modality: appointment.modality,
         status: "realizado",
         notes: appointment.notes,
+        package_id: appointment.package_id,
+        package_session_value: appointment.package_session_value,
       });
       toast.success("Atendimento marcado como realizado.");
     } catch (error) {
@@ -137,6 +139,7 @@ function AppointmentPage() {
             />
             <DetailRow label="Local" value={appointment.location?.name ?? "—"} />
             <DetailRow label="Situação" value={labelOf(APPOINTMENT_STATUSES, appointment.status)} />
+            {appointment.package_id ? <DetailRow label="Pacote" value="Sessão vinculada" /> : null}
           </dl>
           {appointment.notes ? (
             <p className="mt-3 text-sm text-muted-foreground">{appointment.notes}</p>
@@ -157,6 +160,7 @@ function AppointmentPage() {
                 </Link>
               </Button>
             ) : null}
+            {appointment.package_id ? <Button asChild variant="ghost"><Link to="/pacotes/$id" params={{ id: appointment.package_id }}>Abrir pacote</Link></Button> : null}
             <Button variant="ghost" onClick={handleDelete}>
               Excluir
             </Button>

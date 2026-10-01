@@ -12,6 +12,7 @@ import {
   ClipboardList,
   BarChart3,
   LogOut,
+  PackageCheck,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -27,6 +28,7 @@ const NAV = [
   { to: "/meu-dia", label: "Meu Dia", icon: Home },
   { to: "/agenda", label: "Agenda", icon: CalendarDays },
   { to: "/pacientes", label: "Pacientes", icon: Users },
+  { to: "/pacotes", label: "Pacotes", icon: PackageCheck },
   { to: "/pacientes/pre-cadastros", label: "Pré-cadastros", icon: ClipboardList },
   { to: "/locais", label: "Locais", icon: MapPin },
   { to: "/documentos", label: "Documentos", icon: FileText },
