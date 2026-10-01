@@ -18,4 +18,5 @@
 - Keep development module responses uncached in `vite.config.ts` to prevent the preview from reusing stale source modules.
 - Use the shared `BrandLogo` component and semantic TeraClini tokens for every brand placement so the official asset and palette remain consistent.
 - Derive package usage from linked appointments with `status = realizado`; never persist a duplicate used-session counter, so consumption has one source of truth.
+- Keep the authenticated shell as the single source for responsive navigation: persistent icon-collapse on desktop and bottom navigation plus a “Mais” drawer on mobile.
 

@@ -160,11 +160,11 @@ function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-5 py-10">
-      <div className="w-full max-w-sm">
-        <BrandLogo className="mx-auto w-52" />
+    <div className="flex min-h-screen items-center justify-center bg-background px-5 py-10 sm:py-14">
+      <div className="w-full max-w-md">
+        <BrandLogo className="mx-auto w-64 max-w-[78vw]" />
 
-        <div className="surface mt-6 p-6">
+        <div className="surface mt-7 p-6 sm:p-8">
           <h1 className="text-xl font-semibold">
             {mode === "signin" ? "Entrar" : "Criar sua conta"}
           </h1>

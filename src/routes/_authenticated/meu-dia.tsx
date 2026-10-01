@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { CalendarPlus, ClipboardList, MapPin, PackageCheck, Plus, Search, UserPlus } from "lucide-react";
+import { CalendarCheck2, CalendarDays, CalendarPlus, ClipboardList, MapPin, PackageCheck, Plus, Search, UserRoundCheck, Users } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { AppointmentDialog } from "@/components/AppointmentDialog";
@@ -11,7 +11,7 @@ import { AppointmentRow } from "@/components/appointments/AppointmentRow";
 import { Button } from "@/components/ui/button";
 import { SetupChecklist } from "@/components/onboarding/SetupChecklist";
 import { useOnboardingTasks } from "@/lib/account-data";
-import { packageStatus, useAppointments, usePackages, usePendingEvolutions, useProfile, useRegistrationRequests } from "@/lib/data";
+import { packageStatus, useAppointments, usePackages, usePatients, usePendingEvolutions, useProfile, useRegistrationRequests } from "@/lib/data";
 import { formatDateLong, greeting } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/meu-dia")({
@@ -51,6 +51,7 @@ function MeuDia() {
   const { data: onboardingTasks } = useOnboardingTasks();
   const { data: registrationRequests } = useRegistrationRequests();
   const { data: packages } = usePackages();
+  const { data: patients } = usePatients();
 
   const [appointmentOpen, setAppointmentOpen] = useState(false);
   const [patientOpen, setPatientOpen] = useState(false);
@@ -65,6 +66,9 @@ function MeuDia() {
     (request) => request.status === "awaiting_approval",
   ).length ?? 0;
   const renewalPackages = (packages ?? []).filter((item) => packageStatus(item) === "renovacao");
+  const confirmedAppointments = (appointments ?? []).filter((item) => item.status === "confirmado").length;
+  const activePatients = (patients ?? []).filter((item) => item.status === "ativo").length;
+  const clinicalPending = pending?.length ?? 0;
 
   return (
     <AppShell
@@ -88,10 +92,17 @@ function MeuDia() {
         />
       ) : null}
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <section aria-label="Resumo da prática" className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <Metric icon={<Users className="size-5" />} value={activePatients} label="Pacientes ativos" tone="mint" />
+        <Metric icon={<CalendarDays className="size-5" />} value={appointments?.length ?? 0} label="Atendimentos hoje" tone="lilac" />
+        <Metric icon={<CalendarCheck2 className="size-5" />} value={confirmedAppointments} label="Confirmados" tone="teal" />
+        <Metric icon={<ClipboardList className="size-5" />} value={clinicalPending} label="Pendências clínicas" tone="alert" />
+      </section>
+
+      <div className="grid gap-6 lg:grid-cols-3">
         <section className="lg:col-span-2">
-          <div className="mb-3 flex items-baseline justify-between">
-            <h2 className="text-lg font-semibold">Seu dia</h2>
+          <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3">
+            <h2 className="truncate text-lg font-semibold">Próximos atendimentos</h2>
             <span className="text-sm text-muted-foreground">
               {appointments?.length ?? 0} atendimento{(appointments?.length ?? 0) === 1 ? "" : "s"}
             </span>
@@ -223,5 +234,32 @@ function Shortcut({
       {icon}
       {label}
     </Button>
+  );
+}
+
+function Metric({
+  icon,
+  value,
+  label,
+  tone,
+}: {
+  icon: ReactNode;
+  value: number;
+  label: string;
+  tone: "mint" | "lilac" | "teal" | "alert";
+}) {
+  const tones = {
+    mint: "bg-secondary/55 text-primary",
+    lilac: "bg-accent/15 text-accent",
+    teal: "bg-primary/10 text-primary",
+    alert: "bg-destructive/10 text-destructive",
+  };
+
+  return (
+    <article className="surface min-w-0 p-4 sm:p-5">
+      <span className={`grid size-9 place-items-center rounded-lg ${tones[tone]}`}>{icon}</span>
+      <p className="mt-3 font-display text-2xl font-semibold text-foreground sm:text-3xl">{value}</p>
+      <p className="mt-0.5 text-xs leading-snug text-muted-foreground sm:text-sm">{label}</p>
+    </article>
   );
 }
