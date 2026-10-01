@@ -43,3 +43,20 @@ export const submitPatientRegistration = createServerFn({ method: "POST" })
     }
     return { requestId };
   });
+
+export const checkPatientRegistrationLink = createServerFn({ method: "POST" })
+  .inputValidator((input) => z.object({ token: z.string().length(64) }).parse(input))
+  .handler(async ({ data }) => {
+    const tokenHash = await sha256(data.token);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: link, error } = await supabaseAdmin
+      .from("patient_registration_links")
+      .select("expires_at, max_uses, revoked_at, uses_count")
+      .eq("token_hash", tokenHash)
+      .maybeSingle();
+    if (error || !link) return { available: false as const, reason: "invalid" as const };
+    if (link.revoked_at) return { available: false as const, reason: "revoked" as const };
+    if (new Date(link.expires_at) <= new Date()) return { available: false as const, reason: "expired" as const };
+    if (link.uses_count >= link.max_uses) return { available: false as const, reason: "used" as const };
+    return { available: true as const };
+  });
