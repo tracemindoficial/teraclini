@@ -17,12 +17,12 @@ import { formatDateLong, greeting } from "@/lib/domain";
 export const Route = createFileRoute("/_authenticated/meu-dia")({
   head: () => ({
     meta: [
-      { title: "Meu Dia — Projeto Prática" },
+      { title: "Meu Dia — TeraClini" },
       {
         name: "description",
         content: "Atendimentos, pendências e atalhos do seu espaço profissional.",
       },
-      { property: "og:title", content: "Meu Dia — Projeto Prática" },
+      { property: "og:title", content: "Meu Dia — TeraClini" },
       {
         property: "og:description",
         content: "Atendimentos, pendências e atalhos do seu espaço profissional.",

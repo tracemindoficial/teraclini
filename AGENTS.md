@@ -16,4 +16,5 @@
 - Preserve client-side `user_id` stamping on legacy clinical tables because those columns remain required while `account_id` is supplied by the database.
 - Keep authentication destination logic in `src/lib/auth-session.ts` so email, Google, and authenticated-route guards apply the same onboarding rule.
 - Keep development module responses uncached in `vite.config.ts` to prevent the preview from reusing stale source modules.
+- Use the shared `BrandLogo` component and semantic TeraClini tokens for every brand placement so the official asset and palette remain consistent.
 

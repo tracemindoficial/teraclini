@@ -20,9 +20,9 @@ import { joinProfession, splitProfession } from "@/lib/professional-profile";
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => ({
     meta: [
-      { title: "Meu Perfil Profissional — Projeto Prática" },
+      { title: "Meu Perfil Profissional — TeraClini" },
       { name: "description", content: "Dados e preferências do seu espaço profissional." },
-      { property: "og:title", content: "Meu Perfil Profissional — Projeto Prática" },
+      { property: "og:title", content: "Meu Perfil Profissional — TeraClini" },
       { property: "og:description", content: "Dados e preferências do seu espaço profissional." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

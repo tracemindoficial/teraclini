@@ -20,12 +20,12 @@ import { APPOINTMENT_STATUSES, formatDateLong } from "@/lib/domain";
 export const Route = createFileRoute("/_authenticated/agenda")({
   head: () => ({
     meta: [
-      { title: "Minha Agenda — Projeto Prática" },
+      { title: "Minha Agenda — TeraClini" },
       {
         name: "description",
         content: "Agenda individual com todos os seus locais de atendimento.",
       },
-      { property: "og:title", content: "Minha Agenda — Projeto Prática" },
+      { property: "og:title", content: "Minha Agenda — TeraClini" },
       {
         property: "og:description",
         content: "Agenda individual com todos os seus locais de atendimento.",

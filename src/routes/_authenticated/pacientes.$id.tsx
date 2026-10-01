@@ -34,9 +34,9 @@ import {
 export const Route = createFileRoute("/_authenticated/pacientes/$id")({
   head: () => ({
     meta: [
-      { title: "Prontuário do Paciente — Projeto Prática" },
+      { title: "Prontuário do Paciente — TeraClini" },
       { name: "description", content: "Prontuário privado do seu paciente." },
-      { property: "og:title", content: "Prontuário do Paciente — Projeto Prática" },
+      { property: "og:title", content: "Prontuário do Paciente — TeraClini" },
       { property: "og:description", content: "Prontuário privado do seu paciente." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

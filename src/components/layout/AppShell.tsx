@@ -72,7 +72,7 @@ export function AppShell({
               "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
               active
                 ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+                : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
             )}
           >
             <item.icon className="size-4.5" />
@@ -92,10 +92,12 @@ export function AppShell({
           <p className="truncate px-3 text-sm font-medium">
             {profile?.full_name || "Profissional"}
           </p>
-          <p className="truncate px-3 text-xs text-muted-foreground">{profile?.profession ?? ""}</p>
+          <p className="truncate px-3 text-xs text-sidebar-foreground/65">
+            {profile?.profession ?? ""}
+          </p>
           <Button
             variant="ghost"
-            className="mt-2 w-full justify-start gap-3"
+            className="mt-2 w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             onClick={handleSignOut}
           >
             <LogOut className="size-4.5" />
@@ -118,7 +120,7 @@ export function AppShell({
               <div className="mt-8">{navList(() => setMenuOpen(false))}</div>
               <Button
                 variant="ghost"
-                className="mt-6 w-full justify-start gap-3"
+                className="mt-6 w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 onClick={handleSignOut}
               >
                 <LogOut className="size-4.5" />

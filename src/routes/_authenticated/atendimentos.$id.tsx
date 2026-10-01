@@ -27,9 +27,9 @@ import {
 export const Route = createFileRoute("/_authenticated/atendimentos/$id")({
   head: () => ({
     meta: [
-      { title: "Atendimento — Projeto Prática" },
+      { title: "Atendimento — TeraClini" },
       { name: "description", content: "Registro privado de atendimento e evolução." },
-      { property: "og:title", content: "Atendimento — Projeto Prática" },
+      { property: "og:title", content: "Atendimento — TeraClini" },
       { property: "og:description", content: "Registro privado de atendimento e evolução." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

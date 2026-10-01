@@ -19,9 +19,9 @@ import { DOCUMENT_CATEGORIES, formatDate, labelOf } from "@/lib/domain";
 export const Route = createFileRoute("/_authenticated/documentos")({
   head: () => ({
     meta: [
-      { title: "Meus Documentos — Projeto Prática" },
+      { title: "Meus Documentos — TeraClini" },
       { name: "description", content: "Documentos privados do seu espaço profissional." },
-      { property: "og:title", content: "Meus Documentos — Projeto Prática" },
+      { property: "og:title", content: "Meus Documentos — TeraClini" },
       { property: "og:description", content: "Documentos privados do seu espaço profissional." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
