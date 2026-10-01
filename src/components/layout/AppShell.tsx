@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { GlobalSearch } from "@/components/layout/GlobalSearch";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const NAV = [
   { to: "/meu-dia", label: "Meu Dia", icon: Home },
@@ -84,7 +85,7 @@ export function AppShell({
 
   return (
     <div className="min-h-screen bg-background">
-      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r bg-sidebar px-4 py-6 lg:flex">
+      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar px-4 py-6 text-sidebar-foreground lg:flex">
         <Brand />
         <div className="mt-8 flex-1">{navList()}</div>
         <div className="border-t pt-4">
@@ -191,11 +192,9 @@ export function AppShell({
 
 function Brand() {
   return (
-    <Link to="/meu-dia" className="flex items-center gap-2.5">
-      <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground">
-        P
-      </span>
-      <span className="font-display text-base font-semibold">Projeto Prática</span>
-    </Link>
+    <span className="flex items-center gap-2.5">
+      <BrandLogo compact to="/meu-dia" />
+      <span className="text-base font-semibold text-sidebar-foreground">TeraClini</span>
+    </span>
   );
 }

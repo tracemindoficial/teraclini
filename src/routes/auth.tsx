@@ -9,14 +9,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { describeAuthError, logAuthEvent, withTimeout } from "@/lib/auth-errors";
 import { getAuthenticatedDestination } from "@/lib/auth-session";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Entrar — Projeto Prática" },
-      { name: "description", content: "Acesse seu espaço profissional no Projeto Prática." },
-      { property: "og:title", content: "Entrar — Projeto Prática" },
+      { title: "Entrar — TeraClini" },
+      { name: "description", content: "Acesse seu espaço profissional no TeraClini." },
+      { property: "og:title", content: "Entrar — TeraClini" },
       { property: "og:description", content: "Acesse seu espaço profissional." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -161,12 +162,7 @@ function AuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-5 py-10">
       <div className="w-full max-w-sm">
-        <Link to="/" className="flex items-center justify-center gap-2.5">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground">
-            P
-          </span>
-          <span className="font-display text-base font-semibold">Projeto Prática</span>
-        </Link>
+        <BrandLogo className="mx-auto w-52" />
 
         <div className="surface mt-6 p-6">
           <h1 className="text-xl font-semibold">
