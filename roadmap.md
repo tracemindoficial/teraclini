@@ -30,3 +30,8 @@
 - [x] Auditar toda a base e priorizar melhorias sem alterar comportamento
 - [x] Refatorar arquitetura, componentes, hooks, dados, autenticação e tipagem
 - [x] Validar fluxos públicos, proteção de acesso, build, desktop e celular após a refatoração
+
+## Identidade visual TeraClini
+- [ ] Revisar visualmente todas as telas e aplicar a marca oficial sem alterar funcionalidades
+- [ ] Aplicar logotipo, símbolo, favicon e paleta oficial em desktop e celular
+- [ ] Validar consistência, legibilidade e ausência de regressões visuais
