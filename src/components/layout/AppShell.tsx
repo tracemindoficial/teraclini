@@ -137,7 +137,7 @@ export function AppShell({
           )}
         >
           <div className={cn("flex h-20 items-center border-b border-sidebar-border/70", sidebarExpanded ? "px-5" : "justify-center px-2")}>
-            <BrandLogo compact={!sidebarExpanded} to="/meu-dia" className={sidebarExpanded ? "w-40" : undefined} />
+            <BrandLogo compact={!sidebarExpanded} to="/meu-dia" className={sidebarExpanded ? "w-40" : ""} />
           </div>
           <div className={cn("flex-1 overflow-y-auto py-5", sidebarExpanded ? "px-3" : "px-2")}>
             {navList(!sidebarExpanded)}

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { CalendarCheck2, CalendarDays, CalendarPlus, ClipboardList, MapPin, PackageCheck, Plus, Search, UserRoundCheck, Users } from "lucide-react";
+import { CalendarCheck2, CalendarDays, CalendarPlus, ClipboardList, MapPin, PackageCheck, Plus, Search, UserPlus, Users } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { AppointmentDialog } from "@/components/AppointmentDialog";

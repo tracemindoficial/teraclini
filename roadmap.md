@@ -53,8 +53,8 @@
 - [ ] Validar fluxo completo, isolamento, expiração, desktop e celular
 
 ## Refinamento visual TeraClini 2026
-- [ ] Integrar o novo logo oficial sem moldura e atualizar o favicon
-- [ ] Implementar menu desktop contraível e navegação mobile refinada
-- [ ] Refinar Meu Dia, Agenda, Pacientes e Prontuário em todos os tamanhos
-- [ ] Consolidar telas compartilhadas, formulários e diálogos
+- [x] Integrar o novo logo oficial sem moldura e atualizar o favicon
+- [x] Implementar menu desktop contraível e navegação mobile refinada
+- [x] Refinar Meu Dia, Agenda, Pacientes e Prontuário em todos os tamanhos
+- [x] Consolidar telas compartilhadas, formulários e diálogos
 - [ ] Validar identidade, persistência, acessibilidade e responsividade
