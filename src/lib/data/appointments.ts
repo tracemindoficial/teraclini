@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { APPOINTMENT_SELECT, currentUserId, unwrap, type Appointment, type AppointmentWithRefs, type Tables } from "./shared";
+import { queryKeys } from "@/lib/query-keys";
 
 export function useAppointments(params: { from: string; to: string; locationId?: string | undefined }) {
   return useQuery({
-    queryKey: ["appointments", params.from, params.to, params.locationId ?? "all"],
+    queryKey: [...queryKeys.appointments, params.from, params.to, params.locationId ?? "all"],
     queryFn: async () => {
       let query = supabase
         .from("appointments")
@@ -20,7 +21,7 @@ export function useAppointments(params: { from: string; to: string; locationId?:
 
 export function usePatientAppointments(patientId: string) {
   return useQuery({
-    queryKey: ["patient-appointments", patientId],
+    queryKey: [...queryKeys.patientAppointments, patientId],
     queryFn: async () =>
       unwrap(
         await supabase
@@ -35,7 +36,7 @@ export function usePatientAppointments(patientId: string) {
 
 export function useAppointment(id: string) {
   return useQuery({
-    queryKey: ["appointment", id],
+    queryKey: [...queryKeys.appointment, id],
     queryFn: async () =>
       unwrap(
         await supabase.from("appointments").select(APPOINTMENT_SELECT).eq("id", id).single(),
@@ -56,11 +57,11 @@ export function useSaveAppointment() {
       ) as Appointment;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["appointments"] });
-      qc.invalidateQueries({ queryKey: ["patient-appointments"] });
-      qc.invalidateQueries({ queryKey: ["appointment"] });
-      qc.invalidateQueries({ queryKey: ["pending-evolutions"] });
-      qc.invalidateQueries({ queryKey: ["onboarding-tasks"] });
+      qc.invalidateQueries({ queryKey: queryKeys.appointments });
+      qc.invalidateQueries({ queryKey: queryKeys.patientAppointments });
+      qc.invalidateQueries({ queryKey: queryKeys.appointment });
+      qc.invalidateQueries({ queryKey: queryKeys.pendingEvolutions });
+      qc.invalidateQueries({ queryKey: queryKeys.onboardingTasks });
     },
   });
 }
@@ -73,8 +74,8 @@ export function useDeleteAppointment() {
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["appointments"] });
-      qc.invalidateQueries({ queryKey: ["patient-appointments"] });
+      qc.invalidateQueries({ queryKey: queryKeys.appointments });
+      qc.invalidateQueries({ queryKey: queryKeys.patientAppointments });
     },
   });
 }
