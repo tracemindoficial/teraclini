@@ -19,11 +19,13 @@ export type AppointmentWithRefs = Appointment & {
   location: Pick<Location, "id" | "name" | "type"> | null;
   room: Pick<Room, "id" | "name"> | null;
   appointment_type: Pick<CustomAppointmentType, "id" | "name" | "color_key"> | null;
-  care_package: Pick<AppointmentCarePackage, "id" | "quantity"> | null;
+  care_package: (Pick<AppointmentCarePackage, "id" | "quantity"> & {
+    appointments: Pick<Appointment, "id" | "starts_at">[];
+  }) | null;
 };
 
 export const APPOINTMENT_SELECT =
-  "*, patient:patients(id, full_name), location:locations(id, name, type), room:rooms(id, name), appointment_type:appointment_types(id, name, color_key), care_package:care_packages(id, quantity)";
+  "*, patient:patients(id, full_name), location:locations(id, name, type), room:rooms(id, name), appointment_type:appointment_types(id, name, color_key), care_package:care_packages(id, quantity, appointments(id, starts_at))";
 
 export async function currentUserId() {
   const { data, error } = await supabase.auth.getUser();

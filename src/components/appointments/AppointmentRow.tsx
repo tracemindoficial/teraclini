@@ -11,6 +11,11 @@ export function AppointmentRow({
   appointment: AppointmentWithRefs;
   highlight?: boolean;
 }) {
+  const packageSequence = appointment.care_package?.appointments
+    .slice()
+    .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
+    .findIndex((item) => item.id === appointment.id);
+
   return (
     <li>
       <Link
@@ -32,8 +37,8 @@ export function AppointmentRow({
           </p>
         </div>
         <Badge variant="secondary" className="hidden shrink-0 sm:inline-flex">
-          {appointment.package_id
-            ? "Sessão de pacote"
+          {appointment.package_id && appointment.care_package
+            ? `Sessão ${Math.max(packageSequence + 1, 1)}/${appointment.care_package.quantity}`
             : appointment.modality === "online"
             ? "Online"
             : (appointment.location?.name ?? "Presencial")}
