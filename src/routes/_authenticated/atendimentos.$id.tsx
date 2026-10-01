@@ -25,14 +25,16 @@ import {
 } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/atendimentos/$id")({
-  head: () => ({ meta: [
-    { title: "Atendimento — Projeto Prática" },
-    { name: "description", content: "Registro privado de atendimento e evolução." },
-    { property: "og:title", content: "Atendimento — Projeto Prática" },
-    { property: "og:description", content: "Registro privado de atendimento e evolução." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Atendimento — Projeto Prática" },
+      { name: "description", content: "Registro privado de atendimento e evolução." },
+      { property: "og:title", content: "Atendimento — Projeto Prática" },
+      { property: "og:description", content: "Registro privado de atendimento e evolução." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AppointmentPage,
 });
 
@@ -129,7 +131,10 @@ function AppointmentPage() {
           <h2 className="text-sm font-semibold">Registro administrativo</h2>
           <dl className="mt-3 space-y-1.5 text-sm">
             <DetailRow label="Tipo" value={labelOf(APPOINTMENT_TYPES, appointment.type)} />
-            <DetailRow label="Modalidade" value={labelOf(APPOINTMENT_MODALITIES, appointment.modality)} />
+            <DetailRow
+              label="Modalidade"
+              value={labelOf(APPOINTMENT_MODALITIES, appointment.modality)}
+            />
             <DetailRow label="Local" value={appointment.location?.name ?? "—"} />
             <DetailRow label="Situação" value={labelOf(APPOINTMENT_STATUSES, appointment.status)} />
           </dl>

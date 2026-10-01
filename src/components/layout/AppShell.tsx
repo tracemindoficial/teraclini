@@ -88,9 +88,15 @@ export function AppShell({
         <Brand />
         <div className="mt-8 flex-1">{navList()}</div>
         <div className="border-t pt-4">
-          <p className="truncate px-3 text-sm font-medium">{profile?.full_name || "Profissional"}</p>
+          <p className="truncate px-3 text-sm font-medium">
+            {profile?.full_name || "Profissional"}
+          </p>
           <p className="truncate px-3 text-xs text-muted-foreground">{profile?.profession ?? ""}</p>
-          <Button variant="ghost" className="mt-2 w-full justify-start gap-3" onClick={handleSignOut}>
+          <Button
+            variant="ghost"
+            className="mt-2 w-full justify-start gap-3"
+            onClick={handleSignOut}
+          >
             <LogOut className="size-4.5" />
             Sair
           </Button>
@@ -109,7 +115,11 @@ export function AppShell({
               <SheetTitle className="sr-only">Menu</SheetTitle>
               <Brand />
               <div className="mt-8">{navList(() => setMenuOpen(false))}</div>
-              <Button variant="ghost" className="mt-6 w-full justify-start gap-3" onClick={handleSignOut}>
+              <Button
+                variant="ghost"
+                className="mt-6 w-full justify-start gap-3"
+                onClick={handleSignOut}
+              >
                 <LogOut className="size-4.5" />
                 Sair
               </Button>

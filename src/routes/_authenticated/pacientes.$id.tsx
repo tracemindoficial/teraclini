@@ -32,14 +32,16 @@ import {
 } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/pacientes/$id")({
-  head: () => ({ meta: [
-    { title: "Prontuário do Paciente — Projeto Prática" },
-    { name: "description", content: "Prontuário privado do seu paciente." },
-    { property: "og:title", content: "Prontuário do Paciente — Projeto Prática" },
-    { property: "og:description", content: "Prontuário privado do seu paciente." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Prontuário do Paciente — Projeto Prática" },
+      { name: "description", content: "Prontuário privado do seu paciente." },
+      { property: "og:title", content: "Prontuário do Paciente — Projeto Prática" },
+      { property: "og:description", content: "Prontuário privado do seu paciente." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: PatientProfile,
 });
 
@@ -124,13 +126,21 @@ function PatientProfile() {
           <div className="surface p-5">
             <div className="flex items-start justify-between">
               <h2 className="text-sm font-semibold">Dados cadastrais</h2>
-              <Button variant="ghost" size="icon" aria-label="Editar" onClick={() => setEditOpen(true)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Editar"
+                onClick={() => setEditOpen(true)}
+              >
                 <Pencil className="size-4" />
               </Button>
             </div>
             <dl className="mt-3 space-y-1.5 text-sm">
               <DetailRow label="Situação" value={labelOf(PATIENT_STATUSES, patient.status)} />
-              <DetailRow label="Nascimento" value={patient.birth_date ? formatDate(patient.birth_date) : "—"} />
+              <DetailRow
+                label="Nascimento"
+                value={patient.birth_date ? formatDate(patient.birth_date) : "—"}
+              />
               <DetailRow label="Sexo" value={patient.gender ?? "—"} />
               <DetailRow label="Telefone" value={patient.phone ?? "—"} />
               <DetailRow label="E-mail" value={patient.email ?? "—"} />

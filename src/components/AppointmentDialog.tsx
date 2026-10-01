@@ -212,7 +212,9 @@ export function AppointmentDialog({
                 <Label>Tipo de atendimento</Label>
                 <Select
                   value={values.type}
-                  onValueChange={(value) => setValues({ ...values, type: value as AppointmentType })}
+                  onValueChange={(value) =>
+                    setValues({ ...values, type: value as AppointmentType })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
