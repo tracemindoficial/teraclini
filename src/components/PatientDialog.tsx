@@ -47,7 +47,12 @@ export function PatientDialog({
   onSaved?: ((patient: Patient) => void) | undefined;
 }) {
   const [values, setValues] = useState(EMPTY);
-  const [guardian, setGuardian] = useState({ full_name: "", relationship: "", phone: "", email: "" });
+  const [guardian, setGuardian] = useState({
+    full_name: "",
+    relationship: "",
+    phone: "",
+    email: "",
+  });
   const savePatient = useSavePatient();
   const saveGuardian = useSaveGuardian();
 
@@ -209,7 +214,9 @@ export function PatientDialog({
                 <Input
                   placeholder="Parentesco"
                   value={guardian.relationship}
-                  onChange={(event) => setGuardian({ ...guardian, relationship: event.target.value })}
+                  onChange={(event) =>
+                    setGuardian({ ...guardian, relationship: event.target.value })
+                  }
                 />
                 <Input
                   placeholder="Telefone"

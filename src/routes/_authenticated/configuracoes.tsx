@@ -18,14 +18,16 @@ import { PROFESSIONS, type CareMode } from "@/lib/domain";
 import { joinProfession, splitProfession } from "@/lib/professional-profile";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
-  head: () => ({ meta: [
-    { title: "Meu Perfil Profissional — Projeto Prática" },
-    { name: "description", content: "Dados e preferências do seu espaço profissional." },
-    { property: "og:title", content: "Meu Perfil Profissional — Projeto Prática" },
-    { property: "og:description", content: "Dados e preferências do seu espaço profissional." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Meu Perfil Profissional — Projeto Prática" },
+      { name: "description", content: "Dados e preferências do seu espaço profissional." },
+      { property: "og:title", content: "Meu Perfil Profissional — Projeto Prática" },
+      { property: "og:description", content: "Dados e preferências do seu espaço profissional." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: SettingsPage,
 });
 
@@ -116,7 +118,9 @@ function SettingsPage() {
           <Label>Registro profissional</Label>
           <Input
             value={values.professional_registry}
-            onChange={(event) => setValues({ ...values, professional_registry: event.target.value })}
+            onChange={(event) =>
+              setValues({ ...values, professional_registry: event.target.value })
+            }
           />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">

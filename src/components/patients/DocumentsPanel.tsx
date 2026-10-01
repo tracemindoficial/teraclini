@@ -40,14 +40,29 @@ export function DocumentsPanel({ patientId }: { patientId: string }) {
   return (
     <div className="space-y-4">
       <form onSubmit={handleUpload} className="surface grid gap-3 p-5 sm:grid-cols-4">
-        <Input className="sm:col-span-2" placeholder="Título do documento" value={title} onChange={(event) => setTitle(event.target.value)} />
+        <Input
+          className="sm:col-span-2"
+          placeholder="Título do documento"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+        />
         <Select value={category} onValueChange={(value) => setCategory(value as DocumentCategory)}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
           <SelectContent>
-            {DOCUMENT_CATEGORIES.map((item) => <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>)}
+            {DOCUMENT_CATEGORIES.map((item) => (
+              <SelectItem key={item.value} value={item.value}>
+                {item.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
-        <Input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
+        <Input
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx"
+          onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+        />
         <Button type="submit" className="gap-2 sm:col-span-4" disabled={upload.isPending}>
           <Upload className="size-4" />
           Anexar documento
@@ -55,17 +70,26 @@ export function DocumentsPanel({ patientId }: { patientId: string }) {
       </form>
 
       <div className="space-y-2.5">
-        {(documents ?? []).length === 0 ? <p className="text-sm text-muted-foreground">Nenhum documento anexado.</p> : null}
+        {(documents ?? []).length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nenhum documento anexado.</p>
+        ) : null}
         {(documents ?? []).map((document) => (
           <button
             key={document.id}
-            onClick={() => openDocument(document.storage_path).catch(() => toast.error("Não foi possível abrir o arquivo."))}
+            onClick={() =>
+              openDocument(document.storage_path).catch(() =>
+                toast.error("Não foi possível abrir o arquivo."),
+              )
+            }
             className="surface flex w-full items-center gap-3 p-4 text-left"
           >
             <FileText className="size-4 text-muted-foreground" />
             <span className="min-w-0 flex-1">
               <span className="block truncate font-medium">{document.title}</span>
-              <span className="block text-xs text-muted-foreground">{formatDate(document.created_at)} · {labelOf(DOCUMENT_CATEGORIES, document.category)}</span>
+              <span className="block text-xs text-muted-foreground">
+                {formatDate(document.created_at)} ·{" "}
+                {labelOf(DOCUMENT_CATEGORIES, document.category)}
+              </span>
             </span>
           </button>
         ))}

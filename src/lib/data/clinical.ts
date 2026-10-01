@@ -51,7 +51,9 @@ export function useSaveEvolution() {
     },
     onSuccess: (evolution) => {
       qc.invalidateQueries({ queryKey: queryKeys.evolutions(evolution.patient_id) });
-      qc.invalidateQueries({ queryKey: queryKeys.evolutionByAppointment(evolution.appointment_id) });
+      qc.invalidateQueries({
+        queryKey: queryKeys.evolutionByAppointment(evolution.appointment_id),
+      });
       qc.invalidateQueries({ queryKey: queryKeys.pendingEvolutions });
     },
   });
@@ -75,12 +77,19 @@ export function useAnamneses(patientId: string) {
 export function useSaveAnamnesis() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (values: Omit<Tables["anamneses"]["Insert"], "user_id"> & { id?: string }) => {
+    mutationFn: async (
+      values: Omit<Tables["anamneses"]["Insert"], "user_id"> & { id?: string },
+    ) => {
       const userId = await currentUserId();
       return unwrap(
-        await supabase.from("anamneses").upsert({ ...values, user_id: userId }).select().single(),
+        await supabase
+          .from("anamneses")
+          .upsert({ ...values, user_id: userId })
+          .select()
+          .single(),
       ) as Anamnesis;
     },
-    onSuccess: (anamnesis) => qc.invalidateQueries({ queryKey: queryKeys.anamneses(anamnesis.patient_id) }),
+    onSuccess: (anamnesis) =>
+      qc.invalidateQueries({ queryKey: queryKeys.anamneses(anamnesis.patient_id) }),
   });
 }

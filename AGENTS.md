@@ -9,3 +9,11 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
+## Project architecture
+
+- Keep route modules as page composition only; reusable UI belongs under `src/components` to prevent route-bundle coupling.
+- Keep browser data hooks grouped by domain under `src/lib/data`, with shared query keys in `src/lib/query-keys.ts` to make cache invalidation predictable.
+- Preserve client-side `user_id` stamping on legacy clinical tables because those columns remain required while `account_id` is supplied by the database.
+- Keep authentication destination logic in `src/lib/auth-session.ts` so email, Google, and authenticated-route guards apply the same onboarding rule.
+- Keep development module responses uncached in `vite.config.ts` to prevent the preview from reusing stale source modules.
+

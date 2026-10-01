@@ -39,7 +39,9 @@ export function useAvailabilityRules() {
   return useQuery({
     queryKey: queryKeys.availability,
     queryFn: async () =>
-      unwrap(await supabase.from("availability_rules").select("*").order("weekday").order("start_time")) as AvailabilityRule[],
+      unwrap(
+        await supabase.from("availability_rules").select("*").order("weekday").order("start_time"),
+      ) as AvailabilityRule[],
   });
 }
 
@@ -47,7 +49,9 @@ export function useSaveAvailabilityRule() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (values: Tables["availability_rules"]["Insert"] & { id?: string }) =>
-      unwrap(await supabase.from("availability_rules").upsert(values).select().single()) as AvailabilityRule,
+      unwrap(
+        await supabase.from("availability_rules").upsert(values).select().single(),
+      ) as AvailabilityRule,
     onSuccess: () => invalidateSchedule(qc),
   });
 }
@@ -79,7 +83,9 @@ export function useSaveScheduleBlock() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (values: Tables["schedule_blocks"]["Insert"] & { id?: string }) =>
-      unwrap(await supabase.from("schedule_blocks").upsert(values).select().single()) as ScheduleBlock,
+      unwrap(
+        await supabase.from("schedule_blocks").upsert(values).select().single(),
+      ) as ScheduleBlock,
     onSuccess: () => invalidateSchedule(qc),
   });
 }
@@ -99,7 +105,9 @@ export function useAppointmentTypes() {
   return useQuery({
     queryKey: queryKeys.appointmentTypes,
     queryFn: async () =>
-      unwrap(await supabase.from("appointment_types").select("*").eq("is_active", true).order("name")) as CustomAppointmentType[],
+      unwrap(
+        await supabase.from("appointment_types").select("*").eq("is_active", true).order("name"),
+      ) as CustomAppointmentType[],
   });
 }
 
@@ -107,7 +115,9 @@ export function useSaveAppointmentType() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (values: Tables["appointment_types"]["Insert"] & { id?: string }) =>
-      unwrap(await supabase.from("appointment_types").upsert(values).select().single()) as CustomAppointmentType,
+      unwrap(
+        await supabase.from("appointment_types").upsert(values).select().single(),
+      ) as CustomAppointmentType,
     onSuccess: () => invalidateSchedule(qc),
   });
 }
@@ -116,7 +126,13 @@ export function useAppointmentEvents(appointmentId: string) {
   return useQuery({
     queryKey: queryKeys.appointmentEvents(appointmentId),
     queryFn: async () =>
-      unwrap(await supabase.from("appointment_events").select("*").eq("appointment_id", appointmentId).order("created_at", { ascending: false })) as AppointmentEvent[],
+      unwrap(
+        await supabase
+          .from("appointment_events")
+          .select("*")
+          .eq("appointment_id", appointmentId)
+          .order("created_at", { ascending: false }),
+      ) as AppointmentEvent[],
     enabled: Boolean(appointmentId),
   });
 }

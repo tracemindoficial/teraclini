@@ -1,6 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { APPOINTMENT_SELECT, unwrap, type AppointmentWithRefs, type Location, type Patient, type PatientDocument } from "./shared";
+import {
+  APPOINTMENT_SELECT,
+  unwrap,
+  type AppointmentWithRefs,
+  type Location,
+  type Patient,
+  type PatientDocument,
+} from "./shared";
 import { queryKeys } from "@/lib/query-keys";
 
 export function usePendingEvolutions() {

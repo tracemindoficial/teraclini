@@ -29,7 +29,13 @@ export async function currentUserId() {
   return data.user.id;
 }
 
-export function unwrap<T>({ data, error }: { data: T | null; error: { message: string } | null }): T {
+export function unwrap<T>({
+  data,
+  error,
+}: {
+  data: T | null;
+  error: { message: string } | null;
+}): T {
   if (error) throw new Error(error.message);
   return data as T;
 }

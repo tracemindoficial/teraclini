@@ -120,9 +120,7 @@ export function AnamnesisDialog({
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{anamnesis ? "Anamnese" : "Nova anamnese"}</DialogTitle>
-          <DialogDescription>
-            Preencha apenas o que fizer sentido para este caso.
-          </DialogDescription>
+          <DialogDescription>Preencha apenas o que fizer sentido para este caso.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={(event) => handleSubmit(event, completed)} className="space-y-4">

@@ -17,7 +17,8 @@ export function usePatients(search?: string) {
 export function usePatient(id: string) {
   return useQuery({
     queryKey: queryKeys.patient(id),
-    queryFn: async () => unwrap(await supabase.from("patients").select("*").eq("id", id).single()) as Patient,
+    queryFn: async () =>
+      unwrap(await supabase.from("patients").select("*").eq("id", id).single()) as Patient,
   });
 }
 
@@ -46,7 +47,11 @@ export function useGuardians(patientId: string) {
     queryKey: queryKeys.guardians(patientId),
     queryFn: async () =>
       unwrap(
-        await supabase.from("guardians").select("*").eq("patient_id", patientId).order("created_at"),
+        await supabase
+          .from("guardians")
+          .select("*")
+          .eq("patient_id", patientId)
+          .order("created_at"),
       ) as Guardian[],
     enabled: Boolean(patientId),
   });
@@ -55,13 +60,20 @@ export function useGuardians(patientId: string) {
 export function useSaveGuardian() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (values: Omit<Tables["guardians"]["Insert"], "user_id"> & { id?: string }) => {
+    mutationFn: async (
+      values: Omit<Tables["guardians"]["Insert"], "user_id"> & { id?: string },
+    ) => {
       const userId = await currentUserId();
       return unwrap(
-        await supabase.from("guardians").upsert({ ...values, user_id: userId }).select().single(),
+        await supabase
+          .from("guardians")
+          .upsert({ ...values, user_id: userId })
+          .select()
+          .single(),
       ) as Guardian;
     },
-    onSuccess: (guardian) => qc.invalidateQueries({ queryKey: queryKeys.guardians(guardian.patient_id) }),
+    onSuccess: (guardian) =>
+      qc.invalidateQueries({ queryKey: queryKeys.guardians(guardian.patient_id) }),
   });
 }
 

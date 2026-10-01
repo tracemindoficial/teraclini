@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -80,7 +80,7 @@ function AppointmentPage() {
     }
   }
 
-  async function handleSaveEvolution(event: React.FormEvent) {
+  async function handleSaveEvolution(event: FormEvent) {
     event.preventDefault();
     if (!appointment?.patient_id) {
       toast.error("Vincule um paciente ao atendimento antes de registrar a evolução.");

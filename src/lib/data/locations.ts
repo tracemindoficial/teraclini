@@ -14,7 +14,9 @@ export function useLocations() {
 export function useSaveLocation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (values: Omit<Tables["locations"]["Insert"], "user_id"> & { id?: string }) => {
+    mutationFn: async (
+      values: Omit<Tables["locations"]["Insert"], "user_id"> & { id?: string },
+    ) => {
       const userId = await currentUserId();
       const result = await supabase
         .from("locations")

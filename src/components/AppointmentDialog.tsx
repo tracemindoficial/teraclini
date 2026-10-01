@@ -132,13 +132,14 @@ export function AppointmentDialog({
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Label>Paciente</Label>
-                <button
+                <Button
                   type="button"
-                  className="text-xs font-medium text-primary underline-offset-4 hover:underline"
+                  variant="link"
+                  className="h-auto p-0 text-xs"
                   onClick={() => setPatientDialogOpen(true)}
                 >
                   + Novo paciente
-                </button>
+                </Button>
               </div>
               <Select
                 value={values.patient_id}

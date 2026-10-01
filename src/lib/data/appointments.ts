@@ -1,9 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { APPOINTMENT_SELECT, currentUserId, unwrap, type Appointment, type AppointmentWithRefs, type Tables } from "./shared";
+import {
+  APPOINTMENT_SELECT,
+  currentUserId,
+  unwrap,
+  type Appointment,
+  type AppointmentWithRefs,
+  type Tables,
+} from "./shared";
 import { queryKeys } from "@/lib/query-keys";
 
-export function useAppointments(params: { from: string; to: string; locationId?: string | undefined }) {
+export function useAppointments(params: {
+  from: string;
+  to: string;
+  locationId?: string | undefined;
+}) {
   return useQuery({
     queryKey: [...queryKeys.appointments, params.from, params.to, params.locationId ?? "all"],
     queryFn: async () => {
@@ -53,7 +64,11 @@ export function useSaveAppointment() {
     ) => {
       const userId = await currentUserId();
       return unwrap(
-        await supabase.from("appointments").upsert({ ...values, user_id: userId }).select().single(),
+        await supabase
+          .from("appointments")
+          .upsert({ ...values, user_id: userId })
+          .select()
+          .single(),
       ) as Appointment;
     },
     onSuccess: () => {

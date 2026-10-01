@@ -11,25 +11,26 @@ import { AppointmentRow } from "@/components/appointments/AppointmentRow";
 import { Button } from "@/components/ui/button";
 import { SetupChecklist } from "@/components/onboarding/SetupChecklist";
 import { useOnboardingTasks } from "@/lib/account-data";
-import {
-  useAppointments,
-  usePendingEvolutions,
-  useProfile,
-} from "@/lib/data";
-import {
-  formatDateLong,
-  greeting,
-} from "@/lib/domain";
+import { useAppointments, usePendingEvolutions, useProfile } from "@/lib/data";
+import { formatDateLong, greeting } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/meu-dia")({
-  head: () => ({ meta: [
-    { title: "Meu Dia — Projeto Prática" },
-    { name: "description", content: "Atendimentos, pendências e atalhos do seu espaço profissional." },
-    { property: "og:title", content: "Meu Dia — Projeto Prática" },
-    { property: "og:description", content: "Atendimentos, pendências e atalhos do seu espaço profissional." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Meu Dia — Projeto Prática" },
+      {
+        name: "description",
+        content: "Atendimentos, pendências e atalhos do seu espaço profissional.",
+      },
+      { property: "og:title", content: "Meu Dia — Projeto Prática" },
+      {
+        property: "og:description",
+        content: "Atendimentos, pendências e atalhos do seu espaço profissional.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: MeuDia,
 });
 
@@ -124,7 +125,9 @@ function MeuDia() {
                       params={{ id: appointment.id }}
                       className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent"
                     >
-                      <span className="truncate">{appointment.patient?.full_name ?? "Atendimento"}</span>
+                      <span className="truncate">
+                        {appointment.patient?.full_name ?? "Atendimento"}
+                      </span>
                       <span className="shrink-0 text-xs text-muted-foreground">
                         {new Date(appointment.starts_at).toLocaleDateString("pt-BR")}
                       </span>
@@ -140,8 +143,16 @@ function MeuDia() {
           <div className="surface p-5">
             <h2 className="text-sm font-semibold">Atalhos</h2>
             <div className="mt-3 grid gap-2">
-              <Shortcut icon={<UserPlus className="size-4" />} label="Novo paciente" onClick={() => setPatientOpen(true)} />
-              <Shortcut icon={<MapPin className="size-4" />} label="Novo local" onClick={() => setLocationOpen(true)} />
+              <Shortcut
+                icon={<UserPlus className="size-4" />}
+                label="Novo paciente"
+                onClick={() => setPatientOpen(true)}
+              />
+              <Shortcut
+                icon={<MapPin className="size-4" />}
+                label="Novo local"
+                onClick={() => setLocationOpen(true)}
+              />
               <Shortcut
                 icon={<CalendarPlus className="size-4" />}
                 label="Ver agenda completa"

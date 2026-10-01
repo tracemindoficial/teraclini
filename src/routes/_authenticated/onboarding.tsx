@@ -90,8 +90,7 @@ function Onboarding() {
     try {
       const { data: authData } = await supabase.auth.getUser();
       const metadata = authData.user?.user_metadata as
-        | { avatar_url?: unknown; picture?: unknown }
-        | undefined;
+        { avatar_url?: unknown; picture?: unknown } | undefined;
       const avatarCandidate = metadata?.avatar_url ?? metadata?.picture;
       const avatarUrl = typeof avatarCandidate === "string" ? avatarCandidate : profile?.avatar_url;
       await updateProfile.mutateAsync({
@@ -201,7 +200,10 @@ function Onboarding() {
           </div>
 
           {formError ? (
-            <div role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <div
+              role="alert"
+              className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            >
               <p>{formError}</p>
               {formError.includes("Não conseguimos") ? (
                 <Button type="submit" variant="link" className="mt-1 h-auto p-0 text-destructive">

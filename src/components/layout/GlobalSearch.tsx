@@ -104,7 +104,9 @@ export function GlobalSearch({
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div>
-      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">{title}</p>
+      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        {title}
+      </p>
       <div className="space-y-1">{children}</div>
     </div>
   );

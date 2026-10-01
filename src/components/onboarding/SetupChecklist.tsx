@@ -1,4 +1,13 @@
-import { ArrowRight, CalendarPlus, Check, Circle, Clock3, DoorOpen, MapPin, UserPlus } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarPlus,
+  Check,
+  Circle,
+  Clock3,
+  DoorOpen,
+  MapPin,
+  UserPlus,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,8 +50,12 @@ export function SetupChecklist({
     <section className="surface mb-5 p-5" aria-labelledby="setup-title">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 id="setup-title" className="font-semibold">Prepare seu espaço</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{completed} de {total} etapas concluídas</p>
+          <h2 id="setup-title" className="font-semibold">
+            Prepare seu espaço
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {completed} de {total} etapas concluídas
+          </p>
         </div>
         <Badge variant="secondary">Configuração inicial</Badge>
       </div>
@@ -55,14 +68,27 @@ export function SetupChecklist({
           const action = actions[task.task_key];
           const Icon = done ? Check : info.icon;
           return (
-            <div key={task.task_key} className="flex min-h-12 items-center gap-3 rounded-lg border px-3 py-2.5">
-              <span className={done ? "text-primary" : "text-muted-foreground"}><Icon className="size-4" /></span>
+            <div
+              key={task.task_key}
+              className="flex min-h-12 items-center gap-3 rounded-lg border px-3 py-2.5"
+            >
+              <span className={done ? "text-primary" : "text-muted-foreground"}>
+                <Icon className="size-4" />
+              </span>
               <span className="min-w-0 flex-1 text-sm font-medium">{info.label}</span>
               {!done && action ? (
-                <Button type="button" variant="ghost" size="icon" onClick={action} aria-label={`Configurar ${info.label}`}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={action}
+                  aria-label={`Configurar ${info.label}`}
+                >
                   <ArrowRight className="size-4" />
                 </Button>
-              ) : !done ? <span className="text-xs text-muted-foreground">Em breve</span> : null}
+              ) : !done ? (
+                <span className="text-xs text-muted-foreground">Em breve</span>
+              ) : null}
             </div>
           );
         })}
