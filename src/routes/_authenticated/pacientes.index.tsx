@@ -20,12 +20,12 @@ import { AGE_GROUPS, PATIENT_STATUSES, ageFromBirthDate, labelOf } from "@/lib/d
 export const Route = createFileRoute("/_authenticated/pacientes/")({
   head: () => ({
     meta: [
-      { title: "Meus Pacientes — Projeto Prática" },
+      { title: "Meus Pacientes — TeraClini" },
       {
         name: "description",
         content: "Pacientes vinculados ao seu espaço profissional individual.",
       },
-      { property: "og:title", content: "Meus Pacientes — Projeto Prática" },
+      { property: "og:title", content: "Meus Pacientes — TeraClini" },
       {
         property: "og:description",
         content: "Pacientes vinculados ao seu espaço profissional individual.",

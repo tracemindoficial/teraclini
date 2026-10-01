@@ -6,9 +6,9 @@ import { useAppointments, usePatients, usePendingEvolutions, useLocations } from
 export const Route = createFileRoute("/_authenticated/relatorios")({
   head: () => ({
     meta: [
-      { title: "Meus Relatórios — Projeto Prática" },
+      { title: "Meus Relatórios — TeraClini" },
       { name: "description", content: "Visão resumida da sua prática profissional." },
-      { property: "og:title", content: "Meus Relatórios — Projeto Prática" },
+      { property: "og:title", content: "Meus Relatórios — TeraClini" },
       { property: "og:description", content: "Visão resumida da sua prática profissional." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
