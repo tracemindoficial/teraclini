@@ -1,32 +1,23 @@
 import { useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { CalendarPlus, FileText, Pencil, Plus, Upload } from "lucide-react";
-import { toast } from "sonner";
+import { CalendarPlus, Pencil, Plus } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { AppointmentDialog } from "@/components/AppointmentDialog";
 import { PatientDialog } from "@/components/PatientDialog";
 import { AnamnesisDialog } from "@/components/AnamnesisDialog";
+import { DocumentsPanel } from "@/components/patients/DocumentsPanel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { DetailRow } from "@/components/ui/detail-row";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  openDocument,
   useAnamneses,
   useDocuments,
   useEvolutions,
   useGuardians,
   usePatient,
   usePatientAppointments,
-  useUploadDocument,
   type Anamnesis,
 } from "@/lib/data";
 import {
@@ -38,18 +29,19 @@ import {
   formatDate,
   formatTime,
   labelOf,
-  type DocumentCategory,
 } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/pacientes/$id")({
-  head: () => ({ meta: [
-    { title: "Prontuário do Paciente — Projeto Prática" },
-    { name: "description", content: "Prontuário privado do seu paciente." },
-    { property: "og:title", content: "Prontuário do Paciente — Projeto Prática" },
-    { property: "og:description", content: "Prontuário privado do seu paciente." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Prontuário do Paciente — Projeto Prática" },
+      { name: "description", content: "Prontuário privado do seu paciente." },
+      { property: "og:title", content: "Prontuário do Paciente — Projeto Prática" },
+      { property: "og:description", content: "Prontuário privado do seu paciente." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: PatientProfile,
 });
 
@@ -134,17 +126,25 @@ function PatientProfile() {
           <div className="surface p-5">
             <div className="flex items-start justify-between">
               <h2 className="text-sm font-semibold">Dados cadastrais</h2>
-              <Button variant="ghost" size="icon" aria-label="Editar" onClick={() => setEditOpen(true)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Editar"
+                onClick={() => setEditOpen(true)}
+              >
                 <Pencil className="size-4" />
               </Button>
             </div>
             <dl className="mt-3 space-y-1.5 text-sm">
-              <Row label="Situação" value={labelOf(PATIENT_STATUSES, patient.status)} />
-              <Row label="Nascimento" value={patient.birth_date ? formatDate(patient.birth_date) : "—"} />
-              <Row label="Sexo" value={patient.gender ?? "—"} />
-              <Row label="Telefone" value={patient.phone ?? "—"} />
-              <Row label="E-mail" value={patient.email ?? "—"} />
-              <Row label="Endereço" value={patient.address ?? "—"} />
+              <DetailRow label="Situação" value={labelOf(PATIENT_STATUSES, patient.status)} />
+              <DetailRow
+                label="Nascimento"
+                value={patient.birth_date ? formatDate(patient.birth_date) : "—"}
+              />
+              <DetailRow label="Sexo" value={patient.gender ?? "—"} />
+              <DetailRow label="Telefone" value={patient.phone ?? "—"} />
+              <DetailRow label="E-mail" value={patient.email ?? "—"} />
+              <DetailRow label="Endereço" value={patient.address ?? "—"} />
             </dl>
           </div>
 
@@ -304,97 +304,5 @@ function PatientProfile() {
         anamnesis={editingAnamnesis}
       />
     </AppShell>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between gap-3">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="truncate text-right">{value}</dd>
-    </div>
-  );
-}
-
-export function DocumentsPanel({ patientId }: { patientId: string }) {
-  const { data: documents } = useDocuments(patientId);
-  const upload = useUploadDocument();
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState<DocumentCategory>("clinico");
-  const [file, setFile] = useState<File | null>(null);
-
-  async function handleUpload(event: React.FormEvent) {
-    event.preventDefault();
-    if (!file) {
-      toast.error("Selecione um arquivo.");
-      return;
-    }
-    try {
-      await upload.mutateAsync({ file, patientId, title: title || file.name, category });
-      toast.success("Documento anexado.");
-      setTitle("");
-      setFile(null);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Não foi possível anexar.");
-    }
-  }
-
-  return (
-    <div className="space-y-4">
-      <form onSubmit={handleUpload} className="surface grid gap-3 p-5 sm:grid-cols-4">
-        <Input
-          className="sm:col-span-2"
-          placeholder="Título do documento"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-        />
-        <Select value={category} onValueChange={(value) => setCategory(value as DocumentCategory)}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {DOCUMENT_CATEGORIES.map((item) => (
-              <SelectItem key={item.value} value={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Input
-          type="file"
-          accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx"
-          onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-        />
-        <Button type="submit" className="gap-2 sm:col-span-4" disabled={upload.isPending}>
-          <Upload className="size-4" />
-          Anexar documento
-        </Button>
-      </form>
-
-      <div className="space-y-2.5">
-        {(documents ?? []).length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhum documento anexado.</p>
-        ) : null}
-        {(documents ?? []).map((document) => (
-          <button
-            key={document.id}
-            onClick={() =>
-              openDocument(document.storage_path).catch(() =>
-                toast.error("Não foi possível abrir o arquivo."),
-              )
-            }
-            className="surface flex w-full items-center gap-3 p-4 text-left"
-          >
-            <FileText className="size-4 text-muted-foreground" />
-            <span className="min-w-0 flex-1">
-              <span className="block truncate font-medium">{document.title}</span>
-              <span className="block text-xs text-muted-foreground">
-                {formatDate(document.created_at)} · {labelOf(DOCUMENT_CATEGORIES, document.category)}
-              </span>
-            </span>
-          </button>
-        ))}
-      </div>
-    </div>
   );
 }

@@ -1,10 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { APPOINTMENT_SELECT, unwrap, type AppointmentWithRefs, type Location, type Patient, type PatientDocument } from "./shared";
+import {
+  APPOINTMENT_SELECT,
+  unwrap,
+  type AppointmentWithRefs,
+  type Location,
+  type Patient,
+  type PatientDocument,
+} from "./shared";
+import { queryKeys } from "@/lib/query-keys";
 
 export function usePendingEvolutions() {
   return useQuery({
-    queryKey: ["pending-evolutions"],
+    queryKey: queryKeys.pendingEvolutions,
     queryFn: async () => {
       const appointments = unwrap(
         await supabase
@@ -29,7 +37,7 @@ export function usePendingEvolutions() {
 
 export function useGlobalSearch(term: string) {
   return useQuery({
-    queryKey: ["global-search", term],
+    queryKey: queryKeys.globalSearch(term),
     queryFn: async () => {
       const like = `%${term.trim()}%`;
       const [patients, locations, documents] = await Promise.all([

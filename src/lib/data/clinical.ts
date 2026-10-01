@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { currentUserId, unwrap, type Anamnesis, type Evolution, type Tables } from "./shared";
+import { queryKeys } from "@/lib/query-keys";
 
 export function useEvolutions(patientId: string) {
   return useQuery({
-    queryKey: ["evolutions", patientId],
+    queryKey: queryKeys.evolutions(patientId),
     queryFn: async () =>
       unwrap(
         await supabase
@@ -19,7 +20,7 @@ export function useEvolutions(patientId: string) {
 
 export function useEvolutionByAppointment(appointmentId: string) {
   return useQuery({
-    queryKey: ["evolution-by-appointment", appointmentId],
+    queryKey: queryKeys.evolutionByAppointment(appointmentId),
     queryFn: async () => {
       const result = await supabase
         .from("evolutions")
@@ -49,16 +50,18 @@ export function useSaveEvolution() {
       ) as Evolution;
     },
     onSuccess: (evolution) => {
-      qc.invalidateQueries({ queryKey: ["evolutions", evolution.patient_id] });
-      qc.invalidateQueries({ queryKey: ["evolution-by-appointment", evolution.appointment_id] });
-      qc.invalidateQueries({ queryKey: ["pending-evolutions"] });
+      qc.invalidateQueries({ queryKey: queryKeys.evolutions(evolution.patient_id) });
+      qc.invalidateQueries({
+        queryKey: queryKeys.evolutionByAppointment(evolution.appointment_id),
+      });
+      qc.invalidateQueries({ queryKey: queryKeys.pendingEvolutions });
     },
   });
 }
 
 export function useAnamneses(patientId: string) {
   return useQuery({
-    queryKey: ["anamneses", patientId],
+    queryKey: queryKeys.anamneses(patientId),
     queryFn: async () =>
       unwrap(
         await supabase
@@ -74,12 +77,19 @@ export function useAnamneses(patientId: string) {
 export function useSaveAnamnesis() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (values: Omit<Tables["anamneses"]["Insert"], "user_id"> & { id?: string }) => {
+    mutationFn: async (
+      values: Omit<Tables["anamneses"]["Insert"], "user_id"> & { id?: string },
+    ) => {
       const userId = await currentUserId();
       return unwrap(
-        await supabase.from("anamneses").upsert({ ...values, user_id: userId }).select().single(),
+        await supabase
+          .from("anamneses")
+          .upsert({ ...values, user_id: userId })
+          .select()
+          .single(),
       ) as Anamnesis;
     },
-    onSuccess: (anamnesis) => qc.invalidateQueries({ queryKey: ["anamneses", anamnesis.patient_id] }),
+    onSuccess: (anamnesis) =>
+      qc.invalidateQueries({ queryKey: queryKeys.anamneses(anamnesis.patient_id) }),
   });
 }

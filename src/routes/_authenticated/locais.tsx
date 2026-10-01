@@ -11,14 +11,16 @@ import { useDeleteLocation, useLocations, type Location } from "@/lib/data";
 import { LOCATION_TYPES, labelOf } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/locais")({
-  head: () => ({ meta: [
-    { title: "Meus Locais — Projeto Prática" },
-    { name: "description", content: "Locais onde você realiza seus atendimentos." },
-    { property: "og:title", content: "Meus Locais — Projeto Prática" },
-    { property: "og:description", content: "Locais onde você realiza seus atendimentos." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Meus Locais — Projeto Prática" },
+      { name: "description", content: "Locais onde você realiza seus atendimentos." },
+      { property: "og:title", content: "Meus Locais — Projeto Prática" },
+      { property: "og:description", content: "Locais onde você realiza seus atendimentos." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: LocationsPage,
 });
 

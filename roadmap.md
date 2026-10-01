@@ -27,6 +27,6 @@
 - [ ] Fase 4 — Relatórios, exportação e LGPD
 
 ## Refatoração estrutural
-- [ ] Auditar toda a base e priorizar melhorias sem alterar comportamento
-- [ ] Refatorar arquitetura, componentes, hooks, dados, autenticação e tipagem
-- [ ] Validar fluxos existentes, build, desktop e celular após a refatoração
+- [x] Auditar toda a base e priorizar melhorias sem alterar comportamento
+- [x] Refatorar arquitetura, componentes, hooks, dados, autenticação e tipagem
+- [x] Validar fluxos públicos, proteção de acesso, build, desktop e celular após a refatoração

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -6,6 +6,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { AppointmentDialog } from "@/components/AppointmentDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DetailRow } from "@/components/ui/detail-row";
 import { Textarea } from "@/components/ui/textarea";
 import {
   useAppointment,
@@ -24,14 +25,16 @@ import {
 } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/atendimentos/$id")({
-  head: () => ({ meta: [
-    { title: "Atendimento — Projeto Prática" },
-    { name: "description", content: "Registro privado de atendimento e evolução." },
-    { property: "og:title", content: "Atendimento — Projeto Prática" },
-    { property: "og:description", content: "Registro privado de atendimento e evolução." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Atendimento — Projeto Prática" },
+      { name: "description", content: "Registro privado de atendimento e evolução." },
+      { property: "og:title", content: "Atendimento — Projeto Prática" },
+      { property: "og:description", content: "Registro privado de atendimento e evolução." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AppointmentPage,
 });
 
@@ -79,7 +82,7 @@ function AppointmentPage() {
     }
   }
 
-  async function handleSaveEvolution(event: React.FormEvent) {
+  async function handleSaveEvolution(event: FormEvent) {
     event.preventDefault();
     if (!appointment?.patient_id) {
       toast.error("Vincule um paciente ao atendimento antes de registrar a evolução.");
@@ -127,10 +130,13 @@ function AppointmentPage() {
         <div className="surface p-5 lg:col-span-1">
           <h2 className="text-sm font-semibold">Registro administrativo</h2>
           <dl className="mt-3 space-y-1.5 text-sm">
-            <Row label="Tipo" value={labelOf(APPOINTMENT_TYPES, appointment.type)} />
-            <Row label="Modalidade" value={labelOf(APPOINTMENT_MODALITIES, appointment.modality)} />
-            <Row label="Local" value={appointment.location?.name ?? "—"} />
-            <Row label="Situação" value={labelOf(APPOINTMENT_STATUSES, appointment.status)} />
+            <DetailRow label="Tipo" value={labelOf(APPOINTMENT_TYPES, appointment.type)} />
+            <DetailRow
+              label="Modalidade"
+              value={labelOf(APPOINTMENT_MODALITIES, appointment.modality)}
+            />
+            <DetailRow label="Local" value={appointment.location?.name ?? "—"} />
+            <DetailRow label="Situação" value={labelOf(APPOINTMENT_STATUSES, appointment.status)} />
           </dl>
           {appointment.notes ? (
             <p className="mt-3 text-sm text-muted-foreground">{appointment.notes}</p>
@@ -182,14 +188,5 @@ function AppointmentPage() {
 
       <AppointmentDialog open={editOpen} onOpenChange={setEditOpen} appointment={appointment} />
     </AppShell>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between gap-3">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="truncate text-right">{value}</dd>
-    </div>
   );
 }

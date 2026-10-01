@@ -1,49 +1,36 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  CalendarPlus,
-  Check,
-  Circle,
-  Clock3,
-  DoorOpen,
-  MapPin,
-  Plus,
-  Search,
-  UserPlus,
-} from "lucide-react";
+import type { ReactNode } from "react";
+import { CalendarPlus, MapPin, Plus, Search, UserPlus } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { AppointmentDialog } from "@/components/AppointmentDialog";
 import { PatientDialog } from "@/components/PatientDialog";
 import { LocationDialog } from "@/components/LocationDialog";
+import { AppointmentRow } from "@/components/appointments/AppointmentRow";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { SetupChecklist } from "@/components/onboarding/SetupChecklist";
 import { useOnboardingTasks } from "@/lib/account-data";
-import {
-  useAppointments,
-  usePendingEvolutions,
-  useProfile,
-  type AppointmentWithRefs,
-} from "@/lib/data";
-import {
-  APPOINTMENT_TYPES,
-  formatDateLong,
-  formatTime,
-  greeting,
-  labelOf,
-} from "@/lib/domain";
+import { useAppointments, usePendingEvolutions, useProfile } from "@/lib/data";
+import { formatDateLong, greeting } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/meu-dia")({
-  head: () => ({ meta: [
-    { title: "Meu Dia — Projeto Prática" },
-    { name: "description", content: "Atendimentos, pendências e atalhos do seu espaço profissional." },
-    { property: "og:title", content: "Meu Dia — Projeto Prática" },
-    { property: "og:description", content: "Atendimentos, pendências e atalhos do seu espaço profissional." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Meu Dia — Projeto Prática" },
+      {
+        name: "description",
+        content: "Atendimentos, pendências e atalhos do seu espaço profissional.",
+      },
+      { property: "og:title", content: "Meu Dia — Projeto Prática" },
+      {
+        property: "og:description",
+        content: "Atendimentos, pendências e atalhos do seu espaço profissional.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: MeuDia,
 });
 
@@ -138,7 +125,9 @@ function MeuDia() {
                       params={{ id: appointment.id }}
                       className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent"
                     >
-                      <span className="truncate">{appointment.patient?.full_name ?? "Atendimento"}</span>
+                      <span className="truncate">
+                        {appointment.patient?.full_name ?? "Atendimento"}
+                      </span>
                       <span className="shrink-0 text-xs text-muted-foreground">
                         {new Date(appointment.starts_at).toLocaleDateString("pt-BR")}
                       </span>
@@ -154,8 +143,16 @@ function MeuDia() {
           <div className="surface p-5">
             <h2 className="text-sm font-semibold">Atalhos</h2>
             <div className="mt-3 grid gap-2">
-              <Shortcut icon={<UserPlus className="size-4" />} label="Novo paciente" onClick={() => setPatientOpen(true)} />
-              <Shortcut icon={<MapPin className="size-4" />} label="Novo local" onClick={() => setLocationOpen(true)} />
+              <Shortcut
+                icon={<UserPlus className="size-4" />}
+                label="Novo paciente"
+                onClick={() => setPatientOpen(true)}
+              />
+              <Shortcut
+                icon={<MapPin className="size-4" />}
+                label="Novo local"
+                onClick={() => setLocationOpen(true)}
+              />
               <Shortcut
                 icon={<CalendarPlus className="size-4" />}
                 label="Ver agenda completa"
@@ -178,47 +175,12 @@ function MeuDia() {
   );
 }
 
-export function AppointmentRow({
-  appointment,
-  highlight,
-}: {
-  appointment: AppointmentWithRefs;
-  highlight?: boolean;
-}) {
-  return (
-    <li>
-      <Link
-        to="/atendimentos/$id"
-        params={{ id: appointment.id }}
-        className={`surface flex items-center gap-4 p-4 transition-shadow hover:shadow-[var(--shadow-lift)] ${
-          highlight ? "border-primary" : ""
-        }`}
-      >
-        <div className="w-14 shrink-0">
-          <p className="text-base font-semibold">{formatTime(appointment.starts_at)}</p>
-          <p className="text-xs text-muted-foreground">{formatTime(appointment.ends_at)}</p>
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-medium">{appointment.patient?.full_name ?? "Sem paciente"}</p>
-          <p className="truncate text-xs text-muted-foreground">
-            {labelOf(APPOINTMENT_TYPES, appointment.type)}
-            {appointment.location ? ` · ${appointment.location.name}` : ""}
-          </p>
-        </div>
-        <Badge variant="secondary" className="hidden shrink-0 sm:inline-flex">
-          {appointment.modality === "online" ? "Online" : appointment.location?.name ?? "Presencial"}
-        </Badge>
-      </Link>
-    </li>
-  );
-}
-
 function Shortcut({
   icon,
   label,
   onClick,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   onClick: () => void;
 }) {
@@ -232,81 +194,5 @@ function Shortcut({
       {icon}
       {label}
     </Button>
-  );
-}
-
-type SetupTask = {
-  task_key: string;
-  completed_at: string | null;
-};
-
-const TASK_LABELS: Record<string, { label: string; icon: typeof Circle }> = {
-  profile: { label: "Perfil profissional", icon: Check },
-  location: { label: "Local de atendimento", icon: MapPin },
-  room: { label: "Sala de atendimento", icon: DoorOpen },
-  availability: { label: "Horários de atendimento", icon: Clock3 },
-  patient: { label: "Primeiro paciente", icon: UserPlus },
-  appointment: { label: "Primeiro agendamento", icon: CalendarPlus },
-};
-
-function SetupChecklist({
-  tasks,
-  completed,
-  total,
-  onNewLocation,
-  onNewPatient,
-  onNewAppointment,
-}: {
-  tasks: SetupTask[];
-  completed: number;
-  total: number;
-  onNewLocation: () => void;
-  onNewPatient: () => void;
-  onNewAppointment: () => void;
-}) {
-  const actions: Record<string, (() => void) | undefined> = {
-    location: onNewLocation,
-    patient: onNewPatient,
-    appointment: onNewAppointment,
-  };
-  const availableTasks = tasks.filter((task) => TASK_LABELS[task.task_key]);
-
-  return (
-    <section className="surface mb-5 p-5" aria-labelledby="setup-title">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 id="setup-title" className="font-semibold">Prepare seu espaço</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {completed} de {total} etapas concluídas
-          </p>
-        </div>
-        <Badge variant="secondary">Configuração inicial</Badge>
-      </div>
-      <Progress className="mt-4" value={total > 0 ? (completed / total) * 100 : 0} />
-      <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {availableTasks.map((task) => {
-          const info = TASK_LABELS[task.task_key];
-          if (!info) return null;
-          const done = Boolean(task.completed_at);
-          const action = actions[task.task_key];
-          const Icon = done ? Check : info.icon;
-          return (
-            <div key={task.task_key} className="flex min-h-12 items-center gap-3 rounded-lg border px-3 py-2.5">
-              <span className={done ? "text-primary" : "text-muted-foreground"}>
-                <Icon className="size-4" />
-              </span>
-              <span className="min-w-0 flex-1 text-sm font-medium">{info.label}</span>
-              {!done && action ? (
-                <Button type="button" variant="ghost" size="icon" onClick={action} aria-label={`Configurar ${info.label}`}>
-                  <ArrowRight className="size-4" />
-                </Button>
-              ) : !done ? (
-                <span className="text-xs text-muted-foreground">Em breve</span>
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
-    </section>
   );
 }

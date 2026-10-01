@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { AppointmentDialog } from "@/components/AppointmentDialog";
-import { AppointmentRow } from "@/routes/_authenticated/meu-dia";
+import { AppointmentRow } from "@/components/appointments/AppointmentRow";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -18,14 +18,22 @@ import { useAppointments, useLocations } from "@/lib/data";
 import { APPOINTMENT_STATUSES, formatDateLong } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/agenda")({
-  head: () => ({ meta: [
-    { title: "Minha Agenda — Projeto Prática" },
-    { name: "description", content: "Agenda individual com todos os seus locais de atendimento." },
-    { property: "og:title", content: "Minha Agenda — Projeto Prática" },
-    { property: "og:description", content: "Agenda individual com todos os seus locais de atendimento." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Minha Agenda — Projeto Prática" },
+      {
+        name: "description",
+        content: "Agenda individual com todos os seus locais de atendimento.",
+      },
+      { property: "og:title", content: "Minha Agenda — Projeto Prática" },
+      {
+        property: "og:description",
+        content: "Agenda individual com todos os seus locais de atendimento.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: Agenda,
 });
 

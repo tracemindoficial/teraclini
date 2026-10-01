@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -15,16 +15,19 @@ import {
 } from "@/components/ui/select";
 import { useProfile, useUpdateProfile } from "@/lib/data";
 import { PROFESSIONS, type CareMode } from "@/lib/domain";
+import { joinProfession, splitProfession } from "@/lib/professional-profile";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
-  head: () => ({ meta: [
-    { title: "Meu Perfil Profissional — Projeto Prática" },
-    { name: "description", content: "Dados e preferências do seu espaço profissional." },
-    { property: "og:title", content: "Meu Perfil Profissional — Projeto Prática" },
-    { property: "og:description", content: "Dados e preferências do seu espaço profissional." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Meu Perfil Profissional — Projeto Prática" },
+      { name: "description", content: "Dados e preferências do seu espaço profissional." },
+      { property: "og:title", content: "Meu Perfil Profissional — Projeto Prática" },
+      { property: "og:description", content: "Dados e preferências do seu espaço profissional." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: SettingsPage,
 });
 
@@ -43,27 +46,24 @@ function SettingsPage() {
 
   useEffect(() => {
     if (!profile) return;
-    const listedProfession = Boolean(profile.profession && PROFESSIONS.includes(profile.profession));
+    const profession = splitProfession(profile.profession);
     setValues({
       full_name: profile.full_name ?? "",
-      profession: listedProfession ? (profile.profession ?? "") : profile.profession ? "Outra" : "",
+      profession: profession.profession,
       professional_registry: profile.professional_registry ?? "",
       city: profile.city ?? "",
       state: profile.state ?? "",
       care_mode: profile.care_mode ?? "ambos",
-      other_profession: listedProfession ? "" : (profile.profession ?? ""),
+      other_profession: profession.otherProfession,
     });
   }, [profile]);
 
-  async function handleSubmit(event: React.FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     try {
       await updateProfile.mutateAsync({
         full_name: values.full_name,
-        profession:
-          values.profession === "Outra"
-            ? values.other_profession.trim() || null
-            : values.profession || null,
+        profession: joinProfession(values.profession, values.other_profession) || null,
         professional_registry: values.professional_registry || null,
         city: values.city || null,
         state: values.state || null,
@@ -118,7 +118,9 @@ function SettingsPage() {
           <Label>Registro profissional</Label>
           <Input
             value={values.professional_registry}
-            onChange={(event) => setValues({ ...values, professional_registry: event.target.value })}
+            onChange={(event) =>
+              setValues({ ...values, professional_registry: event.target.value })
+            }
           />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">

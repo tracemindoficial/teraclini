@@ -105,7 +105,11 @@ export function formatTime(iso: string) {
 }
 
 export function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+  return new Date(iso).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 }
 
 export function formatDateLong(iso: string | Date) {
@@ -126,4 +130,12 @@ export function greeting(date = new Date()) {
 export function toLocalInputValue(date: Date) {
   const offset = date.getTimezoneOffset();
   return new Date(date.getTime() - offset * 60000).toISOString().slice(0, 16);
+}
+
+export function toDateInput(date: Date) {
+  return toLocalInputValue(date).slice(0, 10);
+}
+
+export function toTimeInput(date: Date) {
+  return toLocalInputValue(date).slice(11, 16);
 }

@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { currentUserId, unwrap, type Profile, type Tables } from "./shared";
+import { queryKeys } from "@/lib/query-keys";
 
 export function useProfile() {
   return useQuery({
-    queryKey: ["profile"],
+    queryKey: queryKeys.profile,
     queryFn: async () => {
       const userId = await currentUserId();
       const result = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
@@ -27,8 +28,8 @@ export function useUpdateProfile() {
       return unwrap(result);
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["profile"] });
-      qc.invalidateQueries({ queryKey: ["onboarding-tasks"] });
+      qc.invalidateQueries({ queryKey: queryKeys.profile });
+      qc.invalidateQueries({ queryKey: queryKeys.onboardingTasks });
     },
   });
 }

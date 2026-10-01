@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,8 @@ import {
   APPOINTMENT_MODALITIES,
   APPOINTMENT_STATUSES,
   APPOINTMENT_TYPES,
+  toDateInput,
+  toTimeInput,
   type AppointmentModality,
   type AppointmentStatus,
   type AppointmentType,
@@ -28,15 +30,6 @@ import {
   useSaveAppointment,
   type AppointmentWithRefs,
 } from "@/lib/data";
-
-function toDateInput(date: Date) {
-  const offset = date.getTimezoneOffset();
-  return new Date(date.getTime() - offset * 60000).toISOString().slice(0, 10);
-}
-function toTimeInput(date: Date) {
-  const offset = date.getTimezoneOffset();
-  return new Date(date.getTime() - offset * 60000).toISOString().slice(11, 16);
-}
 
 export function AppointmentDialog({
   open,
@@ -101,7 +94,7 @@ export function AppointmentDialog({
     }));
   }, [open, appointment, defaultDate, defaultPatientId]);
 
-  async function handleSubmit(event: React.FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     try {
       const startsAt = new Date(`${values.date}T${values.start}`);
@@ -139,13 +132,14 @@ export function AppointmentDialog({
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Label>Paciente</Label>
-                <button
+                <Button
                   type="button"
-                  className="text-xs font-medium text-primary underline-offset-4 hover:underline"
+                  variant="link"
+                  className="h-auto p-0 text-xs"
                   onClick={() => setPatientDialogOpen(true)}
                 >
                   + Novo paciente
-                </button>
+                </Button>
               </div>
               <Select
                 value={values.patient_id}
@@ -218,7 +212,9 @@ export function AppointmentDialog({
                 <Label>Tipo de atendimento</Label>
                 <Select
                   value={values.type}
-                  onValueChange={(value) => setValues({ ...values, type: value as AppointmentType })}
+                  onValueChange={(value) =>
+                    setValues({ ...values, type: value as AppointmentType })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />

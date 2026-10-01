@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -20,55 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSaveAnamnesis, type Anamnesis } from "@/lib/data";
-
-/**
- * Modelos de anamnese. A estrutura é flexível por profissão: cada modelo é
- * apenas uma lista de blocos, guardados como conteúdo livre no banco.
- */
-export const ANAMNESIS_TEMPLATES: Record<string, { label: string; sections: string[] }> = {
-  geral: {
-    label: "Geral",
-    sections: [
-      "Identificação",
-      "Queixa principal",
-      "Histórico",
-      "Desenvolvimento",
-      "Contexto familiar",
-      "Contexto escolar/profissional",
-      "Aspectos relevantes",
-      "Observações",
-      "Encaminhamentos",
-    ],
-  },
-  infantil: {
-    label: "Infantil",
-    sections: [
-      "Identificação",
-      "Queixa principal",
-      "Gestação e parto",
-      "Desenvolvimento neuropsicomotor",
-      "Rotina e sono",
-      "Contexto familiar",
-      "Contexto escolar",
-      "Observações",
-      "Encaminhamentos",
-    ],
-  },
-  adulto: {
-    label: "Adulto",
-    sections: [
-      "Identificação",
-      "Queixa principal",
-      "Histórico de saúde",
-      "Histórico de atendimentos anteriores",
-      "Contexto familiar",
-      "Contexto profissional",
-      "Aspectos relevantes",
-      "Observações",
-      "Encaminhamentos",
-    ],
-  },
-};
+import { ANAMNESIS_TEMPLATES } from "@/lib/anamnesis-templates";
 
 export function AnamnesisDialog({
   open,
@@ -97,7 +49,7 @@ export function AnamnesisDialog({
 
   const sections = ANAMNESIS_TEMPLATES[templateKey]?.sections ?? [];
 
-  async function handleSubmit(event: React.FormEvent, markCompleted: boolean) {
+  async function handleSubmit(event: FormEvent, markCompleted: boolean) {
     event.preventDefault();
     try {
       await saveAnamnesis.mutateAsync({
@@ -120,9 +72,7 @@ export function AnamnesisDialog({
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{anamnesis ? "Anamnese" : "Nova anamnese"}</DialogTitle>
-          <DialogDescription>
-            Preencha apenas o que fizer sentido para este caso.
-          </DialogDescription>
+          <DialogDescription>Preencha apenas o que fizer sentido para este caso.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={(event) => handleSubmit(event, completed)} className="space-y-4">

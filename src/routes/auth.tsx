@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { describeAuthError, logAuthEvent, withTimeout } from "@/lib/auth-errors";
+import { getAuthenticatedDestination } from "@/lib/auth-session";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -39,14 +40,10 @@ function AuthPage() {
     async function continueAuthenticatedSession() {
       const { data } = await supabase.auth.getSession();
       if (!active || !data.session) return;
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("onboarding_completed")
-        .eq("id", data.session.user.id)
-        .maybeSingle();
+      const destination = await getAuthenticatedDestination(data.session.user.id);
       if (!active) return;
       navigate({
-        to: profile?.onboarding_completed ? "/meu-dia" : "/onboarding",
+        to: destination,
         replace: true,
       });
     }
@@ -65,7 +62,7 @@ function AuthPage() {
     return null;
   }
 
-  async function handleSubmit(event: React.FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (submitting.current) return; // impede envios duplicados
     const invalid = validate();
@@ -145,13 +142,9 @@ function AuthPage() {
       const { data: sessionData } = await supabase.auth.getSession();
       const userId = sessionData.session?.user.id;
       if (!userId) throw new Error("Sessão não estabelecida após o acesso com Google.");
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("onboarding_completed")
-        .eq("id", userId)
-        .maybeSingle();
+      const destination = await getAuthenticatedDestination(userId);
       navigate({
-        to: profile?.onboarding_completed ? "/meu-dia" : "/onboarding",
+        to: destination,
         replace: true,
       });
     } catch (error) {
@@ -225,7 +218,10 @@ function AuthPage() {
               ) : null}
             </div>
             {formError ? (
-              <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              <p
+                role="alert"
+                className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive"
+              >
                 {formError}
               </p>
             ) : null}
@@ -250,16 +246,17 @@ function AuthPage() {
             Continuar com Google
           </Button>
 
-          <button
+          <Button
             type="button"
+            variant="link"
             onClick={() => {
               setFormError(null);
               setMode(mode === "signin" ? "signup" : "signin");
             }}
-            className="mt-5 w-full text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
+            className="mt-5 w-full text-center text-sm text-muted-foreground"
           >
             {mode === "signin" ? "Não tenho conta ainda" : "Já tenho uma conta"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

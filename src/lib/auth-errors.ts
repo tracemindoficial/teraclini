@@ -50,7 +50,10 @@ export async function withTimeout<T>(promise: PromiseLike<T>, ms = 20000): Promi
     return await Promise.race([
       promise as Promise<T>,
       new Promise<never>((_, reject) => {
-        timer = setTimeout(() => reject(Object.assign(new Error("timeout"), { code: "timeout" })), ms);
+        timer = setTimeout(
+          () => reject(Object.assign(new Error("timeout"), { code: "timeout" })),
+          ms,
+        );
       }),
     ]);
   } finally {
