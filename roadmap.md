@@ -41,6 +41,6 @@
 - [x] Criar links seguros com expiração, revogação, cópia e compartilhamento
 - [x] Criar formulário público em etapas com validações e perguntas condicionais
 - [x] Criar solicitações, revisão, edição, recusa e aprovação explícita
-- [x] Impedir duplicidades e vincular dados ao paciente oficial após aprovação
-- [x] Exibir pendências em Pacientes e Meu Dia sem revelar dados sensíveis
-- [x] Validar fluxo completo, isolamento, expiração, desktop e celular
+- [ ] Impedir duplicidades e vincular dados ao paciente oficial após aprovação
+- [ ] Exibir pendências em Pacientes e Meu Dia sem revelar dados sensíveis
+- [ ] Validar fluxo completo, isolamento, expiração, desktop e celular
