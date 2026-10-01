@@ -9,6 +9,3 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-## Project architecture
-
-- Development preview responses disable browser caching so modules always match the active TanStack workspace revision.
