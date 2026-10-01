@@ -8,3 +8,4 @@ export * from "./data/documents";
 export * from "./data/dashboard";
 export * from "./data/schedule";
 export * from "./data/patient-registration";
+export * from "./data/packages";

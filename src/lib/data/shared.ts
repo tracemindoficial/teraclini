@@ -12,16 +12,19 @@ export type Evolution = Tables["evolutions"]["Row"];
 export type PatientDocument = Tables["documents"]["Row"];
 export type Room = Tables["rooms"]["Row"];
 export type CustomAppointmentType = Tables["appointment_types"]["Row"];
+export type CarePackage = Tables["care_packages"]["Row"];
 
 export type AppointmentWithRefs = Appointment & {
   patient: Pick<Patient, "id" | "full_name"> | null;
   location: Pick<Location, "id" | "name" | "type"> | null;
   room: Pick<Room, "id" | "name"> | null;
   appointment_type: Pick<CustomAppointmentType, "id" | "name" | "color_key"> | null;
+  care_package: Pick<CarePackage, "id" | "quantity"> | null;
+  package_session_number: number | null;
 };
 
 export const APPOINTMENT_SELECT =
-  "*, patient:patients(id, full_name), location:locations(id, name, type), room:rooms(id, name), appointment_type:appointment_types(id, name, color_key)";
+  "*, patient:patients(id, full_name), location:locations(id, name, type), room:rooms(id, name), appointment_type:appointment_types(id, name, color_key), care_package:care_packages(id, quantity)";
 
 export async function currentUserId() {
   const { data, error } = await supabase.auth.getUser();
