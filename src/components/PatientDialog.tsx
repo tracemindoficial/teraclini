@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +11,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -134,51 +134,51 @@ export function PatientDialog({
             ))}
           </div>
 
-          <Field label="Nome completo" required>
+          <FormField label="Nome completo" required>
             <Input
               required
               value={values.full_name}
               onChange={(event) => setValues({ ...values, full_name: event.target.value })}
             />
-          </Field>
+          </FormField>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Data de nascimento">
+            <FormField label="Data de nascimento">
               <Input
                 type="date"
                 value={values.birth_date}
                 onChange={(event) => setValues({ ...values, birth_date: event.target.value })}
               />
-            </Field>
-            <Field label="Sexo">
+            </FormField>
+            <FormField label="Sexo">
               <Input
                 value={values.gender}
                 onChange={(event) => setValues({ ...values, gender: event.target.value })}
               />
-            </Field>
-            <Field label="Telefone">
+            </FormField>
+            <FormField label="Telefone">
               <Input
                 value={values.phone}
                 onChange={(event) => setValues({ ...values, phone: event.target.value })}
               />
-            </Field>
-            <Field label="E-mail">
+            </FormField>
+            <FormField label="E-mail">
               <Input
                 type="email"
                 value={values.email}
                 onChange={(event) => setValues({ ...values, email: event.target.value })}
               />
-            </Field>
+            </FormField>
           </div>
 
-          <Field label="Endereço">
+          <FormField label="Endereço">
             <Input
               value={values.address}
               onChange={(event) => setValues({ ...values, address: event.target.value })}
             />
-          </Field>
+          </FormField>
 
-          <Field label="Situação">
+          <FormField label="Situação">
             <Select
               value={values.status}
               onValueChange={(value) => setValues({ ...values, status: value as PatientStatus })}
@@ -194,7 +194,7 @@ export function PatientDialog({
                 ))}
               </SelectContent>
             </Select>
-          </Field>
+          </FormField>
 
           {needsGuardian && !patient ? (
             <div className="rounded-xl border bg-muted/40 p-4">
@@ -225,13 +225,13 @@ export function PatientDialog({
             </div>
           ) : null}
 
-          <Field label="Observações">
+          <FormField label="Observações">
             <Textarea
               rows={3}
               value={values.notes}
               onChange={(event) => setValues({ ...values, notes: event.target.value })}
             />
-          </Field>
+          </FormField>
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
@@ -244,25 +244,5 @@ export function PatientDialog({
         </form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function Field({
-  label,
-  required,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label>
-        {label}
-        {required ? " *" : ""}
-      </Label>
-      {children}
-    </div>
   );
 }
