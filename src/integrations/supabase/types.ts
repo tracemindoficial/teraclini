@@ -1514,7 +1514,7 @@ export type Database = {
         | "anamnese"
         | "outro"
       care_mode: "presencial" | "online" | "ambos"
-      care_package_lifecycle: "ativo" | "cancelado"
+      care_package_lifecycle: "ativo" | "cancelado" | "encerrado"
       care_package_periodicity:
         | "semanal"
         | "quinzenal"
@@ -1677,7 +1677,7 @@ export const Constants = {
         "outro",
       ],
       care_mode: ["presencial", "online", "ambos"],
-      care_package_lifecycle: ["ativo", "cancelado"],
+      care_package_lifecycle: ["ativo", "cancelado", "encerrado"],
       care_package_periodicity: [
         "semanal",
         "quinzenal",
