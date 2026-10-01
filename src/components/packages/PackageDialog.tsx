@@ -123,7 +123,7 @@ export function PackageDialog({
 }
 
 function defaultValues() {
-  return { patientId: "", typeId: "none", quantity: "4", totalValue: "", startDate: toDateInput(new Date()), endDate: "", periodicity: "sem_periodicidade" as const | "semanal" | "quinzenal" | "mensal" | "personalizada", threshold: "2", notes: "" };
+  return { patientId: "", typeId: "none", quantity: "4", totalValue: "", startDate: toDateInput(new Date()), endDate: "", periodicity: "sem_periodicidade" as "sem_periodicidade" | "semanal" | "quinzenal" | "mensal" | "personalizada", threshold: "2", notes: "" };
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
