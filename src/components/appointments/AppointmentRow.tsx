@@ -11,10 +11,11 @@ export function AppointmentRow({
   appointment: AppointmentWithRefs;
   highlight?: boolean;
 }) {
-  const packageSequence = appointment.care_package?.appointments
-    .slice()
-    .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
-    .findIndex((item) => item.id === appointment.id);
+  const packageSequence =
+    appointment.care_package?.appointments
+      .slice()
+      .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
+      .findIndex((item) => item.id === appointment.id) ?? -1;
 
   return (
     <li>
