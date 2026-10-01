@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PROFESSIONS } from "@/lib/domain";
 import { useProfile, useUpdateProfile } from "@/lib/data";
 import { joinProfession, splitProfession } from "@/lib/professional-profile";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
@@ -117,6 +118,7 @@ function Onboarding() {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col justify-center px-5 py-8 sm:py-12">
+      <BrandLogo className="mb-7 w-56 max-w-[72vw]" />
       <p className="text-sm font-medium text-primary">Bem-vindo</p>
       <section className="surface mt-3 p-5 sm:p-7">
         <h1 className="text-2xl">Vamos configurar seu espaço profissional</h1>

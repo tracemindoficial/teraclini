@@ -51,15 +51,15 @@ function PatientsPage() {
       description="Seus pacientes, independentemente do local"
       action={<div className="flex gap-2"><Button asChild variant="outline" className="gap-2"><Link to="/pacientes/pre-cadastros"><ClipboardList className="size-4" /><span className="hidden sm:inline">Pré-cadastros</span></Link></Button><Button className="gap-2" onClick={() => setDialogOpen(true)}><Plus className="size-4" /><span className="hidden sm:inline">Novo paciente</span></Button></div>}
     >
-      <div className="flex flex-wrap gap-3">
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,20rem)_12rem]">
         <Input
-          className="max-w-xs"
+          className="w-full"
           placeholder="Buscar por nome..."
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -91,11 +91,11 @@ function PatientsPage() {
               key={patient.id}
               to="/pacientes/$id"
               params={{ id: patient.id }}
-              className="surface flex items-center gap-4 p-4 transition-shadow hover:shadow-[var(--shadow-lift)]"
+              className="surface grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 transition-shadow hover:shadow-[var(--shadow-lift)]"
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{patient.full_name}</p>
-                <p className="truncate text-xs text-muted-foreground">
+                <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:truncate">
                   {labelOf(AGE_GROUPS, patient.age_group)}
                   {age !== null ? ` · ${age} anos` : ""}
                   {patient.phone ? ` · ${patient.phone}` : ""}

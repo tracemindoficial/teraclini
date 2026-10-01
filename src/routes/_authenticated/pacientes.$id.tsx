@@ -122,7 +122,7 @@ function PatientProfile() {
       }
     >
       <Tabs defaultValue="resumo">
-        <TabsList className="flex-wrap">
+        <TabsList className="w-full justify-start overflow-x-auto">
           <TabsTrigger value="resumo">Resumo</TabsTrigger>
           <TabsTrigger value="historico">Prontuário</TabsTrigger>
           <TabsTrigger value="anamneses">Anamneses</TabsTrigger>

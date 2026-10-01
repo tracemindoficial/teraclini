@@ -101,7 +101,7 @@ function Agenda() {
         </Button>
       }
     >
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[auto_auto_minmax(0,1fr)_auto_auto] xl:items-center">
         <Tabs value={view} onValueChange={(value) => setView(value as View)}>
           <TabsList>
             <TabsTrigger value="dia">Dia</TabsTrigger>
@@ -110,7 +110,7 @@ function Agenda() {
           </TabsList>
         </Tabs>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 sm:justify-end xl:justify-start">
           <Button variant="outline" size="icon" aria-label="Anterior" onClick={() => shift(-1)}>
             <ChevronLeft className="size-4" />
           </Button>
@@ -123,7 +123,7 @@ function Agenda() {
         </div>
 
         <Select value={locationId} onValueChange={setLocationId}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-full xl:w-48">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -137,7 +137,7 @@ function Agenda() {
         </Select>
 
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-full xl:w-44">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
