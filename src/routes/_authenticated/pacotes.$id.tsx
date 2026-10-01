@@ -34,7 +34,7 @@ function PackageDetailsPage() {
   const { used, remaining } = packageUsage(item);
   const completed = item.appointments.filter((appointment) => appointment.status === "realizado").sort((a, b) => a.starts_at.localeCompare(b.starts_at));
   async function cancel() {
-    if (!window.confirm("Cancelar este pacote? O histórico e os atendimentos serão preservados.")) return;
+    if (!item || !window.confirm("Cancelar este pacote? O histórico e os atendimentos serão preservados.")) return;
     try { await cancelPackage.mutateAsync(item.id); toast.success("Pacote cancelado."); } catch (error) { toast.error(error instanceof Error ? error.message : "Não foi possível cancelar."); }
   }
   return (

@@ -48,7 +48,6 @@ export function AppointmentDialog({
   const { data: patients } = usePatients();
   const { data: locations } = useLocations();
   const saveAppointment = useSaveAppointment();
-  const { data: patientPackages } = usePackages(values.patient_id || undefined);
   const [patientDialogOpen, setPatientDialogOpen] = useState(false);
 
   const [values, setValues] = useState({
@@ -63,6 +62,7 @@ export function AppointmentDialog({
     notes: "",
     package_id: "none",
   });
+  const { data: patientPackages } = usePackages(values.patient_id || undefined);
 
   useEffect(() => {
     if (!open) return;
