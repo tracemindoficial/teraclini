@@ -32,6 +32,6 @@
 - [x] Validar fluxos públicos, proteção de acesso, build, desktop e celular após a refatoração
 
 ## Identidade visual TeraClini
-- [ ] Revisar visualmente todas as telas e aplicar a marca oficial sem alterar funcionalidades
-- [ ] Aplicar logotipo, símbolo, favicon e paleta oficial em desktop e celular
-- [ ] Validar consistência, legibilidade e ausência de regressões visuais
+- [x] Revisar visualmente todas as telas e aplicar a marca oficial sem alterar funcionalidades
+- [x] Aplicar logotipo, símbolo, favicon e paleta oficial em desktop e celular
+- [x] Validar consistência, legibilidade e ausência de regressões visuais
