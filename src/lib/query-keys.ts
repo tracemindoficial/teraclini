@@ -1,0 +1,22 @@
+export const queryKeys = {
+  profile: ["profile"] as const,
+  onboardingTasks: ["onboarding-tasks"] as const,
+  locations: ["locations"] as const,
+  patients: ["patients"] as const,
+  patient: (id: string) => ["patient", id] as const,
+  guardians: (patientId: string) => ["guardians", patientId] as const,
+  appointments: ["appointments"] as const,
+  patientAppointments: ["patient-appointments"] as const,
+  appointment: ["appointment"] as const,
+  pendingEvolutions: ["pending-evolutions"] as const,
+  evolutions: (patientId: string) => ["evolutions", patientId] as const,
+  evolutionByAppointment: (appointmentId: string) =>
+    ["evolution-by-appointment", appointmentId] as const,
+  anamneses: (patientId: string) => ["anamneses", patientId] as const,
+  documents: ["documents"] as const,
+  globalSearch: (term: string) => ["global-search", term] as const,
+  rooms: ["rooms"] as const,
+  availability: ["availability"] as const,
+  scheduleBlocks: ["schedule-blocks"] as const,
+  appointmentTypes: ["appointment-types"] as const,
+} as const;
