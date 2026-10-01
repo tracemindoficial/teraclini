@@ -9,6 +9,7 @@ import {
   Search,
   Settings,
   Users,
+  ClipboardList,
   BarChart3,
   LogOut,
 } from "lucide-react";
@@ -26,6 +27,7 @@ const NAV = [
   { to: "/meu-dia", label: "Meu Dia", icon: Home },
   { to: "/agenda", label: "Agenda", icon: CalendarDays },
   { to: "/pacientes", label: "Pacientes", icon: Users },
+  { to: "/pacientes/pre-cadastros", label: "Pré-cadastros", icon: ClipboardList },
   { to: "/locais", label: "Locais", icon: MapPin },
   { to: "/documentos", label: "Documentos", icon: FileText },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },

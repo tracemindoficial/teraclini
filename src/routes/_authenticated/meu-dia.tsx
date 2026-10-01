@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { CalendarPlus, MapPin, Plus, Search, UserPlus } from "lucide-react";
+import { CalendarPlus, ClipboardList, MapPin, Plus, Search, UserPlus } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { AppointmentDialog } from "@/components/AppointmentDialog";
@@ -11,7 +11,7 @@ import { AppointmentRow } from "@/components/appointments/AppointmentRow";
 import { Button } from "@/components/ui/button";
 import { SetupChecklist } from "@/components/onboarding/SetupChecklist";
 import { useOnboardingTasks } from "@/lib/account-data";
-import { useAppointments, usePendingEvolutions, useProfile } from "@/lib/data";
+import { useAppointments, usePendingEvolutions, useProfile, useRegistrationRequests } from "@/lib/data";
 import { formatDateLong, greeting } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/meu-dia")({
@@ -49,6 +49,7 @@ function MeuDia() {
   const { data: appointments, isLoading } = useAppointments(bounds);
   const { data: pending } = usePendingEvolutions();
   const { data: onboardingTasks } = useOnboardingTasks();
+  const { data: registrationRequests } = useRegistrationRequests();
 
   const [appointmentOpen, setAppointmentOpen] = useState(false);
   const [patientOpen, setPatientOpen] = useState(false);
@@ -59,6 +60,9 @@ function MeuDia() {
   const completedTasks = onboardingTasks?.filter((task) => task.completed_at).length ?? 0;
   const totalTasks = onboardingTasks?.length ?? 0;
   const onboardingComplete = totalTasks > 0 && completedTasks === totalTasks;
+  const pendingRegistrations = registrationRequests?.filter(
+    (request) => request.status === "awaiting_approval",
+  ).length ?? 0;
 
   return (
     <AppShell
@@ -114,6 +118,23 @@ function MeuDia() {
         </section>
 
         <aside className="space-y-5">
+          {pendingRegistrations > 0 ? (
+            <Link
+              to="/pacientes/pre-cadastros"
+              className="surface flex items-center gap-3 p-5 transition-shadow hover:shadow-[var(--shadow-lift)]"
+            >
+              <div className="grid size-10 place-items-center rounded-xl bg-secondary/50 text-primary">
+                <ClipboardList className="size-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold">Pré-cadastros para revisar</p>
+                <p className="text-xs text-muted-foreground">
+                  {pendingRegistrations} solicitaç{pendingRegistrations === 1 ? "ão" : "ões"} pendente
+                  {pendingRegistrations === 1 ? "" : "s"}
+                </p>
+              </div>
+            </Link>
+          ) : null}
           <div className="surface p-5">
             <h2 className="text-sm font-semibold">Aguardando evolução</h2>
             {pending && pending.length > 0 ? (

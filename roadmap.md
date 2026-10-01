@@ -37,10 +37,10 @@
 - [x] Validar consistência, legibilidade e ausência de regressões visuais
 
 ## Pré-cadastro de pacientes por link
-- [ ] Auditar cadastro atual, segurança, isolamento e componentes reutilizáveis
-- [ ] Criar links seguros com expiração, revogação, cópia e compartilhamento
-- [ ] Criar formulário público em etapas com validações e perguntas condicionais
-- [ ] Criar solicitações, revisão, edição, recusa e aprovação explícita
+- [x] Auditar cadastro atual, segurança, isolamento e componentes reutilizáveis
+- [x] Criar links seguros com expiração, revogação, cópia e compartilhamento
+- [x] Criar formulário público em etapas com validações e perguntas condicionais
+- [x] Criar solicitações, revisão, edição, recusa e aprovação explícita
 - [ ] Impedir duplicidades e vincular dados ao paciente oficial após aprovação
 - [ ] Exibir pendências em Pacientes e Meu Dia sem revelar dados sensíveis
 - [ ] Validar fluxo completo, isolamento, expiração, desktop e celular

@@ -755,20 +755,284 @@ export type Database = {
           },
         ]
       }
+      patient_registration_links: {
+        Row: {
+          account_id: string
+          created_at: string
+          created_by: string
+          expires_at: string
+          id: string
+          label: string | null
+          max_uses: number
+          revoked_at: string | null
+          token_hash: string
+          updated_at: string
+          uses_count: number
+        }
+        Insert: {
+          account_id?: string
+          created_at?: string
+          created_by?: string
+          expires_at: string
+          id?: string
+          label?: string | null
+          max_uses?: number
+          revoked_at?: string | null
+          token_hash: string
+          updated_at?: string
+          uses_count?: number
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string
+          id?: string
+          label?: string | null
+          max_uses?: number
+          revoked_at?: string | null
+          token_hash?: string
+          updated_at?: string
+          uses_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_registration_links_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_registration_rate_limits: {
+        Row: {
+          attempts: number
+          bucket_key: string
+          updated_at: string
+          window_started_at: string
+        }
+        Insert: {
+          attempts?: number
+          bucket_key: string
+          updated_at?: string
+          window_started_at?: string
+        }
+        Update: {
+          attempts?: number
+          bucket_key?: string
+          updated_at?: string
+          window_started_at?: string
+        }
+        Relationships: []
+      }
+      patient_registration_requests: {
+        Row: {
+          account_id: string
+          address_complement: string | null
+          address_number: string | null
+          age_group: Database["public"]["Enums"]["age_group"]
+          approved_at: string | null
+          birth_date: string
+          city: string
+          cpf: string
+          created_at: string
+          education: string | null
+          email: string
+          emergency_name: string | null
+          emergency_notes: string | null
+          emergency_phone: string | null
+          emergency_relationship: string | null
+          family_mental_health: string
+          family_mental_health_details: string | null
+          full_name: string
+          gender: string | null
+          guardian_email: string | null
+          guardian_name: string | null
+          guardian_phone: string | null
+          guardian_relationship: string | null
+          id: string
+          link_id: string
+          marital_status: string | null
+          medical_diagnosis: string
+          medical_diagnosis_details: string | null
+          medication_details: string | null
+          medication_use: string
+          neighborhood: string | null
+          occupation: string | null
+          patient_id: string | null
+          payment_preference: string | null
+          phone: string | null
+          postal_code: string
+          previous_therapy: string
+          previous_therapy_details: string | null
+          privacy_consent_at: string
+          referral_source: string | null
+          referral_source_other: string | null
+          rejected_at: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          state: string
+          status: string
+          street: string | null
+          submitted_at: string
+          therapy_reason: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          address_complement?: string | null
+          address_number?: string | null
+          age_group?: Database["public"]["Enums"]["age_group"]
+          approved_at?: string | null
+          birth_date: string
+          city: string
+          cpf: string
+          created_at?: string
+          education?: string | null
+          email: string
+          emergency_name?: string | null
+          emergency_notes?: string | null
+          emergency_phone?: string | null
+          emergency_relationship?: string | null
+          family_mental_health: string
+          family_mental_health_details?: string | null
+          full_name: string
+          gender?: string | null
+          guardian_email?: string | null
+          guardian_name?: string | null
+          guardian_phone?: string | null
+          guardian_relationship?: string | null
+          id?: string
+          link_id: string
+          marital_status?: string | null
+          medical_diagnosis: string
+          medical_diagnosis_details?: string | null
+          medication_details?: string | null
+          medication_use: string
+          neighborhood?: string | null
+          occupation?: string | null
+          patient_id?: string | null
+          payment_preference?: string | null
+          phone?: string | null
+          postal_code: string
+          previous_therapy: string
+          previous_therapy_details?: string | null
+          privacy_consent_at: string
+          referral_source?: string | null
+          referral_source_other?: string | null
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          state: string
+          status?: string
+          street?: string | null
+          submitted_at?: string
+          therapy_reason: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          address_complement?: string | null
+          address_number?: string | null
+          age_group?: Database["public"]["Enums"]["age_group"]
+          approved_at?: string | null
+          birth_date?: string
+          city?: string
+          cpf?: string
+          created_at?: string
+          education?: string | null
+          email?: string
+          emergency_name?: string | null
+          emergency_notes?: string | null
+          emergency_phone?: string | null
+          emergency_relationship?: string | null
+          family_mental_health?: string
+          family_mental_health_details?: string | null
+          full_name?: string
+          gender?: string | null
+          guardian_email?: string | null
+          guardian_name?: string | null
+          guardian_phone?: string | null
+          guardian_relationship?: string | null
+          id?: string
+          link_id?: string
+          marital_status?: string | null
+          medical_diagnosis?: string
+          medical_diagnosis_details?: string | null
+          medication_details?: string | null
+          medication_use?: string
+          neighborhood?: string | null
+          occupation?: string | null
+          patient_id?: string | null
+          payment_preference?: string | null
+          phone?: string | null
+          postal_code?: string
+          previous_therapy?: string
+          previous_therapy_details?: string | null
+          privacy_consent_at?: string
+          referral_source?: string | null
+          referral_source_other?: string | null
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          state?: string
+          status?: string
+          street?: string | null
+          submitted_at?: string
+          therapy_reason?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_registration_requests_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_registration_requests_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "patient_registration_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_registration_requests_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patients: {
         Row: {
           account_id: string
           address: string | null
+          address_complement: string | null
+          address_number: string | null
           age_group: Database["public"]["Enums"]["age_group"]
           birth_date: string | null
           city: string | null
+          cpf: string | null
           created_at: string
+          education: string | null
           email: string | null
           full_name: string
           gender: string | null
           id: string
+          marital_status: string | null
+          neighborhood: string | null
           notes: string | null
+          occupation: string | null
           phone: string | null
+          postal_code: string | null
+          registration_source: string
           state: string | null
           status: Database["public"]["Enums"]["patient_status"]
           updated_at: string
@@ -777,16 +1041,25 @@ export type Database = {
         Insert: {
           account_id?: string
           address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
           age_group?: Database["public"]["Enums"]["age_group"]
           birth_date?: string | null
           city?: string | null
+          cpf?: string | null
           created_at?: string
+          education?: string | null
           email?: string | null
           full_name: string
           gender?: string | null
           id?: string
+          marital_status?: string | null
+          neighborhood?: string | null
           notes?: string | null
+          occupation?: string | null
           phone?: string | null
+          postal_code?: string | null
+          registration_source?: string
           state?: string | null
           status?: Database["public"]["Enums"]["patient_status"]
           updated_at?: string
@@ -795,16 +1068,25 @@ export type Database = {
         Update: {
           account_id?: string
           address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
           age_group?: Database["public"]["Enums"]["age_group"]
           birth_date?: string | null
           city?: string | null
+          cpf?: string | null
           created_at?: string
+          education?: string | null
           email?: string | null
           full_name?: string
           gender?: string | null
           id?: string
+          marital_status?: string | null
+          neighborhood?: string | null
           notes?: string | null
+          occupation?: string | null
           phone?: string | null
+          postal_code?: string | null
+          registration_source?: string
           state?: string | null
           status?: Database["public"]["Enums"]["patient_status"]
           updated_at?: string
@@ -1019,6 +1301,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_patient_registration: {
+        Args: { _existing_patient_id?: string; _request_id: string }
+        Returns: string
+      }
       current_account_id: { Args: never; Returns: string }
       has_account_role: {
         Args: {
@@ -1031,6 +1317,25 @@ export type Database = {
       is_account_member: {
         Args: { _account_id: string; _user_id?: string }
         Returns: boolean
+      }
+      patient_registration_duplicates: {
+        Args: { _request_id: string }
+        Returns: {
+          birth_date: string
+          email: string
+          full_name: string
+          id: string
+          phone: string
+          reasons: string[]
+        }[]
+      }
+      reject_patient_registration: {
+        Args: { _reason: string; _request_id: string }
+        Returns: undefined
+      }
+      submit_patient_registration: {
+        Args: { _bucket_key: string; _payload: Json; _token_hash: string }
+        Returns: string
       }
     }
     Enums: {
