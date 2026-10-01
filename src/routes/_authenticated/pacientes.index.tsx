@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { ClipboardList, Plus } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { PatientDialog } from "@/components/PatientDialog";
@@ -49,12 +49,7 @@ function PatientsPage() {
     <AppShell
       title="Pacientes"
       description="Seus pacientes, independentemente do local"
-      action={
-        <Button className="gap-2" onClick={() => setDialogOpen(true)}>
-          <Plus className="size-4" />
-          <span className="hidden sm:inline">Novo paciente</span>
-        </Button>
-      }
+      action={<div className="flex gap-2"><Button asChild variant="outline" className="gap-2"><Link to="/pacientes/pre-cadastros"><ClipboardList className="size-4" /><span className="hidden sm:inline">Pré-cadastros</span></Link></Button><Button className="gap-2" onClick={() => setDialogOpen(true)}><Plus className="size-4" /><span className="hidden sm:inline">Novo paciente</span></Button></div>}
     >
       <div className="flex flex-wrap gap-3">
         <Input

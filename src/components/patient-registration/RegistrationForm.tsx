@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { EMPTY_REGISTRATION, registrationPayloadSchema, type RegistrationPayload } from "@/lib/patient-registration-schema";
+import { EMPTY_REGISTRATION, registrationPayloadSchema, type RegistrationFormValues, type RegistrationPayload } from "@/lib/patient-registration-schema";
 import { submitPatientRegistration } from "@/lib/patient-registration.functions";
 
 const STEPS = ["Identificação", "Endereço", "Contatos", "Sua busca", "Histórico", "Revisão"];
@@ -21,7 +21,7 @@ export function RegistrationForm({ token }: { token: string }) {
   const [step, setStep] = useState(0);
   const [sent, setSent] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<RegistrationPayload>({ resolver: zodResolver(registrationPayloadSchema), defaultValues: EMPTY_REGISTRATION });
+  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<RegistrationFormValues, unknown, RegistrationPayload>({ resolver: zodResolver(registrationPayloadSchema), defaultValues: EMPTY_REGISTRATION });
   const values = watch();
   const next = () => setStep((value) => Math.min(value + 1, STEPS.length - 1));
   const back = () => setStep((value) => Math.max(value - 1, 0));
@@ -39,5 +39,5 @@ export function RegistrationForm({ token }: { token: string }) {
   </div>{submitError && <p role="alert" className="mt-5 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{submitError}</p>}<div className="mt-7 flex items-center justify-between gap-3"><Button type="button" variant="outline" onClick={back} disabled={step === 0 || isSubmitting}><ChevronLeft className="size-4" /> Voltar</Button>{step < STEPS.length - 1 ? <Button type="button" onClick={next}>Continuar <ChevronRight className="size-4" /></Button> : <Button type="submit" disabled={isSubmitting}>{isSubmitting ? "Enviando..." : "Enviar pré-cadastro"}</Button>}</div></form></div><p className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground"><LockKeyhole className="size-3.5" /> Seus dados são enviados por conexão protegida.</p></div></main>;
 }
 
-function Field({ id, label, children, error, optional, wide }: { id: string; label: string; children: React.ReactNode; error?: string; optional?: boolean; wide?: boolean }) { return <div className={wide ? "sm:col-span-2" : ""}><FormField id={id} label={label} required={!optional} optional={optional}>{children}</FormField>{error && <p className="mt-1 text-xs text-destructive">{error}</p>}</div>; }
+function Field({ id, label, children, error, optional, wide }: { id: string; label: string; children: React.ReactNode; error?: string | undefined; optional?: boolean | undefined; wide?: boolean | undefined }) { return <div className={wide ? "sm:col-span-2" : ""}><FormField id={id} label={label} required={!optional} optional={optional}>{children}</FormField>{error && <p className="mt-1 text-xs text-destructive">{error}</p>}</div>; }
 function Choice({ label, value, onChange, options, wide }: { label: string; value: string; onChange: (value: string) => void; options: readonly (readonly [string, string])[]; wide?: boolean }) { return <div className={wide ? "sm:col-span-2" : ""}><FormField label={label} required><Select value={value} onValueChange={onChange}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{options.map(([key, text]) => <SelectItem key={key} value={key}>{text}</SelectItem>)}</SelectContent></Select></FormField></div>; }

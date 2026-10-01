@@ -58,7 +58,7 @@ export const registrationPayloadSchema = z
     payment_preference: z.union([choice(["dinheiro", "pix", "cartao"]), z.literal("")]).default(""),
     referral_source: z.union([choice(["indicacao", "outro_profissional", "anuncio", "instagram", "google", "facebook", "outro"]), z.literal("")]).default(""),
     referral_source_other: optionalText(180),
-    privacy_consent: z.literal(true, { errorMap: () => ({ message: "Confirme o aviso de privacidade para enviar." }) }),
+    privacy_consent: z.boolean().refine((value) => value, "Confirme o aviso de privacidade para enviar."),
   })
   .superRefine((value, context) => {
     if (new Date(value.birth_date) >= new Date()) context.addIssue({ code: "custom", path: ["birth_date"], message: "A data de nascimento deve estar no passado." });
@@ -71,6 +71,7 @@ export const registrationPayloadSchema = z
   });
 
 export type RegistrationPayload = z.infer<typeof registrationPayloadSchema>;
+export type RegistrationFormValues = z.input<typeof registrationPayloadSchema>;
 
 export const EMPTY_REGISTRATION: RegistrationPayload = {
   full_name: "", email: "", birth_date: "", cpf: "", age_group: "adulto", gender: "", marital_status: "", education: "", occupation: "", phone: "",

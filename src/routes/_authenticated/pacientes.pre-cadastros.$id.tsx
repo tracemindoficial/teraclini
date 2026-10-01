@@ -7,10 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useApproveRegistration, useRegistrationDuplicates, useRegistrationRequest, useRejectRegistration, useSaveRegistrationRequest } from "@/lib/data/patient-registration";
+import { useApproveRegistration, useRegistrationDuplicates, useRegistrationRequest, useRejectRegistration } from "@/lib/data/patient-registration";
 
 export const Route = createFileRoute("/_authenticated/pacientes/pre-cadastros/$id")({ head: () => ({ meta: [{ title: "Revisar pré-cadastro — TeraClini" }] }), component: Page });
-function Page() { const { id } = Route.useParams(); const navigate = useNavigate(); const { data: request, isLoading } = useRegistrationRequest(id); const { data: duplicates } = useRegistrationDuplicates(id); const save = useSaveRegistrationRequest(); const approve = useApproveRegistration(); const reject = useRejectRegistration(); const [reason, setReason] = useState(""); const [rejectOpen, setRejectOpen] = useState(false);
+function Page() { const { id } = Route.useParams(); const navigate = useNavigate(); const { data: request, isLoading } = useRegistrationRequest(id); const { data: duplicates } = useRegistrationDuplicates(id); const approve = useApproveRegistration(); const reject = useRejectRegistration(); const [reason, setReason] = useState(""); const [rejectOpen, setRejectOpen] = useState(false);
  if (isLoading || !request) return <AppShell title="Revisar pré-cadastro"><p className="text-sm text-muted-foreground">Carregando dados protegidos...</p></AppShell>;
  const pending = request.status === "awaiting_approval";
  const approveNow = (patientId?: string) => approve.mutate({ id, existingPatientId: patientId }, { onSuccess: (patientId) => { toast.success(patientId ? "Pré-cadastro aprovado e paciente atualizado." : "Pré-cadastro aprovado."); navigate({ to: "/pacientes" }); }, onError: (e) => toast.error(e.message) });
