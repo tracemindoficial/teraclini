@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -15,6 +15,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { PROFESSIONS } from "@/lib/domain";
 import { useProfile, useUpdateProfile } from "@/lib/data";
+import { joinProfession, splitProfession } from "@/lib/professional-profile";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
@@ -58,11 +59,11 @@ function Onboarding() {
 
   useEffect(() => {
     if (!profile || hydrated.current) return;
-    const listedProfession = profile.profession && PROFESSIONS.includes(profile.profession);
+    const profession = splitProfession(profile.profession);
     setValues({
       full_name: profile.full_name ?? "",
-      profession: listedProfession ? (profile.profession ?? "") : profile.profession ? "Outra" : "",
-      other_profession: listedProfession ? "" : (profile.profession ?? ""),
+      profession: profession.profession,
+      other_profession: profession.otherProfession,
       professional_registry: profile.professional_registry ?? "",
       city: profile.city ?? "",
       state: profile.state ?? "",
@@ -79,7 +80,7 @@ function Onboarding() {
     return null;
   }
 
-  async function handleSubmit(event: React.FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (updateProfile.isPending) return;
     const invalid = validationError();
@@ -95,10 +96,7 @@ function Onboarding() {
       const avatarUrl = typeof avatarCandidate === "string" ? avatarCandidate : profile?.avatar_url;
       await updateProfile.mutateAsync({
         full_name: values.full_name.trim(),
-        profession:
-          values.profession === "Outra"
-            ? values.other_profession.trim()
-            : values.profession,
+        profession: joinProfession(values.profession, values.other_profession),
         professional_registry: values.professional_registry.trim() || null,
         city: values.city.trim() || null,
         state: values.state.trim().toUpperCase() || null,
@@ -128,7 +126,7 @@ function Onboarding() {
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
-          <Field id="full-name" label="Seu nome" required>
+          <FormField id="full-name" label="Seu nome" required>
             <Input
               id="full-name"
               value={values.full_name}
@@ -137,9 +135,9 @@ function Onboarding() {
               disabled={isLoading || updateProfile.isPending}
               aria-invalid={Boolean(formError && values.full_name.trim().length < 2)}
             />
-          </Field>
+          </FormField>
 
-          <Field id="profession" label="Profissão" required>
+          <FormField id="profession" label="Profissão" required>
             <Select
               value={values.profession}
               onValueChange={(profession) => setValues({ ...values, profession })}
@@ -156,20 +154,20 @@ function Onboarding() {
                 ))}
               </SelectContent>
             </Select>
-          </Field>
+          </FormField>
 
           {values.profession === "Outra" ? (
-            <Field id="other-profession" label="Qual é sua profissão?" required>
+            <FormField id="other-profession" label="Qual é sua profissão?" required>
               <Input
                 id="other-profession"
                 value={values.other_profession}
                 onChange={(event) => setValues({ ...values, other_profession: event.target.value })}
                 disabled={updateProfile.isPending}
               />
-            </Field>
+            </FormField>
           ) : null}
 
-          <Field id="professional-registry" label="Registro profissional" optional>
+          <FormField id="professional-registry" label="Registro profissional" optional>
             <Input
               id="professional-registry"
               value={values.professional_registry}
@@ -178,10 +176,10 @@ function Onboarding() {
               }
               disabled={updateProfile.isPending}
             />
-          </Field>
+          </FormField>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field id="city" label="Cidade" optional>
+            <FormField id="city" label="Cidade" optional>
               <Input
                 id="city"
                 value={values.city}
@@ -189,8 +187,8 @@ function Onboarding() {
                 autoComplete="address-level2"
                 disabled={updateProfile.isPending}
               />
-            </Field>
-            <Field id="state" label="Estado" optional>
+            </FormField>
+            <FormField id="state" label="Estado" optional>
               <Input
                 id="state"
                 value={values.state}
@@ -199,7 +197,7 @@ function Onboarding() {
                 maxLength={30}
                 disabled={updateProfile.isPending}
               />
-            </Field>
+            </FormField>
           </div>
 
           {formError ? (
@@ -224,30 +222,5 @@ function Onboarding() {
         </form>
       </section>
     </main>
-  );
-}
-
-function Field({
-  id,
-  label,
-  required = false,
-  optional = false,
-  children,
-}: {
-  id: string;
-  label: string;
-  required?: boolean;
-  optional?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label htmlFor={id}>
-        {label}
-        {required ? <span className="text-destructive"> *</span> : null}
-        {optional ? <span className="font-normal text-muted-foreground"> (opcional)</span> : null}
-      </Label>
-      {children}
-    </div>
   );
 }

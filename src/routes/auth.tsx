@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { describeAuthError, logAuthEvent, withTimeout } from "@/lib/auth-errors";
+import { getAuthenticatedDestination } from "@/lib/auth-session";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -39,14 +40,10 @@ function AuthPage() {
     async function continueAuthenticatedSession() {
       const { data } = await supabase.auth.getSession();
       if (!active || !data.session) return;
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("onboarding_completed")
-        .eq("id", data.session.user.id)
-        .maybeSingle();
+      const destination = await getAuthenticatedDestination(data.session.user.id);
       if (!active) return;
       navigate({
-        to: profile?.onboarding_completed ? "/meu-dia" : "/onboarding",
+        to: destination,
         replace: true,
       });
     }
@@ -145,13 +142,9 @@ function AuthPage() {
       const { data: sessionData } = await supabase.auth.getSession();
       const userId = sessionData.session?.user.id;
       if (!userId) throw new Error("Sessão não estabelecida após o acesso com Google.");
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("onboarding_completed")
-        .eq("id", userId)
-        .maybeSingle();
+      const destination = await getAuthenticatedDestination(userId);
       navigate({
-        to: profile?.onboarding_completed ? "/meu-dia" : "/onboarding",
+        to: destination,
         replace: true,
       });
     } catch (error) {

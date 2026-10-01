@@ -18,6 +18,8 @@ import {
   APPOINTMENT_MODALITIES,
   APPOINTMENT_STATUSES,
   APPOINTMENT_TYPES,
+  toDateInput,
+  toTimeInput,
   type AppointmentModality,
   type AppointmentStatus,
   type AppointmentType,
@@ -28,15 +30,6 @@ import {
   useSaveAppointment,
   type AppointmentWithRefs,
 } from "@/lib/data";
-
-function toDateInput(date: Date) {
-  const offset = date.getTimezoneOffset();
-  return new Date(date.getTime() - offset * 60000).toISOString().slice(0, 10);
-}
-function toTimeInput(date: Date) {
-  const offset = date.getTimezoneOffset();
-  return new Date(date.getTime() - offset * 60000).toISOString().slice(11, 16);
-}
 
 export function AppointmentDialog({
   open,

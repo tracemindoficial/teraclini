@@ -127,3 +127,11 @@ export function toLocalInputValue(date: Date) {
   const offset = date.getTimezoneOffset();
   return new Date(date.getTime() - offset * 60000).toISOString().slice(0, 16);
 }
+
+export function toDateInput(date: Date) {
+  return toLocalInputValue(date).slice(0, 10);
+}
+
+export function toTimeInput(date: Date) {
+  return toLocalInputValue(date).slice(11, 16);
+}

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { useProfile, useUpdateProfile } from "@/lib/data";
 import { PROFESSIONS, type CareMode } from "@/lib/domain";
+import { joinProfession, splitProfession } from "@/lib/professional-profile";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => ({ meta: [
@@ -43,15 +44,15 @@ function SettingsPage() {
 
   useEffect(() => {
     if (!profile) return;
-    const listedProfession = Boolean(profile.profession && PROFESSIONS.includes(profile.profession));
+    const profession = splitProfession(profile.profession);
     setValues({
       full_name: profile.full_name ?? "",
-      profession: listedProfession ? (profile.profession ?? "") : profile.profession ? "Outra" : "",
+      profession: profession.profession,
       professional_registry: profile.professional_registry ?? "",
       city: profile.city ?? "",
       state: profile.state ?? "",
       care_mode: profile.care_mode ?? "ambos",
-      other_profession: listedProfession ? "" : (profile.profession ?? ""),
+      other_profession: profession.otherProfession,
     });
   }, [profile]);
 
@@ -60,10 +61,7 @@ function SettingsPage() {
     try {
       await updateProfile.mutateAsync({
         full_name: values.full_name,
-        profession:
-          values.profession === "Outra"
-            ? values.other_profession.trim() || null
-            : values.profession || null,
+        profession: joinProfession(values.profession, values.other_profession) || null,
         professional_registry: values.professional_registry || null,
         city: values.city || null,
         state: values.state || null,
