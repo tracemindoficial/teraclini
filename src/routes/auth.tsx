@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -62,7 +62,7 @@ function AuthPage() {
     return null;
   }
 
-  async function handleSubmit(event: React.FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (submitting.current) return; // impede envios duplicados
     const invalid = validate();
@@ -243,16 +243,17 @@ function AuthPage() {
             Continuar com Google
           </Button>
 
-          <button
+          <Button
             type="button"
+            variant="link"
             onClick={() => {
               setFormError(null);
               setMode(mode === "signin" ? "signup" : "signin");
             }}
-            className="mt-5 w-full text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
+            className="mt-5 w-full text-center text-sm text-muted-foreground"
           >
             {mode === "signin" ? "Não tenho conta ainda" : "Já tenho uma conta"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

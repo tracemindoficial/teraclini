@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -97,7 +97,7 @@ export function AnamnesisDialog({
 
   const sections = ANAMNESIS_TEMPLATES[templateKey]?.sections ?? [];
 
-  async function handleSubmit(event: React.FormEvent, markCompleted: boolean) {
+  async function handleSubmit(event: FormEvent, markCompleted: boolean) {
     event.preventDefault();
     try {
       await saveAnamnesis.mutateAsync({

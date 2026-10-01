@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalendarDays, FolderLock, MapPin, Smartphone } from "lucide-react";
 
@@ -87,7 +88,7 @@ function Landing() {
   );
 }
 
-function Feature({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
+function Feature({ icon, title, text }: { icon: ReactNode; title: string; text: string }) {
   return (
     <div className="surface p-6">
       <span className="flex size-10 items-center justify-center rounded-xl bg-secondary text-secondary-foreground">

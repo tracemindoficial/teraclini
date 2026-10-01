@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { FileText, MapPin, User } from "lucide-react";
 
@@ -101,7 +101,7 @@ export function GlobalSearch({
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div>
       <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">{title}</p>
@@ -116,7 +116,7 @@ function Result({
   subtitle,
   onClick,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
   subtitle: string;
   onClick: () => void;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -94,7 +94,7 @@ export function AppointmentDialog({
     }));
   }, [open, appointment, defaultDate, defaultPatientId]);
 
-  async function handleSubmit(event: React.FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     try {
       const startsAt = new Date(`${values.date}T${values.start}`);
