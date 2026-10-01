@@ -24,6 +24,8 @@ import { Route as PreCadastroTokenRouteImport } from './routes/pre-cadastro.$tok
 import { Route as AuthenticatedAtendimentosIdRouteImport } from './routes/_authenticated/atendimentos.$id'
 import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes.index'
 import { Route as AuthenticatedPacientesIdRouteImport } from './routes/_authenticated/pacientes.$id'
+import { Route as AuthenticatedPacientesPreCadastrosRouteImport } from './routes/_authenticated/pacientes.pre-cadastros'
+import { Route as AuthenticatedPacientesPreCadastrosIdRouteImport } from './routes/_authenticated/pacientes.pre-cadastros.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -103,6 +105,18 @@ const AuthenticatedPacientesIdRoute =
     path: '/pacientes/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPacientesPreCadastrosRoute =
+  AuthenticatedPacientesPreCadastrosRouteImport.update({
+    id: '/pacientes/pre-cadastros',
+    path: '/pacientes/pre-cadastros',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPacientesPreCadastrosIdRoute =
+  AuthenticatedPacientesPreCadastrosIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedPacientesPreCadastrosRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -118,7 +132,9 @@ export interface FileRoutesByFullPath {
   '/pre-cadastro/$token': typeof PreCadastroTokenRoute
   '/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
+  '/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
   '/pacientes/': typeof AuthenticatedPacientesIndexRoute
+  '/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -134,7 +150,9 @@ export interface FileRoutesByTo {
   '/pre-cadastro/$token': typeof PreCadastroTokenRoute
   '/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
+  '/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
   '/pacientes': typeof AuthenticatedPacientesIndexRoute
+  '/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -152,7 +170,9 @@ export interface FileRoutesById {
   '/pre-cadastro/$token': typeof PreCadastroTokenRoute
   '/_authenticated/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
   '/_authenticated/pacientes/$id': typeof AuthenticatedPacientesIdRoute
+  '/_authenticated/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
   '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
+  '/_authenticated/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -170,7 +190,9 @@ export interface FileRouteTypes {
     | '/pre-cadastro/$token'
     | '/atendimentos/$id'
     | '/pacientes/$id'
+    | '/pacientes/pre-cadastros'
     | '/pacientes/'
+    | '/pacientes/pre-cadastros/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -186,7 +208,9 @@ export interface FileRouteTypes {
     | '/pre-cadastro/$token'
     | '/atendimentos/$id'
     | '/pacientes/$id'
+    | '/pacientes/pre-cadastros'
     | '/pacientes'
+    | '/pacientes/pre-cadastros/$id'
   id:
     | '__root__'
     | '/'
@@ -203,7 +227,9 @@ export interface FileRouteTypes {
     | '/pre-cadastro/$token'
     | '/_authenticated/atendimentos/$id'
     | '/_authenticated/pacientes/$id'
+    | '/_authenticated/pacientes/pre-cadastros'
     | '/_authenticated/pacientes/'
+    | '/_authenticated/pacientes/pre-cadastros/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -321,8 +347,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPacientesIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/pacientes/pre-cadastros': {
+      id: '/_authenticated/pacientes/pre-cadastros'
+      path: '/pacientes/pre-cadastros'
+      fullPath: '/pacientes/pre-cadastros'
+      preLoaderRoute: typeof AuthenticatedPacientesPreCadastrosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pacientes/pre-cadastros/$id': {
+      id: '/_authenticated/pacientes/pre-cadastros/$id'
+      path: '/$id'
+      fullPath: '/pacientes/pre-cadastros/$id'
+      preLoaderRoute: typeof AuthenticatedPacientesPreCadastrosIdRouteImport
+      parentRoute: typeof AuthenticatedPacientesPreCadastrosRoute
+    }
   }
 }
+
+interface AuthenticatedPacientesPreCadastrosRouteChildren {
+  AuthenticatedPacientesPreCadastrosIdRoute: typeof AuthenticatedPacientesPreCadastrosIdRoute
+}
+
+const AuthenticatedPacientesPreCadastrosRouteChildren: AuthenticatedPacientesPreCadastrosRouteChildren =
+  {
+    AuthenticatedPacientesPreCadastrosIdRoute:
+      AuthenticatedPacientesPreCadastrosIdRoute,
+  }
+
+const AuthenticatedPacientesPreCadastrosRouteWithChildren =
+  AuthenticatedPacientesPreCadastrosRoute._addFileChildren(
+    AuthenticatedPacientesPreCadastrosRouteChildren,
+  )
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
@@ -334,6 +389,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedAtendimentosIdRoute: typeof AuthenticatedAtendimentosIdRoute
   AuthenticatedPacientesIdRoute: typeof AuthenticatedPacientesIdRoute
+  AuthenticatedPacientesPreCadastrosRoute: typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
   AuthenticatedPacientesIndexRoute: typeof AuthenticatedPacientesIndexRoute
 }
 
@@ -347,6 +403,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedAtendimentosIdRoute: AuthenticatedAtendimentosIdRoute,
   AuthenticatedPacientesIdRoute: AuthenticatedPacientesIdRoute,
+  AuthenticatedPacientesPreCadastrosRoute:
+    AuthenticatedPacientesPreCadastrosRouteWithChildren,
   AuthenticatedPacientesIndexRoute: AuthenticatedPacientesIndexRoute,
 }
 
