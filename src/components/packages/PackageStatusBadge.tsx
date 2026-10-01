@@ -7,6 +7,7 @@ const LABELS = {
   esgotado: "Esgotado",
   expirado: "Expirado",
   cancelado: "Cancelado",
+  encerrado: "Encerrado",
 } as const;
 
 export function PackageStatusBadge({ item }: { item: CarePackageWithRefs }) {
