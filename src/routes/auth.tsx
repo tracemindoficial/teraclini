@@ -105,7 +105,10 @@ function AuthPage() {
         return;
       }
       if (mode === "signup") {
-        trackCommercialEvent("signup_click", { planCode: search.plan, pagePath: "/auth" });
+        trackCommercialEvent("signup_click", {
+          ...(search.plan ? { planCode: search.plan } : {}),
+          pagePath: "/auth",
+        });
         const { data, error } = await withTimeout(
           supabase.auth.signUp({
             email: email.trim(),

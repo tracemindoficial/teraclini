@@ -569,7 +569,7 @@ function SectionHeading({
 }: {
   eyebrow: string;
   title: string;
-  description?: string;
+  description?: string | undefined;
   dark?: boolean;
 }) {
   return (
