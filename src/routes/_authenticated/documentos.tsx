@@ -100,7 +100,7 @@ function DocumentsPage() {
               <Link
                 to="/pacientes/$id"
                 params={{ id: document.patient_id }}
-                search={{}}
+                search={{ schedule: undefined }}
                 className="shrink-0 text-xs font-medium text-primary underline-offset-4 hover:underline"
               >
                 Abrir paciente

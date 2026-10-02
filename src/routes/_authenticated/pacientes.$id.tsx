@@ -64,7 +64,7 @@ function PatientProfile() {
   const { data: packages } = usePackages(id);
 
   const [editOpen, setEditOpen] = useState(false);
-  const [appointmentOpen, setAppointmentOpen] = useState(schedule);
+  const [appointmentOpen, setAppointmentOpen] = useState(Boolean(schedule));
   const [anamnesisOpen, setAnamnesisOpen] = useState(false);
   const [editingAnamnesis, setEditingAnamnesis] = useState<Anamnesis | undefined>();
   const [packageOpen, setPackageOpen] = useState(false);

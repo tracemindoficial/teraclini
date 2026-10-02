@@ -91,7 +91,7 @@ function PatientsPage() {
               key={patient.id}
               to="/pacientes/$id"
               params={{ id: patient.id }}
-              search={{}}
+              search={{ schedule: undefined }}
               className="surface grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 transition-shadow hover:shadow-[var(--shadow-lift)]"
             >
               <div className="min-w-0 flex-1">
