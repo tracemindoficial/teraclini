@@ -9,7 +9,14 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { useApproveRegistration, useRegistrationDuplicates, useRegistrationRequest, useRejectRegistration } from "@/lib/data/patient-registration";
 
-export const Route = createFileRoute("/_authenticated/pacientes/pre-cadastros/$id")({ head: () => ({ meta: [{ title: "Revisar pré-cadastro — TeraClini" }] }), component: Page });
+export const Route = createFileRoute("/_authenticated/pacientes/pre-cadastros/$id")({ head: () => ({ meta: [
+  { title: "Revisar pré-cadastro — TeraClini" },
+  { name: "description", content: "Revise e aprove dados protegidos de uma solicitação de pré-cadastro." },
+  { property: "og:title", content: "Revisar pré-cadastro — TeraClini" },
+  { property: "og:description", content: "Revise e aprove dados protegidos de uma solicitação de pré-cadastro." },
+  { property: "og:type", content: "website" },
+  { name: "twitter:card", content: "summary" },
+] }), component: Page });
 function Page() { const { id } = Route.useParams(); const navigate = useNavigate(); const { data: request, isLoading } = useRegistrationRequest(id); const { data: duplicates } = useRegistrationDuplicates(id); const approve = useApproveRegistration(); const reject = useRejectRegistration(); const [reason, setReason] = useState(""); const [rejectOpen, setRejectOpen] = useState(false);
  if (isLoading || !request) return <AppShell title="Revisar pré-cadastro"><p className="text-sm text-muted-foreground">Carregando dados protegidos...</p></AppShell>;
  const pending = request.status === "awaiting_approval";

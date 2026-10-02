@@ -6,7 +6,15 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 import { checkPatientRegistrationLink } from "@/lib/patient-registration.functions";
 
 export const Route = createFileRoute("/pre-cadastro/$token")({
-  head: () => ({ meta: [{ title: "Pré-cadastro seguro — TeraClini" }, { name: "robots", content: "noindex,nofollow" }] }),
+  head: () => ({ meta: [
+    { title: "Pré-cadastro seguro — TeraClini" },
+    { name: "description", content: "Envie seus dados com segurança para o profissional responsável pelo atendimento." },
+    { property: "og:title", content: "Pré-cadastro seguro — TeraClini" },
+    { property: "og:description", content: "Envie seus dados com segurança para o profissional responsável pelo atendimento." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex,nofollow" },
+  ] }),
   component: Page,
 });
 function Page() {

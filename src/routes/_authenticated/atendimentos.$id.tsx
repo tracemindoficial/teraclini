@@ -109,6 +109,10 @@ function AppointmentPage() {
 
   async function handleDelete() {
     if (!appointment) return;
+    const confirmed = window.confirm(
+      "Excluir este atendimento? O agendamento será removido permanentemente. Registros clínicos vinculados podem ser afetados.",
+    );
+    if (!confirmed) return;
     try {
       await deleteAppointment.mutateAsync(appointment.id);
       toast.success("Agendamento removido.");

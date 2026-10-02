@@ -43,6 +43,13 @@ const NAV = [
 const PRIMARY_MOBILE_NAV = NAV.slice(0, 3);
 const SIDEBAR_STORAGE_KEY = "teraclini-sidebar-expanded";
 
+function isActivePath(pathname: string, destination: string) {
+  if (destination === "/pacientes") {
+    return pathname === destination || (pathname.startsWith("/pacientes/") && !pathname.startsWith("/pacientes/pre-cadastros"));
+  }
+  return pathname === destination || pathname.startsWith(`${destination}/`);
+}
+
 export function AppShell({
   title,
   description,
@@ -89,7 +96,7 @@ export function AppShell({
   const navList = (collapsed = false, onNavigate?: () => void) => (
     <nav aria-label="Navegação principal" className="flex flex-col gap-1.5">
       {NAV.map((item) => {
-        const active = pathname.startsWith(item.to);
+        const active = isActivePath(pathname, item.to);
         const link = (
           <Link
             key={item.to}
@@ -205,7 +212,7 @@ export function AppShell({
 
         <nav aria-label="Navegação móvel" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t bg-background/96 px-2 pb-[env(safe-area-inset-bottom)] shadow-[var(--shadow-nav)] backdrop-blur-xl md:hidden">
           {PRIMARY_MOBILE_NAV.map((item) => {
-            const active = pathname.startsWith(item.to);
+            const active = isActivePath(pathname, item.to);
             return (
               <Link key={item.to} to={item.to} aria-current={active ? "page" : undefined} className={cn("flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium", active ? "text-primary" : "text-muted-foreground")}>
                 <item.icon className="size-5" strokeWidth={active ? 2.3 : 1.8} />
