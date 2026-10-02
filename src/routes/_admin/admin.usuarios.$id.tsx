@@ -3,6 +3,7 @@ import { ArrowLeft, Ban, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { AdminMetric, AdminShell, AdminState } from "@/components/admin/AdminShell";
+import { AdminUserOperations } from "@/components/admin/AdminUserOperations";
 import { Button } from "@/components/ui/button";
 import {
   useAdminUserDetail,
@@ -16,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAdminUserHistory } from "@/lib/data/admin-operations";
 
 export const Route = createFileRoute("/_admin/admin/usuarios/$id")({
   head: () => ({
@@ -37,6 +39,7 @@ function AdminUserDetailPage() {
   const { data, isLoading, error } = useAdminUserDetail(id);
   const setStatus = useSetAdminAccountStatus(id);
   const setRole = useSetPlatformAdminRole(id);
+  const history = useAdminUserHistory(id);
 
   async function changeStatus(status: "active" | "suspended") {
     if (!data?.accountId) return;
@@ -143,6 +146,12 @@ function AdminUserDetailPage() {
             </ul>
           )}
         </div>
+      </section>
+      <AdminUserOperations user={{ id: data.id, email: data.email, name: data.name, profession: data.profession, professionalRegistry: data.professionalRegistry, city: data.city, state: data.state, careMode: data.careMode }} />
+      <section className="surface mt-6 p-5">
+        <h2 className="font-semibold">Linha do tempo operacional</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Alterações administrativas, acesso e licença; sem conteúdo clínico.</p>
+        {history.isLoading ? <p className="mt-4 text-sm text-muted-foreground">Carregando histórico...</p> : history.error ? <p className="mt-4 text-sm text-destructive">Não foi possível carregar o histórico.</p> : !history.data?.length ? <p className="mt-4 text-sm text-muted-foreground">Nenhum evento operacional registrado.</p> : <ol className="mt-4 divide-y">{history.data.map((event) => <li key={event.id} className="grid gap-1 py-3 sm:grid-cols-[minmax(12rem,1fr)_minmax(10rem,1fr)_auto]"><span className="text-sm font-medium">{event.type.replaceAll("_", " ")}</span><span className="text-sm text-muted-foreground">{event.detail || "Alteração registrada"}</span><time className="text-xs text-muted-foreground">{new Date(event.createdAt).toLocaleString("pt-BR")}</time></li>)}</ol>}
       </section>
       <section className="mt-6 grid gap-5 lg:grid-cols-2">
         <div className="surface p-5">

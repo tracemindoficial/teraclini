@@ -6,6 +6,7 @@ const labels: Record<SupportStatus, string> = {
   in_progress: "Em atendimento",
   waiting_user: "Aguardando usuário",
   resolved: "Resolvido",
+  closed: "Encerrado",
 };
 
 export function SupportStatusBadge({ status }: { status: SupportStatus }) {
