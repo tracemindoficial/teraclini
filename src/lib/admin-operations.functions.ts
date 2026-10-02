@@ -383,8 +383,8 @@ export const manageAdminSubscription = createServerFn({ method: "POST" })
         _actor_user_id: context.userId,
         _account_id: data.accountId,
         _action: data.action,
-        _plan_id: data.planId ?? null,
-        _days: data.days ?? null,
+        _plan_id: data.planId,
+        _days: data.days,
       },
     );
     if (error || !subscriptionId)

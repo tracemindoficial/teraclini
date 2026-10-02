@@ -15,6 +15,7 @@ export function AdminNotifications() {
       return await markRead.mutateAsync(key);
     } catch {
       toast.error("Não foi possível marcar a notificação como lida.");
+      return undefined;
     }
   }
   return (
