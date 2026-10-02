@@ -204,36 +204,36 @@ function AuthPage() {
                 />
               </div>
             ) : null}
+            <div className="space-y-1.5">
+              <Label htmlFor="email">E-mail</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+                autoComplete="email"
+              />
+            </div>
             {mode !== "recovery" ? (
               <div className="space-y-1.5">
-                <Label htmlFor="email">E-mail</Label>
+                <Label htmlFor="password">Senha</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
                   required
-                  autoComplete="email"
+                  minLength={8}
+                  autoComplete={mode === "signin" ? "current-password" : "new-password"}
                 />
+                {mode === "signup" ? (
+                  <p className="text-xs text-muted-foreground">
+                    Mínimo de 8 caracteres, com letras e números.
+                  </p>
+                ) : null}
               </div>
             ) : null}
-            <div className="space-y-1.5">
-              <Label htmlFor="password">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-                minLength={8}
-                autoComplete={mode === "signin" ? "current-password" : "new-password"}
-              />
-              {mode === "signup" ? (
-                <p className="text-xs text-muted-foreground">
-                  Mínimo de 8 caracteres, com letras e números.
-                </p>
-              ) : null}
-            </div>
             {formError ? (
               <p
                 role="alert"
