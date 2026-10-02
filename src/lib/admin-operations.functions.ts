@@ -232,15 +232,13 @@ export const requireAdminPasswordReset = createServerFn({ method: "POST" })
       .update({ force_password_reset: true, password_reset_required_at: now })
       .eq("id", data.userId);
     if (error) throw new Error("Não foi possível exigir a redefinição.");
-    await context.supabaseAdmin
-      .from("account_access_events")
-      .insert({
-        account_id: account.id,
-        user_id: data.userId,
-        actor_user_id: context.userId,
-        event_type: "password_reset_required",
-        details: {},
-      });
+    await context.supabaseAdmin.from("account_access_events").insert({
+      account_id: account.id,
+      user_id: data.userId,
+      actor_user_id: context.userId,
+      event_type: "password_reset_required",
+      details: {},
+    });
     await audit(
       context.supabaseAdmin,
       context.userId,
@@ -269,15 +267,13 @@ export const completeRequiredPasswordReset = createServerFn({ method: "POST" })
       .update({ force_password_reset: false, password_reset_required_at: null })
       .eq("id", context.userId);
     if (error) throw new Error("Não foi possível concluir a redefinição obrigatória.");
-    await supabaseAdmin
-      .from("account_access_events")
-      .insert({
-        account_id: profile.account_id,
-        user_id: context.userId,
-        actor_user_id: context.userId,
-        event_type: "password_changed",
-        details: {},
-      });
+    await supabaseAdmin.from("account_access_events").insert({
+      account_id: profile.account_id,
+      user_id: context.userId,
+      actor_user_id: context.userId,
+      event_type: "password_changed",
+      details: {},
+    });
     return { ok: true as const };
   });
 
@@ -292,15 +288,13 @@ export const revokeAdminUserSessions = createServerFn({ method: "POST" })
     throw new Error(
       "O encerramento remoto de sessões não está disponível com segurança neste ambiente. Suspenda a conta para bloquear o acesso imediatamente.",
     );
-    await context.supabaseAdmin
-      .from("account_access_events")
-      .insert({
-        account_id: account.id,
-        user_id: data.userId,
-        actor_user_id: context.userId,
-        event_type: "sessions_revoked",
-        details: {},
-      });
+    await context.supabaseAdmin.from("account_access_events").insert({
+      account_id: account.id,
+      user_id: data.userId,
+      actor_user_id: context.userId,
+      event_type: "sessions_revoked",
+      details: {},
+    });
     await audit(
       context.supabaseAdmin,
       context.userId,
@@ -505,16 +499,14 @@ export const markAdminNotificationRead = createServerFn({ method: "POST" })
   .middleware([requireOperationalAdmin])
   .inputValidator((input) => notificationInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabaseAdmin
-      .from("admin_notification_reads")
-      .upsert(
-        {
-          admin_user_id: context.userId,
-          notification_key: data.key,
-          read_at: new Date().toISOString(),
-        },
-        { onConflict: "admin_user_id,notification_key" },
-      );
+    const { error } = await context.supabaseAdmin.from("admin_notification_reads").upsert(
+      {
+        admin_user_id: context.userId,
+        notification_key: data.key,
+        read_at: new Date().toISOString(),
+      },
+      { onConflict: "admin_user_id,notification_key" },
+    );
     if (error) throw new Error("Não foi possível dispensar o alerta.");
     return { ok: true as const };
   });
