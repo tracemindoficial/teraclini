@@ -49,7 +49,20 @@ function PatientsPage() {
     <AppShell
       title="Pacientes"
       description="Seus pacientes, independentemente do local"
-      action={<div className="flex gap-2"><Button asChild variant="outline" className="gap-2"><Link to="/pacientes/pre-cadastros"><ClipboardList className="size-4" /><span className="hidden sm:inline">Pré-cadastros</span></Link></Button><Button className="gap-2" onClick={() => setDialogOpen(true)}><Plus className="size-4" /><span className="hidden sm:inline">Novo paciente</span></Button></div>}
+      action={
+        <div className="flex gap-2">
+          <Button asChild variant="outline" className="gap-2">
+            <Link to="/pacientes/pre-cadastros">
+              <ClipboardList className="size-4" />
+              <span className="hidden sm:inline">Pré-cadastros</span>
+            </Link>
+          </Button>
+          <Button className="gap-2" onClick={() => setDialogOpen(true)}>
+            <Plus className="size-4" />
+            <span className="hidden sm:inline">Novo paciente</span>
+          </Button>
+        </div>
+      }
     >
       <div className="grid gap-3 sm:grid-cols-[minmax(0,20rem)_12rem]">
         <Input

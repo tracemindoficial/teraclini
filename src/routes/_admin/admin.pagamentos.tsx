@@ -69,7 +69,14 @@ function AdminPaymentsPage() {
             </thead>
             <tbody>
               {data.map((item) => (
-                <tr key={item.id} className={item.id === payment ? "border-b bg-primary/10 last:border-0" : "border-b last:border-0"}>
+                <tr
+                  key={item.id}
+                  className={
+                    item.id === payment
+                      ? "border-b bg-primary/10 last:border-0"
+                      : "border-b last:border-0"
+                  }
+                >
                   <td className="px-4 py-3 font-medium">
                     {item.account?.name ?? "Conta indisponível"}
                   </td>

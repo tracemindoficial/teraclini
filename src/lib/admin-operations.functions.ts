@@ -81,20 +81,17 @@ export const updateAdminUserProfile = createServerFn({ method: "POST" })
   .inputValidator((input) => profileInput.parse(input))
   .handler(async ({ data, context }) => {
     assertRole(context.platformAdminRole, operationalRoles);
-    const { data: changed, error } = await context.supabaseAdmin.rpc(
-      "admin_update_user_profile",
-      {
-        _actor_user_id: context.userId,
-        _target_user_id: data.userId,
-        _full_name: data.fullName,
-        _profession: data.profession ?? "",
-        _professional_registry: data.professionalRegistry ?? "",
-        _city: data.city ?? "",
-        _state: data.state ?? "",
-        _care_mode: data.careMode ?? "presencial",
-        _phone: data.phone ?? "",
-      },
-    );
+    const { data: changed, error } = await context.supabaseAdmin.rpc("admin_update_user_profile", {
+      _actor_user_id: context.userId,
+      _target_user_id: data.userId,
+      _full_name: data.fullName,
+      _profession: data.profession ?? "",
+      _professional_registry: data.professionalRegistry ?? "",
+      _city: data.city ?? "",
+      _state: data.state ?? "",
+      _care_mode: data.careMode ?? "presencial",
+      _phone: data.phone ?? "",
+    });
     if (error) throw new Error(error.message || "Não foi possível atualizar os dados do usuário.");
     return { ok: true as const, unchanged: !changed };
   });

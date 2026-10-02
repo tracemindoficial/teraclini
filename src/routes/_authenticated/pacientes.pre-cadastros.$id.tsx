@@ -136,7 +136,12 @@ function Page() {
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-semibold">Dados informados</h2>
             {pending ? (
-              <Button variant="outline" size="sm" className="gap-2" onClick={() => setEditOpen(true)}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => setEditOpen(true)}
+              >
                 <Pencil className="size-4" /> Editar
               </Button>
             ) : null}
@@ -321,19 +326,58 @@ function RegistrationRequestEditor({
         void onSave({ ...values, phone: values.phone.trim() || null });
       }}
     >
-      <Input className="sm:col-span-2" aria-label="Nome completo" value={values.full_name} onChange={(event) => setValues({ ...values, full_name: event.target.value })} />
-      <Input type="email" aria-label="E-mail" value={values.email} onChange={(event) => setValues({ ...values, email: event.target.value })} />
-      <Input aria-label="Telefone" value={values.phone} onChange={(event) => setValues({ ...values, phone: event.target.value })} />
-      <Input aria-label="CPF" value={values.cpf} onChange={(event) => setValues({ ...values, cpf: event.target.value })} />
-      <Input type="date" aria-label="Data de nascimento" value={values.birth_date} onChange={(event) => setValues({ ...values, birth_date: event.target.value })} />
-      <Input aria-label="Cidade" value={values.city} onChange={(event) => setValues({ ...values, city: event.target.value })} />
-      <Input aria-label="Estado" value={values.state} onChange={(event) => setValues({ ...values, state: event.target.value })} />
+      <Input
+        className="sm:col-span-2"
+        aria-label="Nome completo"
+        value={values.full_name}
+        onChange={(event) => setValues({ ...values, full_name: event.target.value })}
+      />
+      <Input
+        type="email"
+        aria-label="E-mail"
+        value={values.email}
+        onChange={(event) => setValues({ ...values, email: event.target.value })}
+      />
+      <Input
+        aria-label="Telefone"
+        value={values.phone}
+        onChange={(event) => setValues({ ...values, phone: event.target.value })}
+      />
+      <Input
+        aria-label="CPF"
+        value={values.cpf}
+        onChange={(event) => setValues({ ...values, cpf: event.target.value })}
+      />
+      <Input
+        type="date"
+        aria-label="Data de nascimento"
+        value={values.birth_date}
+        onChange={(event) => setValues({ ...values, birth_date: event.target.value })}
+      />
+      <Input
+        aria-label="Cidade"
+        value={values.city}
+        onChange={(event) => setValues({ ...values, city: event.target.value })}
+      />
+      <Input
+        aria-label="Estado"
+        value={values.state}
+        onChange={(event) => setValues({ ...values, state: event.target.value })}
+      />
       <div className="sm:col-span-2">
-        <Input aria-label="Motivo da busca" value={values.therapy_reason} onChange={(event) => setValues({ ...values, therapy_reason: event.target.value })} />
+        <Input
+          aria-label="Motivo da busca"
+          value={values.therapy_reason}
+          onChange={(event) => setValues({ ...values, therapy_reason: event.target.value })}
+        />
       </div>
       <DialogFooter className="sm:col-span-2">
-        <Button type="button" variant="outline" onClick={onCancel}>Cancelar</Button>
-        <Button type="submit" disabled={!valid || pending}>Salvar correções</Button>
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={!valid || pending}>
+          Salvar correções
+        </Button>
       </DialogFooter>
     </form>
   );

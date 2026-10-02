@@ -102,27 +102,51 @@ function AdminSupportPage() {
                   <div className="flex flex-wrap gap-2">
                     <Select
                       value={detail.data.ticket.priority}
-                      onValueChange={(priority) => actions.triage.mutate({ priority: priority as "low" | "normal" | "high" | "urgent", assignedToMe: Boolean(detail.data.ticket.assigned_admin_user_id) })}
+                      onValueChange={(priority) =>
+                        actions.triage.mutate({
+                          priority: priority as "low" | "normal" | "high" | "urgent",
+                          assignedToMe: Boolean(detail.data.ticket.assigned_admin_user_id),
+                        })
+                      }
                     >
-                      <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="w-36">
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="low">Baixa</SelectItem><SelectItem value="normal">Normal</SelectItem>
-                        <SelectItem value="high">Alta</SelectItem><SelectItem value="urgent">Urgente</SelectItem>
+                        <SelectItem value="low">Baixa</SelectItem>
+                        <SelectItem value="normal">Normal</SelectItem>
+                        <SelectItem value="high">Alta</SelectItem>
+                        <SelectItem value="urgent">Urgente</SelectItem>
                       </SelectContent>
                     </Select>
                     <Select
                       value={detail.data.ticket.status}
                       onValueChange={(value) => actions.status.mutate(value as SupportStatus)}
                     >
-                      <SelectTrigger className="w-52"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="w-52">
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="open">Aberto</SelectItem><SelectItem value="in_progress">Em atendimento</SelectItem>
-                        <SelectItem value="waiting_user">Aguardando usuário</SelectItem><SelectItem value="resolved">Resolvido</SelectItem>
+                        <SelectItem value="open">Aberto</SelectItem>
+                        <SelectItem value="in_progress">Em atendimento</SelectItem>
+                        <SelectItem value="waiting_user">Aguardando usuário</SelectItem>
+                        <SelectItem value="resolved">Resolvido</SelectItem>
                         <SelectItem value="closed">Encerrado</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Button variant="outline" onClick={() => actions.triage.mutate({ priority: detail.data.ticket.priority as "low" | "normal" | "high" | "urgent", assignedToMe: !detail.data.ticket.assigned_admin_user_id })}>
-                      {detail.data.ticket.assigned_admin_user_id ? "Liberar chamado" : "Assumir chamado"}
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        actions.triage.mutate({
+                          priority: detail.data.ticket.priority as
+                            "low" | "normal" | "high" | "urgent",
+                          assignedToMe: !detail.data.ticket.assigned_admin_user_id,
+                        })
+                      }
+                    >
+                      {detail.data.ticket.assigned_admin_user_id
+                        ? "Liberar chamado"
+                        : "Assumir chamado"}
                     </Button>
                   </div>
                 </div>
@@ -146,7 +170,8 @@ function AdminSupportPage() {
                     </article>
                   ))}
                 </div>
-                {detail.data.ticket.status !== "resolved" && detail.data.ticket.status !== "closed" ? (
+                {detail.data.ticket.status !== "resolved" &&
+                detail.data.ticket.status !== "closed" ? (
                   <form onSubmit={send} className="border-t pt-4">
                     <Textarea
                       value={reply}

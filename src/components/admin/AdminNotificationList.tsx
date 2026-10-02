@@ -27,15 +27,24 @@ export function AdminNotificationList({
     if (!item.read) await onRead(item.key);
     const target = new URL(item.to, window.location.origin);
     if (target.pathname === "/admin/suporte") {
-      await navigate({ to: "/admin/suporte", search: { ticket: target.searchParams.get("ticket") ?? undefined } });
+      await navigate({
+        to: "/admin/suporte",
+        search: { ticket: target.searchParams.get("ticket") ?? undefined },
+      });
       return;
     }
     if (target.pathname === "/admin/assinaturas") {
-      await navigate({ to: "/admin/assinaturas", search: { account: target.searchParams.get("account") ?? undefined } });
+      await navigate({
+        to: "/admin/assinaturas",
+        search: { account: target.searchParams.get("account") ?? undefined },
+      });
       return;
     }
     if (target.pathname === "/admin/pagamentos") {
-      await navigate({ to: "/admin/pagamentos", search: { payment: target.searchParams.get("payment") ?? undefined } });
+      await navigate({
+        to: "/admin/pagamentos",
+        search: { payment: target.searchParams.get("payment") ?? undefined },
+      });
       return;
     }
     await navigate({ href: item.to });

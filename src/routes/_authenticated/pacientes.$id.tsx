@@ -302,10 +302,30 @@ function PatientProfile() {
         </TabsContent>
 
         <TabsContent value="pacotes" className="mt-5">
-          <Button className="gap-2" onClick={() => { setRenewPackage(undefined); setPackageOpen(true); }}><Plus className="size-4" />Novo pacote</Button>
+          <Button
+            className="gap-2"
+            onClick={() => {
+              setRenewPackage(undefined);
+              setPackageOpen(true);
+            }}
+          >
+            <Plus className="size-4" />
+            Novo pacote
+          </Button>
           <div className="mt-4 grid gap-4 xl:grid-cols-2">
-            {(packages ?? []).map((item) => <PackageCard key={item.id} item={item} onRenew={(source) => { setRenewPackage(source); setPackageOpen(true); }} />)}
-            {(packages ?? []).length === 0 ? <p className="text-sm text-muted-foreground">Nenhum pacote cadastrado.</p> : null}
+            {(packages ?? []).map((item) => (
+              <PackageCard
+                key={item.id}
+                item={item}
+                onRenew={(source) => {
+                  setRenewPackage(source);
+                  setPackageOpen(true);
+                }}
+              />
+            ))}
+            {(packages ?? []).length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nenhum pacote cadastrado.</p>
+            ) : null}
           </div>
         </TabsContent>
       </Tabs>
@@ -322,7 +342,12 @@ function PatientProfile() {
         patientId={id}
         anamnesis={editingAnamnesis}
       />
-      <PackageDialog open={packageOpen} onOpenChange={setPackageOpen} defaultPatientId={id} renewFrom={renewPackage} />
+      <PackageDialog
+        open={packageOpen}
+        onOpenChange={setPackageOpen}
+        defaultPatientId={id}
+        renewFrom={renewPackage}
+      />
     </AppShell>
   );
 }
