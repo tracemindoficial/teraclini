@@ -122,4 +122,4 @@
 - [x] Criar apresentação comercial completa com conteúdo baseado em recursos reais
 - [x] Expor somente licenças ativas e preparar a seleção antes do cadastro
 - [x] Integrar login, cadastro, privacidade, termos e métricas comerciais anônimas
-- [ ] Validar aquisição, navegação, acessibilidade, desktop e celular
+- [x] Validar aquisição, navegação, acessibilidade, desktop e celular
