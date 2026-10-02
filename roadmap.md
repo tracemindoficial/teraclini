@@ -101,9 +101,9 @@
 
 ## Central de Ajuda interativa
 
-- [ ] Criar conteúdo pesquisável com categorias, tutoriais, etapas e FAQ baseados nas funções reais
-- [ ] Integrar Ajuda ao menu, cabeçalho e páginas principais do profissional
-- [ ] Criar tutoriais guiados e introdução opcional no primeiro acesso
-- [ ] Criar gestão administrativa de categorias, conteúdos, visibilidade, mídia e ordem
-- [ ] Registrar pesquisas, visualizações, buscas sem resultado e conclusões sem dados clínicos
+- [x] Criar conteúdo pesquisável com categorias, tutoriais, etapas e FAQ baseados nas funções reais
+- [x] Integrar Ajuda ao menu, cabeçalho e páginas principais do profissional
+- [x] Criar tutoriais guiados e introdução opcional no primeiro acesso
+- [x] Criar gestão administrativa de categorias, conteúdos, visibilidade, mídia e ordem
+- [x] Registrar pesquisas, visualizações, buscas sem resultado e conclusões sem dados clínicos
 - [ ] Validar acesso comum, acesso administrativo, busca, orientação e celular

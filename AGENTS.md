@@ -25,3 +25,4 @@
 - Keep platform administration separate from tenant roles and therapist navigation; every cross-tenant read or write requires server-side platform-admin authorization because UI guards do not secure data.
 - Store commercial billing and immutable platform audits in dedicated non-clinical tables; never expose clinical content to platform administration because business operations require data minimization.
 - Enforce professional-account status in both database membership helpers and authenticated navigation; only platform-admin server functions may change account status.
+- Keep help content globally readable by its declared audience, but restrict authoring to platform-admin server functions and store only non-clinical help analytics.

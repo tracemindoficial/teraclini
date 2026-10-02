@@ -18,6 +18,7 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AdminAdminRouteImport } from './routes/_admin/admin'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
+import { Route as AuthenticatedAjudaRouteImport } from './routes/_authenticated/ajuda'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedDocumentosRouteImport } from './routes/_authenticated/documentos'
 import { Route as AuthenticatedLocaisRouteImport } from './routes/_authenticated/locais'
@@ -27,6 +28,7 @@ import { Route as AuthenticatedPacotesRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as PreCadastroTokenRouteImport } from './routes/pre-cadastro.$token'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
+import { Route as AdminAdminAjudaRouteImport } from './routes/_admin/admin.ajuda'
 import { Route as AdminAdminAssinaturasRouteImport } from './routes/_admin/admin.assinaturas'
 import { Route as AdminAdminAuditoriaRouteImport } from './routes/_admin/admin.auditoria'
 import { Route as AdminAdminConfiguracoesRouteImport } from './routes/_admin/admin.configuracoes'
@@ -35,6 +37,8 @@ import { Route as AdminAdminPerfilRouteImport } from './routes/_admin/admin.perf
 import { Route as AdminAdminRelatoriosRouteImport } from './routes/_admin/admin.relatorios'
 import { Route as AdminAdminUsuariosRouteImport } from './routes/_admin/admin.usuarios'
 import { Route as AdminAdminVencimentosRouteImport } from './routes/_admin/admin.vencimentos'
+import { Route as AuthenticatedAjudaIndexRouteImport } from './routes/_authenticated/ajuda.index'
+import { Route as AuthenticatedAjudaSlugRouteImport } from './routes/_authenticated/ajuda.$slug'
 import { Route as AuthenticatedAtendimentosIdRouteImport } from './routes/_authenticated/atendimentos.$id'
 import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes.index'
 import { Route as AuthenticatedPacientesIdRouteImport } from './routes/_authenticated/pacientes.$id'
@@ -86,6 +90,11 @@ const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
   path: '/agenda',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAjudaRoute = AuthenticatedAjudaRouteImport.update({
+  id: '/ajuda',
+  path: '/ajuda',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedConfiguracoesRoute =
   AuthenticatedConfiguracoesRouteImport.update({
     id: '/configuracoes',
@@ -132,6 +141,11 @@ const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminAdminRoute,
 } as any)
+const AdminAdminAjudaRoute = AdminAdminAjudaRouteImport.update({
+  id: '/ajuda',
+  path: '/ajuda',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
 const AdminAdminAssinaturasRoute = AdminAdminAssinaturasRouteImport.update({
   id: '/assinaturas',
   path: '/assinaturas',
@@ -171,6 +185,16 @@ const AdminAdminVencimentosRoute = AdminAdminVencimentosRouteImport.update({
   id: '/vencimentos',
   path: '/vencimentos',
   getParentRoute: () => AdminAdminRoute,
+} as any)
+const AuthenticatedAjudaIndexRoute = AuthenticatedAjudaIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAjudaRoute,
+} as any)
+const AuthenticatedAjudaSlugRoute = AuthenticatedAjudaSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AuthenticatedAjudaRoute,
 } as any)
 const AuthenticatedAtendimentosIdRoute =
   AuthenticatedAtendimentosIdRouteImport.update({
@@ -221,6 +245,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AdminAdminRouteWithChildren
   '/agenda': typeof AuthenticatedAgendaRoute
+  '/ajuda': typeof AuthenticatedAjudaRouteWithChildren
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/documentos': typeof AuthenticatedDocumentosRoute
   '/locais': typeof AuthenticatedLocaisRoute
@@ -229,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/pacotes': typeof AuthenticatedPacotesRouteWithChildren
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/pre-cadastro/$token': typeof PreCadastroTokenRoute
+  '/admin/ajuda': typeof AdminAdminAjudaRoute
   '/admin/assinaturas': typeof AdminAdminAssinaturasRoute
   '/admin/auditoria': typeof AdminAdminAuditoriaRoute
   '/admin/configuracoes': typeof AdminAdminConfiguracoesRoute
@@ -237,11 +263,13 @@ export interface FileRoutesByFullPath {
   '/admin/relatorios': typeof AdminAdminRelatoriosRoute
   '/admin/usuarios': typeof AdminAdminUsuariosRouteWithChildren
   '/admin/vencimentos': typeof AdminAdminVencimentosRoute
+  '/ajuda/$slug': typeof AuthenticatedAjudaSlugRoute
   '/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
   '/pacotes/$id': typeof AuthenticatedPacotesIdRoute
   '/admin/': typeof AdminAdminIndexRoute
+  '/ajuda/': typeof AuthenticatedAjudaIndexRoute
   '/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
@@ -261,6 +289,7 @@ export interface FileRoutesByTo {
   '/pacotes': typeof AuthenticatedPacotesRouteWithChildren
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/pre-cadastro/$token': typeof PreCadastroTokenRoute
+  '/admin/ajuda': typeof AdminAdminAjudaRoute
   '/admin/assinaturas': typeof AdminAdminAssinaturasRoute
   '/admin/auditoria': typeof AdminAdminAuditoriaRoute
   '/admin/configuracoes': typeof AdminAdminConfiguracoesRoute
@@ -269,11 +298,13 @@ export interface FileRoutesByTo {
   '/admin/relatorios': typeof AdminAdminRelatoriosRoute
   '/admin/usuarios': typeof AdminAdminUsuariosRouteWithChildren
   '/admin/vencimentos': typeof AdminAdminVencimentosRoute
+  '/ajuda/$slug': typeof AuthenticatedAjudaSlugRoute
   '/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
   '/pacotes/$id': typeof AuthenticatedPacotesIdRoute
   '/admin': typeof AdminAdminIndexRoute
+  '/ajuda': typeof AuthenticatedAjudaIndexRoute
   '/pacientes': typeof AuthenticatedPacientesIndexRoute
   '/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
@@ -289,6 +320,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_admin/admin': typeof AdminAdminRouteWithChildren
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
+  '/_authenticated/ajuda': typeof AuthenticatedAjudaRouteWithChildren
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/documentos': typeof AuthenticatedDocumentosRoute
   '/_authenticated/locais': typeof AuthenticatedLocaisRoute
@@ -297,6 +329,7 @@ export interface FileRoutesById {
   '/_authenticated/pacotes': typeof AuthenticatedPacotesRouteWithChildren
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/pre-cadastro/$token': typeof PreCadastroTokenRoute
+  '/_admin/admin/ajuda': typeof AdminAdminAjudaRoute
   '/_admin/admin/assinaturas': typeof AdminAdminAssinaturasRoute
   '/_admin/admin/auditoria': typeof AdminAdminAuditoriaRoute
   '/_admin/admin/configuracoes': typeof AdminAdminConfiguracoesRoute
@@ -305,11 +338,13 @@ export interface FileRoutesById {
   '/_admin/admin/relatorios': typeof AdminAdminRelatoriosRoute
   '/_admin/admin/usuarios': typeof AdminAdminUsuariosRouteWithChildren
   '/_admin/admin/vencimentos': typeof AdminAdminVencimentosRoute
+  '/_authenticated/ajuda/$slug': typeof AuthenticatedAjudaSlugRoute
   '/_authenticated/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
   '/_authenticated/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/_authenticated/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
   '/_authenticated/pacotes/$id': typeof AuthenticatedPacotesIdRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
+  '/_authenticated/ajuda/': typeof AuthenticatedAjudaIndexRoute
   '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/_admin/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/_authenticated/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
@@ -324,6 +359,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin'
     | '/agenda'
+    | '/ajuda'
     | '/configuracoes'
     | '/documentos'
     | '/locais'
@@ -332,6 +368,7 @@ export interface FileRouteTypes {
     | '/pacotes'
     | '/relatorios'
     | '/pre-cadastro/$token'
+    | '/admin/ajuda'
     | '/admin/assinaturas'
     | '/admin/auditoria'
     | '/admin/configuracoes'
@@ -340,11 +377,13 @@ export interface FileRouteTypes {
     | '/admin/relatorios'
     | '/admin/usuarios'
     | '/admin/vencimentos'
+    | '/ajuda/$slug'
     | '/atendimentos/$id'
     | '/pacientes/$id'
     | '/pacientes/pre-cadastros'
     | '/pacotes/$id'
     | '/admin/'
+    | '/ajuda/'
     | '/pacientes/'
     | '/admin/usuarios/$id'
     | '/pacientes/pre-cadastros/$id'
@@ -364,6 +403,7 @@ export interface FileRouteTypes {
     | '/pacotes'
     | '/relatorios'
     | '/pre-cadastro/$token'
+    | '/admin/ajuda'
     | '/admin/assinaturas'
     | '/admin/auditoria'
     | '/admin/configuracoes'
@@ -372,11 +412,13 @@ export interface FileRouteTypes {
     | '/admin/relatorios'
     | '/admin/usuarios'
     | '/admin/vencimentos'
+    | '/ajuda/$slug'
     | '/atendimentos/$id'
     | '/pacientes/$id'
     | '/pacientes/pre-cadastros'
     | '/pacotes/$id'
     | '/admin'
+    | '/ajuda'
     | '/pacientes'
     | '/admin/usuarios/$id'
     | '/pacientes/pre-cadastros/$id'
@@ -391,6 +433,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_admin/admin'
     | '/_authenticated/agenda'
+    | '/_authenticated/ajuda'
     | '/_authenticated/configuracoes'
     | '/_authenticated/documentos'
     | '/_authenticated/locais'
@@ -399,6 +442,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pacotes'
     | '/_authenticated/relatorios'
     | '/pre-cadastro/$token'
+    | '/_admin/admin/ajuda'
     | '/_admin/admin/assinaturas'
     | '/_admin/admin/auditoria'
     | '/_admin/admin/configuracoes'
@@ -407,11 +451,13 @@ export interface FileRouteTypes {
     | '/_admin/admin/relatorios'
     | '/_admin/admin/usuarios'
     | '/_admin/admin/vencimentos'
+    | '/_authenticated/ajuda/$slug'
     | '/_authenticated/atendimentos/$id'
     | '/_authenticated/pacientes/$id'
     | '/_authenticated/pacientes/pre-cadastros'
     | '/_authenticated/pacotes/$id'
     | '/_admin/admin/'
+    | '/_authenticated/ajuda/'
     | '/_authenticated/pacientes/'
     | '/_admin/admin/usuarios/$id'
     | '/_authenticated/pacientes/pre-cadastros/$id'
@@ -493,6 +539,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAgendaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ajuda': {
+      id: '/_authenticated/ajuda'
+      path: '/ajuda'
+      fullPath: '/ajuda'
+      preLoaderRoute: typeof AuthenticatedAjudaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/configuracoes': {
       id: '/_authenticated/configuracoes'
       path: '/configuracoes'
@@ -556,6 +609,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminIndexRouteImport
       parentRoute: typeof AdminAdminRoute
     }
+    '/_admin/admin/ajuda': {
+      id: '/_admin/admin/ajuda'
+      path: '/ajuda'
+      fullPath: '/admin/ajuda'
+      preLoaderRoute: typeof AdminAdminAjudaRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
     '/_admin/admin/assinaturas': {
       id: '/_admin/admin/assinaturas'
       path: '/assinaturas'
@@ -611,6 +671,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/vencimentos'
       preLoaderRoute: typeof AdminAdminVencimentosRouteImport
       parentRoute: typeof AdminAdminRoute
+    }
+    '/_authenticated/ajuda/': {
+      id: '/_authenticated/ajuda/'
+      path: '/'
+      fullPath: '/ajuda/'
+      preLoaderRoute: typeof AuthenticatedAjudaIndexRouteImport
+      parentRoute: typeof AuthenticatedAjudaRoute
+    }
+    '/_authenticated/ajuda/$slug': {
+      id: '/_authenticated/ajuda/$slug'
+      path: '/$slug'
+      fullPath: '/ajuda/$slug'
+      preLoaderRoute: typeof AuthenticatedAjudaSlugRouteImport
+      parentRoute: typeof AuthenticatedAjudaRoute
     }
     '/_authenticated/atendimentos/$id': {
       id: '/_authenticated/atendimentos/$id'
@@ -676,6 +750,7 @@ const AdminAdminUsuariosRouteWithChildren =
   AdminAdminUsuariosRoute._addFileChildren(AdminAdminUsuariosRouteChildren)
 
 interface AdminAdminRouteChildren {
+  AdminAdminAjudaRoute: typeof AdminAdminAjudaRoute
   AdminAdminAssinaturasRoute: typeof AdminAdminAssinaturasRoute
   AdminAdminAuditoriaRoute: typeof AdminAdminAuditoriaRoute
   AdminAdminConfiguracoesRoute: typeof AdminAdminConfiguracoesRoute
@@ -688,6 +763,7 @@ interface AdminAdminRouteChildren {
 }
 
 const AdminAdminRouteChildren: AdminAdminRouteChildren = {
+  AdminAdminAjudaRoute: AdminAdminAjudaRoute,
   AdminAdminAssinaturasRoute: AdminAdminAssinaturasRoute,
   AdminAdminAuditoriaRoute: AdminAdminAuditoriaRoute,
   AdminAdminConfiguracoesRoute: AdminAdminConfiguracoesRoute,
@@ -714,6 +790,19 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
 const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
   AdminRouteRouteChildren,
 )
+
+interface AuthenticatedAjudaRouteChildren {
+  AuthenticatedAjudaSlugRoute: typeof AuthenticatedAjudaSlugRoute
+  AuthenticatedAjudaIndexRoute: typeof AuthenticatedAjudaIndexRoute
+}
+
+const AuthenticatedAjudaRouteChildren: AuthenticatedAjudaRouteChildren = {
+  AuthenticatedAjudaSlugRoute: AuthenticatedAjudaSlugRoute,
+  AuthenticatedAjudaIndexRoute: AuthenticatedAjudaIndexRoute,
+}
+
+const AuthenticatedAjudaRouteWithChildren =
+  AuthenticatedAjudaRoute._addFileChildren(AuthenticatedAjudaRouteChildren)
 
 interface AuthenticatedPacotesRouteChildren {
   AuthenticatedPacotesIdRoute: typeof AuthenticatedPacotesIdRoute
@@ -743,6 +832,7 @@ const AuthenticatedPacientesPreCadastrosRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
+  AuthenticatedAjudaRoute: typeof AuthenticatedAjudaRouteWithChildren
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedDocumentosRoute: typeof AuthenticatedDocumentosRoute
   AuthenticatedLocaisRoute: typeof AuthenticatedLocaisRoute
@@ -758,6 +848,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
+  AuthenticatedAjudaRoute: AuthenticatedAjudaRouteWithChildren,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedDocumentosRoute: AuthenticatedDocumentosRoute,
   AuthenticatedLocaisRoute: AuthenticatedLocaisRoute,

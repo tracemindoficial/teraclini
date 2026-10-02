@@ -7,6 +7,7 @@ import {
   CreditCard,
   FileBarChart,
   LayoutDashboard,
+  CircleHelp,
   LogOut,
   Menu,
   Settings,
@@ -32,6 +33,7 @@ const links = [
   { to: "/admin/vencimentos", label: "Vencimentos", icon: CalendarClock },
   { to: "/admin/relatorios", label: "Relatórios", icon: FileBarChart },
   { to: "/admin/auditoria", label: "Auditoria", icon: ClipboardClock },
+  { to: "/admin/ajuda", label: "Central de Ajuda", icon: CircleHelp },
   { to: "/admin/configuracoes", label: "Configurações", icon: Settings },
   { to: "/admin/perfil", label: "Meu perfil", icon: UserRound },
 ] as const;

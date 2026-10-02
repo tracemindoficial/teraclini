@@ -8,6 +8,7 @@ import {
   ClipboardList,
   FileText,
   Home,
+  HelpCircle,
   LogOut,
   MapPin,
   Menu,
@@ -22,6 +23,7 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { GlobalSearch } from "@/components/layout/GlobalSearch";
+import { HelpGuide } from "@/components/help/HelpGuide";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -40,6 +42,7 @@ const NAV = [
   { to: "/documentos", label: "Documentos", icon: FileText },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/configuracoes", label: "Configurações", icon: Settings },
+  { to: "/ajuda", label: "Ajuda", icon: HelpCircle },
 ] as const;
 
 const PRIMARY_MOBILE_NAV = NAV.slice(0, 3);
@@ -99,7 +102,9 @@ export function AppShell({
                 ? "reports"
                 : pathname.startsWith("/configuracoes")
                   ? "settings"
-                  : "dashboard";
+                  : pathname.startsWith("/ajuda")
+                    ? "help"
+                    : "dashboard";
     recordUsage({ data: { module, action: "view" } }).catch(() => undefined);
   }, [pathname, recordUsage]);
 
@@ -260,6 +265,18 @@ export function AppShell({
                 ) : null}
               </div>
               <div className="flex shrink-0 items-center gap-2">
+                {!pathname.startsWith("/ajuda") ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button asChild variant="ghost" size="icon" aria-label="Ajuda desta página">
+                        <Link to="/ajuda">
+                          <HelpCircle className="size-4.5" />
+                        </Link>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Ajuda desta página</TooltipContent>
+                  </Tooltip>
+                ) : null}
                 <Button
                   variant="outline"
                   size="icon"
@@ -360,6 +377,7 @@ export function AppShell({
         </Sheet>
 
         <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
+        <HelpGuide />
       </div>
     </TooltipProvider>
   );
