@@ -4,7 +4,7 @@ import { getSessionAccess } from "@/lib/access.functions";
 export async function getOnboardingProfile(userId: string) {
   const { data, error } = await supabase
     .from("profiles")
-    .select("onboarding_completed")
+    .select("onboarding_completed, force_password_reset")
     .eq("id", userId)
     .maybeSingle();
   if (error) throw new Error("Não foi possível verificar seu perfil profissional.");

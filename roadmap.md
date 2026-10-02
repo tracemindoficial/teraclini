@@ -123,3 +123,13 @@
 - [x] Expor somente licenças ativas e preparar a seleção antes do cadastro
 - [x] Integrar login, cadastro, privacidade, termos e métricas comerciais anônimas
 - [x] Validar aquisição, navegação, acessibilidade, desktop e celular
+
+## Central operacional administrativa
+
+- [x] Editar cadastro e e-mail com confirmação, validação e auditoria
+- [x] Enviar recuperação, reenviar acesso, exigir nova senha e encerrar sessões
+- [x] Criar linha do tempo operacional sem conteúdo clínico
+- [x] Criar ações manuais auditadas para plano, ativação, suspensão, extensão e cancelamento
+- [x] Ampliar suporte com prioridade, responsável e encerramento
+- [x] Criar notificações derivadas com estado de leitura
+- [ ] Validar visualmente os fluxos internos com uma sessão administrativa disponível

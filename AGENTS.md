@@ -28,3 +28,4 @@
 - Keep help content globally readable by its declared audience, but restrict authoring to platform-admin server functions and store only non-clinical help analytics.
 - Keep support conversations account-scoped and explicitly non-clinical; administrative actions may record metadata but never copy message text into audit logs.
 - Keep the public commercial layer data-driven: expose only active plans and anonymous allowlisted events, and never imply checkout or license activation before a real payment provider exists.
+- Keep administrative operations server-authorized by role, explicitly confirmed, and recorded in append-only non-clinical histories because support and billing actions are security-sensitive.
