@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   Headphones,
   LineChart,
+  Bell,
   LogOut,
   Menu,
   Settings,
@@ -33,6 +34,7 @@ import { cn } from "@/lib/utils";
 const links = [
   { to: "/admin", label: "Visão geral", icon: LayoutDashboard },
   { to: "/admin/usuarios", label: "Usuários", icon: Users },
+  { to: "/admin/notificacoes", label: "Notificações", icon: Bell },
   { to: "/admin/uso", label: "Uso do Sistema", icon: Activity },
   { to: "/admin/metricas", label: "Métricas", icon: LineChart },
   { to: "/admin/suporte", label: "Suporte", icon: Headphones },

@@ -2337,6 +2337,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_confirm_payment: {
+        Args: { _actor_user_id: string; _payment_id: string }
+        Returns: boolean
+      }
+      admin_manage_subscription: {
+        Args: {
+          _account_id: string
+          _action: string
+          _actor_user_id: string
+          _days?: number
+          _plan_id?: string
+        }
+        Returns: string
+      }
       approve_patient_registration: {
         Args: { _existing_patient_id?: string; _request_id: string }
         Returns: string

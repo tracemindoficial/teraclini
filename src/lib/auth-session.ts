@@ -15,5 +15,6 @@ export async function getAuthenticatedDestination(userId: string) {
   const access = await getSessionAccess();
   if (access.accountStatus !== "active") return "/conta-indisponivel";
   const profile = await getOnboardingProfile(userId);
+  if (profile?.force_password_reset) return "/reset-password";
   return profile?.onboarding_completed ? "/meu-dia" : "/onboarding";
 }

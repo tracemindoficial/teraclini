@@ -85,6 +85,13 @@
       "when": 1790967824205,
       "tag": "0011_expand_admin_operations",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790968824970,
+      "tag": "0012_secure_atomic_admin_operations",
+      "breakpoints": true
     }
   ]
 }

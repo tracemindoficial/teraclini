@@ -36,6 +36,7 @@ import { Route as AdminAdminAssinaturasRouteImport } from './routes/_admin/admin
 import { Route as AdminAdminAuditoriaRouteImport } from './routes/_admin/admin.auditoria'
 import { Route as AdminAdminConfiguracoesRouteImport } from './routes/_admin/admin.configuracoes'
 import { Route as AdminAdminMetricasRouteImport } from './routes/_admin/admin.metricas'
+import { Route as AdminAdminNotificacoesRouteImport } from './routes/_admin/admin.notificacoes'
 import { Route as AdminAdminPagamentosRouteImport } from './routes/_admin/admin.pagamentos'
 import { Route as AdminAdminPerfilRouteImport } from './routes/_admin/admin.perfil'
 import { Route as AdminAdminRelatoriosRouteImport } from './routes/_admin/admin.relatorios'
@@ -187,6 +188,11 @@ const AdminAdminMetricasRoute = AdminAdminMetricasRouteImport.update({
   path: '/metricas',
   getParentRoute: () => AdminAdminRoute,
 } as any)
+const AdminAdminNotificacoesRoute = AdminAdminNotificacoesRouteImport.update({
+  id: '/notificacoes',
+  path: '/notificacoes',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
 const AdminAdminPagamentosRoute = AdminAdminPagamentosRouteImport.update({
   id: '/pagamentos',
   path: '/pagamentos',
@@ -298,6 +304,7 @@ export interface FileRoutesByFullPath {
   '/admin/auditoria': typeof AdminAdminAuditoriaRoute
   '/admin/configuracoes': typeof AdminAdminConfiguracoesRoute
   '/admin/metricas': typeof AdminAdminMetricasRoute
+  '/admin/notificacoes': typeof AdminAdminNotificacoesRoute
   '/admin/pagamentos': typeof AdminAdminPagamentosRoute
   '/admin/perfil': typeof AdminAdminPerfilRoute
   '/admin/relatorios': typeof AdminAdminRelatoriosRoute
@@ -339,6 +346,7 @@ export interface FileRoutesByTo {
   '/admin/auditoria': typeof AdminAdminAuditoriaRoute
   '/admin/configuracoes': typeof AdminAdminConfiguracoesRoute
   '/admin/metricas': typeof AdminAdminMetricasRoute
+  '/admin/notificacoes': typeof AdminAdminNotificacoesRoute
   '/admin/pagamentos': typeof AdminAdminPagamentosRoute
   '/admin/perfil': typeof AdminAdminPerfilRoute
   '/admin/relatorios': typeof AdminAdminRelatoriosRoute
@@ -385,6 +393,7 @@ export interface FileRoutesById {
   '/_admin/admin/auditoria': typeof AdminAdminAuditoriaRoute
   '/_admin/admin/configuracoes': typeof AdminAdminConfiguracoesRoute
   '/_admin/admin/metricas': typeof AdminAdminMetricasRoute
+  '/_admin/admin/notificacoes': typeof AdminAdminNotificacoesRoute
   '/_admin/admin/pagamentos': typeof AdminAdminPagamentosRoute
   '/_admin/admin/perfil': typeof AdminAdminPerfilRoute
   '/_admin/admin/relatorios': typeof AdminAdminRelatoriosRoute
@@ -430,6 +439,7 @@ export interface FileRouteTypes {
     | '/admin/auditoria'
     | '/admin/configuracoes'
     | '/admin/metricas'
+    | '/admin/notificacoes'
     | '/admin/pagamentos'
     | '/admin/perfil'
     | '/admin/relatorios'
@@ -471,6 +481,7 @@ export interface FileRouteTypes {
     | '/admin/auditoria'
     | '/admin/configuracoes'
     | '/admin/metricas'
+    | '/admin/notificacoes'
     | '/admin/pagamentos'
     | '/admin/perfil'
     | '/admin/relatorios'
@@ -516,6 +527,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/auditoria'
     | '/_admin/admin/configuracoes'
     | '/_admin/admin/metricas'
+    | '/_admin/admin/notificacoes'
     | '/_admin/admin/pagamentos'
     | '/_admin/admin/perfil'
     | '/_admin/admin/relatorios'
@@ -739,6 +751,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminMetricasRouteImport
       parentRoute: typeof AdminAdminRoute
     }
+    '/_admin/admin/notificacoes': {
+      id: '/_admin/admin/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/admin/notificacoes'
+      preLoaderRoute: typeof AdminAdminNotificacoesRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
     '/_admin/admin/pagamentos': {
       id: '/_admin/admin/pagamentos'
       path: '/pagamentos'
@@ -871,6 +890,7 @@ interface AdminAdminRouteChildren {
   AdminAdminAuditoriaRoute: typeof AdminAdminAuditoriaRoute
   AdminAdminConfiguracoesRoute: typeof AdminAdminConfiguracoesRoute
   AdminAdminMetricasRoute: typeof AdminAdminMetricasRoute
+  AdminAdminNotificacoesRoute: typeof AdminAdminNotificacoesRoute
   AdminAdminPagamentosRoute: typeof AdminAdminPagamentosRoute
   AdminAdminPerfilRoute: typeof AdminAdminPerfilRoute
   AdminAdminRelatoriosRoute: typeof AdminAdminRelatoriosRoute
@@ -887,6 +907,7 @@ const AdminAdminRouteChildren: AdminAdminRouteChildren = {
   AdminAdminAuditoriaRoute: AdminAdminAuditoriaRoute,
   AdminAdminConfiguracoesRoute: AdminAdminConfiguracoesRoute,
   AdminAdminMetricasRoute: AdminAdminMetricasRoute,
+  AdminAdminNotificacoesRoute: AdminAdminNotificacoesRoute,
   AdminAdminPagamentosRoute: AdminAdminPagamentosRoute,
   AdminAdminPerfilRoute: AdminAdminPerfilRoute,
   AdminAdminRelatoriosRoute: AdminAdminRelatoriosRoute,
