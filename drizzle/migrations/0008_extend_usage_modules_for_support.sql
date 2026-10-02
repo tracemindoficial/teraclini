@@ -1,0 +1,2 @@
+ALTER TABLE public.usage_events DROP CONSTRAINT usage_events_module_check;
+ALTER TABLE public.usage_events ADD CONSTRAINT usage_events_module_check CHECK (module IN ('session', 'dashboard', 'agenda', 'patients', 'appointments', 'documents', 'packages', 'reports', 'settings', 'help', 'support'));

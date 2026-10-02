@@ -30,7 +30,7 @@ function AdminProfilePage() {
         <dl className="surface max-w-2xl divide-y p-6">
           <ProfileRow label="Nome" value={data.name} />
           <ProfileRow label="E-mail" value={data.email} />
-          <ProfileRow label="Permissão" value="Administrador master" />
+          <ProfileRow label="Permissão" value={roleLabel(data.role)} />
           <ProfileRow
             label="Último acesso"
             value={data.lastSignInAt ? new Date(data.lastSignInAt).toLocaleString("pt-BR") : "—"}
@@ -39,6 +39,14 @@ function AdminProfilePage() {
       )}
     </AdminShell>
   );
+}
+
+function roleLabel(role: string) {
+  if (role === "super_admin") return "Administrador master";
+  if (role === "support_admin") return "Suporte";
+  if (role === "analyst") return "Analista";
+  if (role === "finance_admin") return "Financeiro";
+  return "Conteúdo";
 }
 
 function ProfileRow({ label, value }: { label: string; value: string }) {

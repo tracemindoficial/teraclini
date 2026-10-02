@@ -8,6 +8,10 @@ import {
   FileBarChart,
   LayoutDashboard,
   CircleHelp,
+  Activity,
+  ArrowLeft,
+  Headphones,
+  LineChart,
   LogOut,
   Menu,
   Settings,
@@ -28,6 +32,9 @@ import { cn } from "@/lib/utils";
 const links = [
   { to: "/admin", label: "Visão geral", icon: LayoutDashboard },
   { to: "/admin/usuarios", label: "Usuários", icon: Users },
+  { to: "/admin/uso", label: "Uso do Sistema", icon: Activity },
+  { to: "/admin/metricas", label: "Métricas", icon: LineChart },
+  { to: "/admin/suporte", label: "Suporte", icon: Headphones },
   { to: "/admin/assinaturas", label: "Assinaturas", icon: WalletCards },
   { to: "/admin/pagamentos", label: "Pagamentos", icon: CreditCard },
   { to: "/admin/vencimentos", label: "Vencimentos", icon: CalendarClock },
@@ -101,6 +108,16 @@ export function AdminShell({
         <div className="flex-1 overflow-y-auto p-3">{navigation()}</div>
         <div className="border-t border-sidebar-border p-3">
           <Button
+            asChild
+            variant="ghost"
+            className="mb-1 w-full justify-start gap-3 text-sidebar-foreground"
+          >
+            <Link to="/meu-dia">
+              <ArrowLeft className="size-4" />
+              Área profissional
+            </Link>
+          </Button>
+          <Button
             variant="ghost"
             className="w-full justify-start gap-3 text-sidebar-foreground"
             onClick={signOut}
@@ -156,6 +173,18 @@ export function AdminShell({
             </p>
           </div>
           <div className="p-4">{navigation(() => setOpen(false))}</div>
+          <div className="border-t border-sidebar-border p-4">
+            <Button
+              asChild
+              variant="ghost"
+              className="w-full justify-start gap-3 text-sidebar-foreground"
+            >
+              <Link to="/meu-dia" onClick={() => setOpen(false)}>
+                <ArrowLeft className="size-4" />
+                Área profissional
+              </Link>
+            </Button>
+          </div>
         </SheetContent>
       </Sheet>
     </div>

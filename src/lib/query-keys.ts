@@ -30,4 +30,6 @@ export const queryKeys = {
   helpCenter: ["help-center"] as const,
   helpTutorial: (slug: string) => ["help-tutorial", slug] as const,
   helpProgress: ["help-progress"] as const,
+  supportTickets: ["support-tickets"] as const,
+  supportTicket: (id: string) => ["support-ticket", id] as const,
 } as const;

@@ -36,6 +36,41 @@
       "when": 1790962921300,
       "tag": "0004_create_help_center",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790965425011,
+      "tag": "0005_create_support_and_admin_permissions",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790965468103,
+      "tag": "0006_harden_support_visibility_and_usage",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790965496508,
+      "tag": "0007_create_atomic_support_actions",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790965552469,
+      "tag": "0008_extend_usage_modules_for_support",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790965635058,
+      "tag": "0009_add_platform_admin_revocation",
+      "breakpoints": true
     }
   ]
 }

@@ -4,7 +4,18 @@ import { toast } from "sonner";
 
 import { AdminMetric, AdminShell, AdminState } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
-import { useAdminUserDetail, useSetAdminAccountStatus } from "@/lib/data/admin";
+import {
+  useAdminUserDetail,
+  useSetAdminAccountStatus,
+  useSetPlatformAdminRole,
+} from "@/lib/data/admin";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_admin/admin/usuarios/$id")({
   head: () => ({
@@ -25,6 +36,7 @@ function AdminUserDetailPage() {
   const { id } = useParams({ from: "/_admin/admin/usuarios/$id" });
   const { data, isLoading, error } = useAdminUserDetail(id);
   const setStatus = useSetAdminAccountStatus(id);
+  const setRole = useSetPlatformAdminRole(id);
 
   async function changeStatus(status: "active" | "suspended") {
     if (!data?.accountId) return;
@@ -98,6 +110,7 @@ function AdminUserDetailPage() {
           <DetailRow label="E-mail" value={data.email} />
           <DetailRow label="Profissão" value={data.profession ?? "—"} />
           <DetailRow label="Situação" value={statusLabel(data.accountStatus)} />
+          <DetailRow label="Perfil" value={data.platformRole ? "Administrador" : "Profissional"} />
           <DetailRow
             label="Cadastro"
             value={new Date(data.createdAt).toLocaleDateString("pt-BR")}
@@ -130,6 +143,89 @@ function AdminUserDetailPage() {
             </ul>
           )}
         </div>
+      </section>
+      <section className="mt-6 grid gap-5 lg:grid-cols-2">
+        <div className="surface p-5">
+          <h2 className="font-semibold">Permissão administrativa</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            É adicional ao espaço profissional e nunca substitui a conta.
+          </p>
+          <Select
+            value={data.platformRole ?? "professional"}
+            onValueChange={async (value) => {
+              if (!window.confirm("Confirma a alteração desta permissão?")) return;
+              try {
+                await setRole.mutateAsync({
+                  userId: id,
+                  role:
+                    value === "professional"
+                      ? null
+                      : (value as
+                          | "super_admin"
+                          | "support_admin"
+                          | "analyst"
+                          | "finance_admin"
+                          | "content_admin"),
+                  confirm: true,
+                });
+                toast.success("Permissão atualizada.");
+              } catch (error) {
+                toast.error(
+                  error instanceof Error
+                    ? error.message
+                    : "Não foi possível atualizar a permissão.",
+                );
+              }
+            }}
+          >
+            <SelectTrigger className="mt-4">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="professional">Profissional</SelectItem>
+              <SelectItem value="super_admin">Administrador master</SelectItem>
+              <SelectItem value="support_admin">Suporte</SelectItem>
+              <SelectItem value="analyst">Analista</SelectItem>
+              <SelectItem value="finance_admin">Financeiro</SelectItem>
+              <SelectItem value="content_admin">Conteúdo</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="surface p-5">
+          <h2 className="font-semibold">Assinatura</h2>
+          {data.subscription ? (
+            <dl className="mt-3 divide-y">
+              <DetailRow
+                label="Plano"
+                value={data.subscription.plan?.name ?? "Plano indisponível"}
+              />
+              <DetailRow label="Situação" value={data.subscription.status} />
+              <DetailRow
+                label="Próximo vencimento"
+                value={new Date(`${data.subscription.next_due_on}T00:00:00`).toLocaleDateString(
+                  "pt-BR",
+                )}
+              />
+            </dl>
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground">Nenhuma assinatura vinculada.</p>
+          )}
+        </div>
+      </section>
+      <section className="surface mt-6 p-5">
+        <h2 className="font-semibold">Chamados recentes</h2>
+        {data.support.length ? (
+          <ul className="mt-3 divide-y text-sm">
+            {data.support.map((ticket) => (
+              <li key={ticket.id} className="flex flex-wrap justify-between gap-3 py-3">
+                <span className="font-medium">{ticket.subject}</span>
+                <span className="text-muted-foreground">{ticket.status}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-3 text-sm text-muted-foreground">Nenhum chamado registrado.</p>
+        )}
       </section>
     </AdminShell>
   );

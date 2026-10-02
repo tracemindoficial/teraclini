@@ -13,7 +13,6 @@ export async function getOnboardingProfile(userId: string) {
 
 export async function getAuthenticatedDestination(userId: string) {
   const access = await getSessionAccess();
-  if (access.isPlatformAdmin) return "/admin";
   if (access.accountStatus !== "active") return "/conta-indisponivel";
   const profile = await getOnboardingProfile(userId);
   return profile?.onboarding_completed ? "/meu-dia" : "/onboarding";

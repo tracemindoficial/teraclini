@@ -37,11 +37,12 @@ function formatDate(value: string | null) {
 function AdminUsersPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | "active" | "suspended" | "closed">("all");
+  const [sort, setSort] = useState<"newest" | "oldest" | "name" | "last_activity">("newest");
   const [page, setPage] = useState(1);
-  const { data, isLoading, error } = useAdminUsers(search, status, page);
+  const { data, isLoading, error } = useAdminUsers(search, status, sort, page);
   return (
     <AdminShell title="Usuários" description="Contas, acesso, assinatura e atividade">
-      <div className="surface mb-5 grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_14rem]">
+      <div className="surface mb-5 grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_14rem_14rem]">
         <label className="relative">
           <Search className="absolute left-3 top-3 size-4 text-muted-foreground" />
           <Input
@@ -71,6 +72,23 @@ function AdminUsersPage() {
             <SelectItem value="closed">Encerradas</SelectItem>
           </SelectContent>
         </Select>
+        <Select
+          value={sort}
+          onValueChange={(value) => {
+            setSort(value as typeof sort);
+            setPage(1);
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Ordenação" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">Mais recentes</SelectItem>
+            <SelectItem value="oldest">Mais antigos</SelectItem>
+            <SelectItem value="name">Nome</SelectItem>
+            <SelectItem value="last_activity">Última atividade</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       {isLoading ? (
         <AdminState kind="loading">Carregando contas...</AdminState>
@@ -87,11 +105,13 @@ function AdminUsersPage() {
                   <th className="px-4 py-3">Profissional</th>
                   <th className="px-4 py-3">Cadastro</th>
                   <th className="px-4 py-3">Conta</th>
+                  <th className="px-4 py-3">Perfil</th>
                   <th className="px-4 py-3">Plano</th>
                   <th className="px-4 py-3">Mensalidade</th>
                   <th className="px-4 py-3">Próximo vencimento</th>
                   <th className="px-4 py-3">Último pagamento</th>
                   <th className="px-4 py-3">Último acesso</th>
+                  <th className="px-4 py-3">Última atividade</th>
                   <th className="px-4 py-3">Ações</th>
                 </tr>
               </thead>
@@ -104,6 +124,9 @@ function AdminUsersPage() {
                     </td>
                     <td className="px-4 py-3">{formatDate(row.createdAt)}</td>
                     <td className="px-4 py-3 capitalize">{row.accountStatus}</td>
+                    <td className="px-4 py-3">
+                      {row.platformRole ? "Administrador" : "Profissional"}
+                    </td>
                     <td className="px-4 py-3">{row.planName ?? "Sem assinatura"}</td>
                     <td className="px-4 py-3">
                       {row.monthlyCents == null ? "—" : brlFromCents(row.monthlyCents)}
@@ -111,6 +134,7 @@ function AdminUsersPage() {
                     <td className="px-4 py-3">{formatDate(row.nextDueOn)}</td>
                     <td className="px-4 py-3">{formatDate(row.lastPaymentAt)}</td>
                     <td className="px-4 py-3">{formatDate(row.lastSignInAt)}</td>
+                    <td className="px-4 py-3">{formatDate(row.lastActivityAt)}</td>
                     <td className="px-4 py-3">
                       <Button variant="outline" size="sm" asChild>
                         <Link to="/admin/usuarios/$id" params={{ id: row.id }}>
