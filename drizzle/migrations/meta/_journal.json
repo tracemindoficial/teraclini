@@ -71,6 +71,13 @@
       "when": 1790965635058,
       "tag": "0009_add_platform_admin_revocation",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790966645509,
+      "tag": "0010_add_public_commercial_layer",
+      "breakpoints": true
     }
   ]
 }
