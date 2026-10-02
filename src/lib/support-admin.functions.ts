@@ -28,7 +28,7 @@ export const listAdminSupportTickets = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabaseAdmin
       .from("support_tickets")
-      .select("id, account_id, user_id, subject, status, last_message_at, created_at")
+      .select("id, account_id, user_id, subject, status, priority, assigned_admin_user_id, last_message_at, created_at")
       .order("last_message_at", { ascending: false });
     if (error) throw new Error("Não foi possível carregar os chamados.");
     const userIds = [...new Set((data ?? []).map((item) => item.user_id))];
@@ -50,7 +50,7 @@ export const getAdminSupportTicket = createServerFn({ method: "POST" })
     const [ticket, messages] = await Promise.all([
       context.supabaseAdmin
         .from("support_tickets")
-        .select("id, account_id, user_id, subject, status, created_at, resolved_at")
+        .select("id, account_id, user_id, subject, status, priority, assigned_admin_user_id, created_at, resolved_at, closed_at")
         .eq("id", data.ticketId)
         .single(),
       context.supabaseAdmin
@@ -76,7 +76,7 @@ export const replyAdminSupportTicket = createServerFn({ method: "POST" })
       .select("id, account_id, status")
       .eq("id", data.ticketId)
       .single();
-    if (ticketError || !ticket || ticket.status === "resolved")
+    if (ticketError || !ticket || ticket.status === "resolved" || ticket.status === "closed")
       throw new Error("Chamado indisponível para resposta.");
     const { error } = await context.supabaseAdmin.from("support_messages").insert({
       ticket_id: ticket.id,
@@ -104,7 +104,7 @@ export const replyAdminSupportTicket = createServerFn({ method: "POST" })
 
 const statusInput = z.object({
   ticketId: z.string().uuid(),
-  status: z.enum(["open", "in_progress", "waiting_user", "resolved"]),
+  status: z.enum(["open", "in_progress", "waiting_user", "resolved", "closed"]),
   confirm: z.literal(true),
 });
 export const setAdminSupportStatus = createServerFn({ method: "POST" })
@@ -122,6 +122,7 @@ export const setAdminSupportStatus = createServerFn({ method: "POST" })
       .update({
         status: data.status,
         resolved_at: data.status === "resolved" ? new Date().toISOString() : null,
+        closed_at: data.status === "closed" ? new Date().toISOString() : null,
       })
       .eq("id", ticket.id);
     if (error) throw new Error("Não foi possível atualizar o chamado.");
@@ -131,7 +132,40 @@ export const setAdminSupportStatus = createServerFn({ method: "POST" })
       entity_type: "support_ticket",
       entity_id: ticket.id,
       account_id: ticket.account_id,
-      changed_fields: ["status", "resolved_at"],
+      changed_fields: ["status", "resolved_at", "closed_at"],
+      result: "success",
+    });
+    return { ok: true as const };
+  });
+
+const triageInput = z.object({
+  ticketId: z.string().uuid(),
+  priority: z.enum(["low", "normal", "high", "urgent"]),
+  assignedToMe: z.boolean(),
+  confirm: z.literal(true),
+});
+export const triageAdminSupportTicket = createServerFn({ method: "POST" })
+  .middleware([requireSupportAdmin])
+  .inputValidator((input) => triageInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: ticket, error: readError } = await context.supabaseAdmin
+      .from("support_tickets")
+      .select("id, account_id")
+      .eq("id", data.ticketId)
+      .single();
+    if (readError || !ticket) throw new Error("Chamado não encontrado.");
+    const { error } = await context.supabaseAdmin
+      .from("support_tickets")
+      .update({ priority: data.priority, assigned_admin_user_id: data.assignedToMe ? context.userId : null })
+      .eq("id", ticket.id);
+    if (error) throw new Error("Não foi possível atualizar a triagem.");
+    await context.supabaseAdmin.from("platform_audit_events").insert({
+      actor_user_id: context.userId,
+      action: "support.triage",
+      entity_type: "support_ticket",
+      entity_id: ticket.id,
+      account_id: ticket.account_id,
+      changed_fields: ["priority", "assigned_admin_user_id"],
       result: "success",
     });
     return { ok: true as const };

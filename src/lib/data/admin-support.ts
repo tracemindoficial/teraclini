@@ -5,6 +5,7 @@ import {
   listAdminSupportTickets,
   replyAdminSupportTicket,
   setAdminSupportStatus,
+  triageAdminSupportTicket,
 } from "@/lib/support-admin.functions";
 import type { SupportStatus } from "@/lib/data/support";
 
@@ -28,6 +29,7 @@ export function useAdminSupportActions(id: string) {
   const client = useQueryClient();
   const reply = useServerFn(replyAdminSupportTicket);
   const status = useServerFn(setAdminSupportStatus);
+  const triage = useServerFn(triageAdminSupportTicket);
   const refresh = () => {
     client.invalidateQueries({ queryKey: keys.list });
     client.invalidateQueries({ queryKey: keys.detail(id) });
@@ -40,6 +42,11 @@ export function useAdminSupportActions(id: string) {
     status: useMutation({
       mutationFn: (value: SupportStatus) =>
         status({ data: { ticketId: id, status: value, confirm: true } }),
+      onSuccess: refresh,
+    }),
+    triage: useMutation({
+      mutationFn: (value: { priority: "low" | "normal" | "high" | "urgent"; assignedToMe: boolean }) =>
+        triage({ data: { ticketId: id, ...value, confirm: true } }),
       onSuccess: refresh,
     }),
   };

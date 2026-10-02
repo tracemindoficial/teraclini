@@ -377,7 +377,7 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
     const { data: profile, error: profileError } = await context.supabaseAdmin
       .from("profiles")
       .select(
-        "account_id, full_name, profession, onboarding_completed, created_at, account:accounts(id, status)",
+        "account_id, full_name, profession, professional_registry, city, state, care_mode, onboarding_completed, force_password_reset, created_at, account:accounts(id, status)",
       )
       .eq("id", data.userId)
       .maybeSingle();
@@ -451,6 +451,11 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
       name: profile.full_name || "Cadastro incompleto",
       email: user.email ?? "E-mail indisponível",
       profession: profile.profession,
+      professionalRegistry: profile.professional_registry,
+      city: profile.city,
+      state: profile.state,
+      careMode: profile.care_mode,
+      forcePasswordReset: profile.force_password_reset,
       accountStatus: profile.account?.status ?? "unknown",
       onboardingCompleted: profile.onboarding_completed,
       createdAt: profile.created_at,
