@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { completeRequiredPasswordReset } from "@/lib/admin-operations.functions";
 
 export const Route = createFileRoute("/reset-password")({
   ssr: false,
@@ -31,6 +33,7 @@ function ResetPasswordPage() {
   const [checking, setChecking] = useState(true);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const completeRequiredReset = useServerFn(completeRequiredPasswordReset);
 
   useEffect(() => {
     let active = true;
@@ -43,9 +46,14 @@ function ResetPasswordPage() {
       }
     });
 
-    void supabase.auth.getSession().then(({ data }) => {
+    void supabase.auth.getSession().then(async ({ data }) => {
       if (!active) return;
-      setRecoveryReady(Boolean(data.session && hashIsRecovery));
+      let forced = false;
+      if (data.session?.user) {
+        const profile = await supabase.from("profiles").select("force_password_reset").eq("id", data.session.user.id).maybeSingle();
+        forced = Boolean(profile.data?.force_password_reset);
+      }
+      setRecoveryReady(Boolean(data.session && (hashIsRecovery || forced)));
       setChecking(false);
     });
 
@@ -68,11 +76,19 @@ function ResetPasswordPage() {
 
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password });
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast.error("Não foi possível redefinir a senha. Solicite um novo link.");
       return;
     }
+    try {
+      await completeRequiredReset();
+    } catch {
+      setLoading(false);
+      toast.error("A senha foi alterada, mas não foi possível concluir a liberação do acesso.");
+      return;
+    }
+    setLoading(false);
     toast.success("Senha redefinida com sucesso.");
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });

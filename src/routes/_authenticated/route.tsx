@@ -11,13 +11,7 @@ export const Route = createFileRoute("/_authenticated")({
     const access = await getSessionAccess();
     if (access.accountStatus !== "active") throw redirect({ to: "/conta-indisponivel" });
     const profile = await getOnboardingProfile(data.user.id);
-    if (profile?.force_password_reset && location.pathname !== "/reset-password") {
-      await supabase.auth.resetPasswordForEmail(data.user.email ?? "", {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      await supabase.auth.signOut();
-      throw redirect({ to: "/reset-password" });
-    }
+    if (profile?.force_password_reset) throw redirect({ to: "/reset-password" });
     if ((!profile || !profile.onboarding_completed) && location.pathname !== "/onboarding") {
       throw redirect({ to: "/onboarding" });
     }

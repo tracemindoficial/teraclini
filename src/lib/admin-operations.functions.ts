@@ -160,6 +160,23 @@ export const requireAdminPasswordReset = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+export const completeRequiredPasswordReset = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: profile, error: profileError } = await context.supabase
+      .from("profiles")
+      .select("account_id, force_password_reset")
+      .eq("id", context.userId)
+      .single();
+    if (profileError || !profile) throw new Error("Perfil não encontrado.");
+    if (!profile.force_password_reset) return { ok: true as const };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("profiles").update({ force_password_reset: false, password_reset_required_at: null }).eq("id", context.userId);
+    if (error) throw new Error("Não foi possível concluir a redefinição obrigatória.");
+    await supabaseAdmin.from("account_access_events").insert({ account_id: profile.account_id, user_id: context.userId, actor_user_id: context.userId, event_type: "password_changed", details: {} });
+    return { ok: true as const };
+  });
+
 export const revokeAdminUserSessions = createServerFn({ method: "POST" })
   .middleware([requireOperationalAdmin])
   .inputValidator((input) => accessInput.parse(input))
