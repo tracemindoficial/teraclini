@@ -85,7 +85,21 @@ export function AppShell({
   }, []);
 
   useEffect(() => {
-    const module = pathname.startsWith("/agenda") ? "agenda" : pathname.startsWith("/pacientes") ? "patients" : pathname.startsWith("/atendimentos") ? "appointments" : pathname.startsWith("/documentos") ? "documents" : pathname.startsWith("/pacotes") ? "packages" : pathname.startsWith("/relatorios") ? "reports" : pathname.startsWith("/configuracoes") ? "settings" : "dashboard";
+    const module = pathname.startsWith("/agenda")
+      ? "agenda"
+      : pathname.startsWith("/pacientes")
+        ? "patients"
+        : pathname.startsWith("/atendimentos")
+          ? "appointments"
+          : pathname.startsWith("/documentos")
+            ? "documents"
+            : pathname.startsWith("/pacotes")
+              ? "packages"
+              : pathname.startsWith("/relatorios")
+                ? "reports"
+                : pathname.startsWith("/configuracoes")
+                  ? "settings"
+                  : "dashboard";
     recordUsage({ data: { module, action: "view" } }).catch(() => undefined);
   }, [pathname, recordUsage]);
 
@@ -239,6 +253,7 @@ export function AppShell({
                 )}
               </Button>
               <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-semibold uppercase text-primary">Meu painel</p>
                 <h1 className="truncate text-lg font-semibold sm:text-xl">{title}</h1>
                 {description ? (
                   <p className="truncate text-xs text-muted-foreground sm:text-sm">{description}</p>

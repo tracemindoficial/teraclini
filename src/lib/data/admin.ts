@@ -1,12 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import {
   getAdminOverview,
+  getAdminSelf,
+  getAdminUserDetail,
   getAdminSettings,
+  listAdminAuditEvents,
   listAdminPayments,
   listAdminSubscriptions,
   listAdminUsers,
+  setAdminAccountStatus,
 } from "@/lib/platform-admin.functions";
 
 export const adminKeys = {
@@ -16,6 +20,9 @@ export const adminKeys = {
   subscriptions: ["admin", "subscriptions"] as const,
   payments: ["admin", "payments"] as const,
   settings: ["admin", "settings"] as const,
+  self: ["admin", "self"] as const,
+  audit: (action: string, page: number) => ["admin", "audit", action, page] as const,
+  userDetail: (id: string) => ["admin", "users", id] as const,
 };
 
 export function useAdminOverview() {
@@ -48,4 +55,39 @@ export function useAdminPayments() {
 export function useAdminSettings() {
   const fetcher = useServerFn(getAdminSettings);
   return useQuery({ queryKey: adminKeys.settings, queryFn: () => fetcher() });
+}
+
+export function useAdminSelf() {
+  const fetcher = useServerFn(getAdminSelf);
+  return useQuery({ queryKey: adminKeys.self, queryFn: () => fetcher() });
+}
+
+export function useAdminAuditEvents(action: string, page: number) {
+  const fetcher = useServerFn(listAdminAuditEvents);
+  return useQuery({
+    queryKey: adminKeys.audit(action, page),
+    queryFn: () => fetcher({ data: { action, page, pageSize: 20 } }),
+  });
+}
+
+export function useAdminUserDetail(userId: string) {
+  const fetcher = useServerFn(getAdminUserDetail);
+  return useQuery({
+    queryKey: adminKeys.userDetail(userId),
+    queryFn: () => fetcher({ data: { userId } }),
+  });
+}
+
+export function useSetAdminAccountStatus(userId: string) {
+  const queryClient = useQueryClient();
+  const mutation = useServerFn(setAdminAccountStatus);
+  return useMutation({
+    mutationFn: (data: { accountId: string; status: "active" | "suspended"; confirm: true }) =>
+      mutation({ data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.userDetail(userId) });
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      queryClient.invalidateQueries({ queryKey: adminKeys.overview });
+    },
+  });
 }

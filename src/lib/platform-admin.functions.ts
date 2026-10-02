@@ -58,6 +58,23 @@ export const getAdminAccess = createServerFn({ method: "GET" })
   .middleware([requirePlatformAdmin])
   .handler(async () => ({ authorized: true as const }));
 
+export const getAdminSelf = createServerFn({ method: "GET" })
+  .middleware([requirePlatformAdmin])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabaseAdmin.auth.admin.getUserById(context.userId);
+    if (error || !data.user) throw new Error("Não foi possível carregar o perfil administrativo.");
+    const { data: profile } = await context.supabaseAdmin
+      .from("profiles")
+      .select("full_name")
+      .eq("id", context.userId)
+      .maybeSingle();
+    return {
+      name: profile?.full_name || data.user.user_metadata?.["full_name"] || "Administrador",
+      email: data.user.email ?? "E-mail indisponível",
+      lastSignInAt: data.user.last_sign_in_at ?? null,
+    };
+  });
+
 export const getAdminOverview = createServerFn({ method: "GET" })
   .middleware([requirePlatformAdmin])
   .handler(async ({ context }) => {
@@ -292,6 +309,129 @@ export const listAdminUsers = createServerFn({ method: "POST" })
       page: data.page,
       pageSize: data.pageSize,
     };
+  });
+
+const userDetailInput = z.object({ userId: z.string().uuid() });
+
+export const getAdminUserDetail = createServerFn({ method: "POST" })
+  .middleware([requirePlatformAdmin])
+  .inputValidator((input) => userDetailInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const userResult = await context.supabaseAdmin.auth.admin.getUserById(data.userId);
+    if (userResult.error || !userResult.data.user) throw new Response("Not found", { status: 404 });
+    const user = userResult.data.user;
+    const { data: profile, error: profileError } = await context.supabaseAdmin
+      .from("profiles")
+      .select(
+        "account_id, full_name, profession, onboarding_completed, created_at, account:accounts(id, status)",
+      )
+      .eq("id", data.userId)
+      .maybeSingle();
+    if (profileError || !profile) throw new Response("Not found", { status: 404 });
+    const accountId = profile.account_id;
+    const [patients, appointments, documents, packages, activity] = await Promise.all([
+      context.supabaseAdmin
+        .from("patients")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      context.supabaseAdmin
+        .from("appointments")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      context.supabaseAdmin
+        .from("documents")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      context.supabaseAdmin
+        .from("care_packages")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      context.supabaseAdmin
+        .from("usage_events")
+        .select("id, module, occurred_at")
+        .eq("account_id", accountId)
+        .order("occurred_at", { ascending: false })
+        .limit(10),
+    ]);
+    const firstError = [patients, appointments, documents, packages, activity].find(
+      (result) => result.error,
+    )?.error;
+    if (firstError) throw new Error("Não foi possível carregar os indicadores da conta.");
+    return {
+      id: user.id,
+      accountId,
+      name: profile.full_name || "Cadastro incompleto",
+      email: user.email ?? "E-mail indisponível",
+      profession: profile.profession,
+      accountStatus: profile.account?.status ?? "unknown",
+      onboardingCompleted: profile.onboarding_completed,
+      createdAt: profile.created_at,
+      lastSignInAt: user.last_sign_in_at ?? null,
+      counts: {
+        patients: patients.count ?? 0,
+        appointments: appointments.count ?? 0,
+        documents: documents.count ?? 0,
+        packages: packages.count ?? 0,
+      },
+      activity: activity.data ?? [],
+    };
+  });
+
+const accountStatusInput = z.object({
+  accountId: z.string().uuid(),
+  status: z.enum(["active", "suspended"]),
+  confirm: z.literal(true),
+});
+
+export const setAdminAccountStatus = createServerFn({ method: "POST" })
+  .middleware([requirePlatformAdmin])
+  .inputValidator((input) => accountStatusInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: account, error: readError } = await context.supabaseAdmin
+      .from("accounts")
+      .select("id, status")
+      .eq("id", data.accountId)
+      .single();
+    if (readError || !account) throw new Error("Conta não encontrada.");
+    if (account.status === data.status) return { ok: true, unchanged: true };
+    const { error } = await context.supabaseAdmin
+      .from("accounts")
+      .update({ status: data.status })
+      .eq("id", data.accountId);
+    if (error) throw new Error("Não foi possível alterar a situação da conta.");
+    await recordAudit(
+      context.supabaseAdmin,
+      context.userId,
+      data.status === "active" ? "account.activate" : "account.suspend",
+      "account",
+      account.id,
+      account.id,
+      ["status"],
+    );
+    return { ok: true, unchanged: false };
+  });
+
+const auditListInput = z.object({
+  action: z.string().max(120).default(""),
+  page: z.number().int().positive().default(1),
+  pageSize: z.number().int().min(10).max(100).default(20),
+});
+
+export const listAdminAuditEvents = createServerFn({ method: "POST" })
+  .middleware([requirePlatformAdmin])
+  .inputValidator((input) => auditListInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const from = (data.page - 1) * data.pageSize;
+    const to = from + data.pageSize - 1;
+    let query = context.supabaseAdmin
+      .from("platform_audit_events")
+      .select("id, action, entity_type, result, created_at", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(from, to);
+    if (data.action.trim()) query = query.ilike("action", `%${data.action.trim()}%`);
+    const { data: rows, count, error } = await query;
+    if (error) throw new Error("Não foi possível carregar a auditoria administrativa.");
+    return { rows: rows ?? [], total: count ?? 0, page: data.page, pageSize: data.pageSize };
   });
 
 export const listAdminSubscriptions = createServerFn({ method: "GET" })

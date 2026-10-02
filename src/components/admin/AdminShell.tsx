@@ -2,12 +2,15 @@ import type { ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   BarChart3,
+  CalendarClock,
+  ClipboardClock,
   CreditCard,
   FileBarChart,
   LayoutDashboard,
   LogOut,
   Menu,
   Settings,
+  UserRound,
   Users,
   WalletCards,
   X,
@@ -26,8 +29,11 @@ const links = [
   { to: "/admin/usuarios", label: "Usuários", icon: Users },
   { to: "/admin/assinaturas", label: "Assinaturas", icon: WalletCards },
   { to: "/admin/pagamentos", label: "Pagamentos", icon: CreditCard },
+  { to: "/admin/vencimentos", label: "Vencimentos", icon: CalendarClock },
   { to: "/admin/relatorios", label: "Relatórios", icon: FileBarChart },
+  { to: "/admin/auditoria", label: "Auditoria", icon: ClipboardClock },
   { to: "/admin/configuracoes", label: "Configurações", icon: Settings },
+  { to: "/admin/perfil", label: "Meu perfil", icon: UserRound },
 ] as const;
 
 function isActive(pathname: string, to: string) {
@@ -115,6 +121,9 @@ export function AdminShell({
               <Menu className="size-5" />
             </Button>
             <div className="min-w-0 flex-1">
+              <p className="text-[11px] font-semibold uppercase text-primary">
+                Painel administrativo
+              </p>
               <h1 className="truncate text-lg font-semibold sm:text-xl">{title}</h1>
               {description ? (
                 <p className="truncate text-xs text-muted-foreground sm:text-sm">{description}</p>

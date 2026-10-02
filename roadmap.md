@@ -87,3 +87,14 @@
 - [x] Conceder o primeiro acesso master ao usuário autorizado
 - [ ] Confirmar e cadastrar plano, valor, vencimento e tolerância
 - [x] Validar permissões e isolamento com identidades descartáveis autorizadas
+
+## Administração e acessos independentes
+
+- [x] Reforçar o bloqueio de dados para contas suspensas ou encerradas
+- [x] Impedir alteração do status da conta pelo próprio profissional
+- [x] Direcionar administradores e profissionais aos espaços corretos após entrar
+- [x] Criar detalhe de usuário, alteração auditada de situação e histórico administrativo
+- [x] Identificar claramente o painel administrativo e o painel profissional
+- [x] Validar três contas descartáveis, suspensão e tentativas de acesso entre contas
+- [x] Remover integralmente as três identidades e os dados fictícios após o teste
+- [ ] Validar visualmente as telas internas com uma sessão administrativa aprovada
