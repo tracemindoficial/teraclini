@@ -4,10 +4,12 @@ import { describeAuthError, withTimeout } from "./auth-errors";
 
 describe("describeAuthError", () => {
   it("translates known authentication failures without exposing raw details", () => {
-    expect(describeAuthError({ code: "invalid_credentials", message: "sensitive detail" })).toEqual({
-      code: "invalid_credentials",
-      message: "E-mail ou senha incorretos.",
-    });
+    expect(describeAuthError({ code: "invalid_credentials", message: "sensitive detail" })).toEqual(
+      {
+        code: "invalid_credentials",
+        message: "E-mail ou senha incorretos.",
+      },
+    );
   });
 
   it("uses a safe generic message for unknown failures", () => {
