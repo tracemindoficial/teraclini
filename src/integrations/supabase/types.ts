@@ -2354,6 +2354,24 @@ export type Database = {
         }
         Returns: string
       }
+      admin_set_account_status: {
+        Args: { _account_id: string; _actor_user_id: string; _status: string }
+        Returns: boolean
+      }
+      admin_update_user_profile: {
+        Args: {
+          _actor_user_id: string
+          _care_mode: Database["public"]["Enums"]["care_mode"]
+          _city: string
+          _full_name: string
+          _phone: string
+          _profession: string
+          _professional_registry: string
+          _state: string
+          _target_user_id: string
+        }
+        Returns: boolean
+      }
       approve_patient_registration: {
         Args: { _existing_patient_id?: string; _request_id: string }
         Returns: string
