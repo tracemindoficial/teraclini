@@ -10,5 +10,5 @@ const labels: Record<SupportStatus, string> = {
 };
 
 export function SupportStatusBadge({ status }: { status: SupportStatus }) {
-  return <Badge variant={status === "resolved" ? "secondary" : "outline"}>{labels[status]}</Badge>;
+  return <Badge variant={status === "resolved" || status === "closed" ? "secondary" : "outline"}>{labels[status]}</Badge>;
 }
