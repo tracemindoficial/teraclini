@@ -27,4 +27,7 @@ export const queryKeys = {
   packages: ["care-packages"] as const,
   package: (id: string) => ["care-package", id] as const,
   packageEvents: (id: string) => ["care-package-events", id] as const,
+  helpCenter: ["help-center"] as const,
+  helpTutorial: (slug: string) => ["help-tutorial", slug] as const,
+  helpProgress: ["help-progress"] as const,
 } as const;
