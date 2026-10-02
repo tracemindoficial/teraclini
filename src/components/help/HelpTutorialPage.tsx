@@ -3,14 +3,14 @@ import { Link } from "@tanstack/react-router";
 import { ArrowLeft, CheckCircle2, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { recordHelpEvent, useHelpTutorial } from "@/lib/data/help";
-import { startHelpGuide } from "@/components/help/HelpGuide";
+import { startHelpGuide } from "@/lib/help-guide";
 
 export function HelpTutorialPage({ slug }: { slug: string }) {
   const { data: tutorial, isLoading, error } = useHelpTutorial(slug);
   useEffect(() => {
     if (tutorial)
       recordHelpEvent({ eventType: "view", tutorialId: tutorial.id }).catch(() => undefined);
-  }, [tutorial?.id]);
+  }, [tutorial]);
   if (isLoading) return <p className="text-sm text-muted-foreground">Carregando tutorial...</p>;
   if (error || !tutorial)
     return (

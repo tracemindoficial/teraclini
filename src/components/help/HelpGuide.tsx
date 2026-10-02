@@ -13,12 +13,6 @@ import {
 import { useCompleteHelpTutorial, useHelpTutorial, recordHelpEvent } from "@/lib/data/help";
 import { HELP_GUIDE_STORAGE_KEY } from "@/lib/help-types";
 
-export function startHelpGuide(slug: string, routePath: string | null) {
-  window.localStorage.setItem(HELP_GUIDE_STORAGE_KEY, slug);
-  window.dispatchEvent(new Event("teraclini-help-guide"));
-  return routePath;
-}
-
 export function HelpGuide() {
   const [slug, setSlug] = useState<string | null>(null);
   const [step, setStep] = useState(0);
@@ -37,7 +31,7 @@ export function HelpGuide() {
     if (window.location.pathname !== tutorial.route_path)
       window.location.assign(tutorial.route_path);
     recordHelpEvent({ eventType: "guide_started", tutorialId: tutorial.id }).catch(() => undefined);
-  }, [tutorial?.id, tutorial?.route_path]);
+  }, [tutorial]);
 
   const steps = tutorial?.steps ?? [];
   const activeStep = steps[step];
