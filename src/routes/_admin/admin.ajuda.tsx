@@ -1,4 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { AdminHelpPage } from "@/components/help/AdminHelpPage";
-export const Route = createFileRoute("/_admin/admin/ajuda")({ head: () => ({ meta: [{ title:"Central de Ajuda — Administração TeraClini" },{ name:"description",content:"Gestão dos conteúdos de ajuda do TeraClini." },{ property:"og:title",content:"Central de Ajuda — Administração TeraClini" },{ property:"og:description",content:"Gestão dos conteúdos de ajuda do TeraClini." },{ property:"og:type",content:"website" },{ name:"twitter:card",content:"summary" },{ name:"robots",content:"noindex,nofollow" }] }), component: () => <AdminShell title="Central de Ajuda" description="Conteúdos, visibilidade e uso"><AdminHelpPage /></AdminShell> });
+export const Route = createFileRoute("/_admin/admin/ajuda")({
+  head: () => ({
+    meta: [
+      { title: "Central de Ajuda — Administração TeraClini" },
+      { name: "description", content: "Gestão dos conteúdos de ajuda do TeraClini." },
+      { property: "og:title", content: "Central de Ajuda — Administração TeraClini" },
+      { property: "og:description", content: "Gestão dos conteúdos de ajuda do TeraClini." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
+  component: () => (
+    <AdminShell title="Central de Ajuda" description="Conteúdos, visibilidade e uso">
+      <AdminHelpPage />
+    </AdminShell>
+  ),
+});

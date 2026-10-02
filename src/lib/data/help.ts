@@ -7,25 +7,42 @@ import { queryKeys } from "@/lib/query-keys";
 export async function fetchHelpCenter() {
   const [{ data: categories, error: categoryError }, { data: tutorials, error: tutorialError }] =
     await Promise.all([
-      supabase.from("help_categories").select("id,name,slug,description,icon,order_index").order("order_index"),
+      supabase
+        .from("help_categories")
+        .select("id,name,slug,description,icon,order_index")
+        .order("order_index"),
       supabase
         .from("help_tutorials")
-        .select("id,category_id,title,slug,short_description,objective,content,expected_result,keywords,route_path,visibility,order_index,is_active,media_url")
+        .select(
+          "id,category_id,title,slug,short_description,objective,content,expected_result,keywords,route_path,visibility,order_index,is_active,media_url",
+        )
         .order("order_index"),
     ]);
   if (categoryError || tutorialError) throw categoryError ?? tutorialError;
-  return { categories: (categories ?? []) as HelpCategory[], tutorials: (tutorials ?? []) as HelpTutorial[] };
+  return {
+    categories: (categories ?? []) as HelpCategory[],
+    tutorials: (tutorials ?? []) as HelpTutorial[],
+  };
 }
 
 export async function fetchHelpTutorial(slug: string) {
   const { data, error } = await supabase
     .from("help_tutorials")
-    .select("id,category_id,title,slug,short_description,objective,content,expected_result,keywords,route_path,visibility,order_index,is_active,media_url,help_categories(id,name,slug,description,icon,order_index),help_tutorial_steps(id,title,instruction,target_selector,order_index)")
+    .select(
+      "id,category_id,title,slug,short_description,objective,content,expected_result,keywords,route_path,visibility,order_index,is_active,media_url,help_categories(id,name,slug,description,icon,order_index),help_tutorial_steps(id,title,instruction,target_selector,order_index)",
+    )
     .eq("slug", slug)
     .single();
   if (error) throw error;
-  const row = data as typeof data & { help_categories: HelpCategory; help_tutorial_steps: HelpTutorial["steps"] };
-  return { ...row, category: row.help_categories, steps: [...(row.help_tutorial_steps ?? [])].sort((a, b) => a.order_index - b.order_index) } as HelpTutorial;
+  const row = data as typeof data & {
+    help_categories: HelpCategory;
+    help_tutorial_steps: HelpTutorial["steps"];
+  };
+  return {
+    ...row,
+    category: row.help_categories,
+    steps: [...(row.help_tutorial_steps ?? [])].sort((a, b) => a.order_index - b.order_index),
+  } as HelpTutorial;
 }
 
 export function useHelpCenter() {
@@ -33,7 +50,10 @@ export function useHelpCenter() {
 }
 
 export function useHelpTutorial(slug: string) {
-  return useQuery({ queryKey: queryKeys.helpTutorial(slug), queryFn: () => fetchHelpTutorial(slug) });
+  return useQuery({
+    queryKey: queryKeys.helpTutorial(slug),
+    queryFn: () => fetchHelpTutorial(slug),
+  });
 }
 
 async function currentUserId() {
@@ -64,10 +84,17 @@ export function useCompleteHelpTutorial() {
   return useMutation({
     mutationFn: async (tutorialId: string) => {
       const userId = await currentUserId();
-      const { error } = await supabase.from("help_progress").upsert(
-        { user_id: userId, tutorial_id: tutorialId, completed_at: new Date().toISOString(), current_step: 0 },
-        { onConflict: "user_id,tutorial_id" },
-      );
+      const { error } = await supabase
+        .from("help_progress")
+        .upsert(
+          {
+            user_id: userId,
+            tutorial_id: tutorialId,
+            completed_at: new Date().toISOString(),
+            current_step: 0,
+          },
+          { onConflict: "user_id,tutorial_id" },
+        );
       if (error) throw error;
       await recordHelpEvent({ eventType: "completed", tutorialId });
     },

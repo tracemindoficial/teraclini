@@ -1,7 +1,18 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { CalendarCheck2, CalendarDays, CalendarPlus, ClipboardList, MapPin, PackageCheck, Plus, Search, UserPlus, Users } from "lucide-react";
+import {
+  CalendarCheck2,
+  CalendarDays,
+  CalendarPlus,
+  ClipboardList,
+  MapPin,
+  PackageCheck,
+  Plus,
+  Search,
+  UserPlus,
+  Users,
+} from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { AppointmentDialog } from "@/components/AppointmentDialog";
@@ -12,7 +23,15 @@ import { Button } from "@/components/ui/button";
 import { SetupChecklist } from "@/components/onboarding/SetupChecklist";
 import { HelpIntroduction } from "@/components/help/HelpIntroduction";
 import { useOnboardingTasks } from "@/lib/account-data";
-import { packageStatus, useAppointments, usePackages, usePatients, usePendingEvolutions, useProfile, useRegistrationRequests } from "@/lib/data";
+import {
+  packageStatus,
+  useAppointments,
+  usePackages,
+  usePatients,
+  usePendingEvolutions,
+  useProfile,
+  useRegistrationRequests,
+} from "@/lib/data";
 import { formatDateLong, greeting } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/meu-dia")({
@@ -63,11 +82,12 @@ function MeuDia() {
   const completedTasks = onboardingTasks?.filter((task) => task.completed_at).length ?? 0;
   const totalTasks = onboardingTasks?.length ?? 0;
   const onboardingComplete = totalTasks > 0 && completedTasks === totalTasks;
-  const pendingRegistrations = registrationRequests?.filter(
-    (request) => request.status === "awaiting_approval",
-  ).length ?? 0;
+  const pendingRegistrations =
+    registrationRequests?.filter((request) => request.status === "awaiting_approval").length ?? 0;
   const renewalPackages = (packages ?? []).filter((item) => packageStatus(item) === "renovacao");
-  const confirmedAppointments = (appointments ?? []).filter((item) => item.status === "confirmado").length;
+  const confirmedAppointments = (appointments ?? []).filter(
+    (item) => item.status === "confirmado",
+  ).length;
   const activePatients = (patients ?? []).filter((item) => item.status === "ativo").length;
   const clinicalPending = pending?.length ?? 0;
 
@@ -93,11 +113,34 @@ function MeuDia() {
         />
       ) : null}
 
-      <section aria-label="Resumo da prática" className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
-        <Metric icon={<Users className="size-5" />} value={activePatients} label="Pacientes ativos" tone="mint" />
-        <Metric icon={<CalendarDays className="size-5" />} value={appointments?.length ?? 0} label="Atendimentos hoje" tone="lilac" />
-        <Metric icon={<CalendarCheck2 className="size-5" />} value={confirmedAppointments} label="Confirmados" tone="teal" />
-        <Metric icon={<ClipboardList className="size-5" />} value={clinicalPending} label="Pendências clínicas" tone="alert" />
+      <section
+        aria-label="Resumo da prática"
+        className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4"
+      >
+        <Metric
+          icon={<Users className="size-5" />}
+          value={activePatients}
+          label="Pacientes ativos"
+          tone="mint"
+        />
+        <Metric
+          icon={<CalendarDays className="size-5" />}
+          value={appointments?.length ?? 0}
+          label="Atendimentos hoje"
+          tone="lilac"
+        />
+        <Metric
+          icon={<CalendarCheck2 className="size-5" />}
+          value={confirmedAppointments}
+          label="Confirmados"
+          tone="teal"
+        />
+        <Metric
+          icon={<ClipboardList className="size-5" />}
+          value={clinicalPending}
+          label="Pendências clínicas"
+          tone="alert"
+        />
       </section>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -133,9 +176,21 @@ function MeuDia() {
 
         <aside className="space-y-5">
           {renewalPackages.length > 0 ? (
-            <Link to="/pacotes" search={{}} className="surface flex items-center gap-3 p-5 transition-shadow hover:shadow-[var(--shadow-lift)]">
-              <div className="grid size-10 place-items-center rounded-xl bg-secondary/50 text-primary"><PackageCheck className="size-5" /></div>
-              <div className="min-w-0 flex-1"><p className="text-sm font-semibold">Pacotes próximos da renovação</p><p className="text-xs text-muted-foreground">{renewalPackages.length} pacote{renewalPackages.length === 1 ? "" : "s"} requer{renewalPackages.length === 1 ? "" : "em"} atenção</p></div>
+            <Link
+              to="/pacotes"
+              search={{}}
+              className="surface flex items-center gap-3 p-5 transition-shadow hover:shadow-[var(--shadow-lift)]"
+            >
+              <div className="grid size-10 place-items-center rounded-xl bg-secondary/50 text-primary">
+                <PackageCheck className="size-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold">Pacotes próximos da renovação</p>
+                <p className="text-xs text-muted-foreground">
+                  {renewalPackages.length} pacote{renewalPackages.length === 1 ? "" : "s"} requer
+                  {renewalPackages.length === 1 ? "" : "em"} atenção
+                </p>
+              </div>
             </Link>
           ) : null}
           {pendingRegistrations > 0 ? (
@@ -149,7 +204,8 @@ function MeuDia() {
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold">Pré-cadastros para revisar</p>
                 <p className="text-xs text-muted-foreground">
-                  {pendingRegistrations} solicitaç{pendingRegistrations === 1 ? "ão" : "ões"} pendente
+                  {pendingRegistrations} solicitaç{pendingRegistrations === 1 ? "ão" : "ões"}{" "}
+                  pendente
                   {pendingRegistrations === 1 ? "" : "s"}
                 </p>
               </div>
@@ -260,7 +316,9 @@ function Metric({
   return (
     <article className="surface min-w-0 p-4 sm:p-5">
       <span className={`grid size-9 place-items-center rounded-lg ${tones[tone]}`}>{icon}</span>
-      <p className="mt-3 font-display text-2xl font-semibold text-foreground sm:text-3xl">{value}</p>
+      <p className="mt-3 font-display text-2xl font-semibold text-foreground sm:text-3xl">
+        {value}
+      </p>
       <p className="mt-0.5 text-xs leading-snug text-muted-foreground sm:text-sm">{label}</p>
     </article>
   );

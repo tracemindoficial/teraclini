@@ -269,7 +269,9 @@ export function AppShell({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button asChild variant="ghost" size="icon" aria-label="Ajuda desta página">
-                        <Link to="/ajuda"><HelpCircle className="size-4.5" /></Link>
+                        <Link to="/ajuda">
+                          <HelpCircle className="size-4.5" />
+                        </Link>
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>Ajuda desta página</TooltipContent>

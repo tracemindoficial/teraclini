@@ -7,8 +7,74 @@ import { startHelpGuide } from "@/components/help/HelpGuide";
 
 export function HelpTutorialPage({ slug }: { slug: string }) {
   const { data: tutorial, isLoading, error } = useHelpTutorial(slug);
-  useEffect(() => { if (tutorial) recordHelpEvent({ eventType: "view", tutorialId: tutorial.id }).catch(() => undefined); }, [tutorial?.id]);
+  useEffect(() => {
+    if (tutorial)
+      recordHelpEvent({ eventType: "view", tutorialId: tutorial.id }).catch(() => undefined);
+  }, [tutorial?.id]);
   if (isLoading) return <p className="text-sm text-muted-foreground">Carregando tutorial...</p>;
-  if (error || !tutorial) return <div className="surface p-8 text-center"><h2 className="font-semibold">Tutorial não encontrado</h2><Button asChild variant="outline" className="mt-4"><Link to="/ajuda">Voltar à Ajuda</Link></Button></div>;
-  return <article className="mx-auto max-w-3xl"><Link to="/ajuda" className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" />Central de Ajuda</Link><p className="text-sm font-medium text-primary">{tutorial.category?.name}</p><h2 className="mt-1 font-display text-2xl font-semibold sm:text-3xl">{tutorial.title}</h2><p className="mt-3 text-muted-foreground">{tutorial.short_description}</p><div className="mt-6 flex flex-wrap gap-3"><Button onClick={() => { const path = startHelpGuide(tutorial.slug, tutorial.route_path); if (path && path.startsWith("/")) window.location.assign(path); }}><PlayCircle className="mr-2 size-4" />Ver como funciona</Button></div><section className="mt-8 border-t pt-6"><h3 className="font-semibold">Objetivo</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{tutorial.objective}</p></section><section className="mt-7"><h3 className="font-semibold">Passo a passo</h3><ol className="mt-4 space-y-5">{tutorial.steps?.map((item, index) => <li key={item.id} className="grid grid-cols-[2rem_1fr] gap-3"><span className="grid size-8 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">{index + 1}</span><div><h4 className="font-medium">{item.title}</h4><p className="mt-1 text-sm leading-6 text-muted-foreground">{item.instruction}</p></div></li>)}</ol></section><section className="mt-8 border-t pt-6"><div className="flex gap-3"><CheckCircle2 className="mt-0.5 size-5 shrink-0 text-primary" /><div><h3 className="font-semibold">Resultado esperado</h3><p className="mt-1 text-sm leading-6 text-muted-foreground">{tutorial.expected_result}</p></div></div></section></article>;
+  if (error || !tutorial)
+    return (
+      <div className="surface p-8 text-center">
+        <h2 className="font-semibold">Tutorial não encontrado</h2>
+        <Button asChild variant="outline" className="mt-4">
+          <Link to="/ajuda">Voltar à Ajuda</Link>
+        </Button>
+      </div>
+    );
+  return (
+    <article className="mx-auto max-w-3xl">
+      <Link
+        to="/ajuda"
+        className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="size-4" />
+        Central de Ajuda
+      </Link>
+      <p className="text-sm font-medium text-primary">{tutorial.category?.name}</p>
+      <h2 className="mt-1 font-display text-2xl font-semibold sm:text-3xl">{tutorial.title}</h2>
+      <p className="mt-3 text-muted-foreground">{tutorial.short_description}</p>
+      <div className="mt-6 flex flex-wrap gap-3">
+        <Button
+          onClick={() => {
+            const path = startHelpGuide(tutorial.slug, tutorial.route_path);
+            if (path && path.startsWith("/")) window.location.assign(path);
+          }}
+        >
+          <PlayCircle className="mr-2 size-4" />
+          Ver como funciona
+        </Button>
+      </div>
+      <section className="mt-8 border-t pt-6">
+        <h3 className="font-semibold">Objetivo</h3>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{tutorial.objective}</p>
+      </section>
+      <section className="mt-7">
+        <h3 className="font-semibold">Passo a passo</h3>
+        <ol className="mt-4 space-y-5">
+          {tutorial.steps?.map((item, index) => (
+            <li key={item.id} className="grid grid-cols-[2rem_1fr] gap-3">
+              <span className="grid size-8 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+                {index + 1}
+              </span>
+              <div>
+                <h4 className="font-medium">{item.title}</h4>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">{item.instruction}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+      <section className="mt-8 border-t pt-6">
+        <div className="flex gap-3">
+          <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-primary" />
+          <div>
+            <h3 className="font-semibold">Resultado esperado</h3>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              {tutorial.expected_result}
+            </p>
+          </div>
+        </div>
+      </section>
+    </article>
+  );
 }
