@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   getAdminNotifications, getAdminUserHistory, manageAdminSubscription,
+  listAdminSubscriptionPlans,
   markAdminNotificationRead, requireAdminPasswordReset, resendAdminAccessInstructions,
   revokeAdminUserSessions, sendAdminPasswordReset, updateAdminUserEmail, updateAdminUserProfile,
 } from "@/lib/admin-operations.functions";
@@ -33,6 +34,10 @@ export function useAdminUserHistory(userId: string) {
 export function useManageAdminSubscription() {
   const client = useQueryClient(); const fn = useServerFn(manageAdminSubscription);
   return useMutation({ mutationFn: (data: { accountId: string; planId?: string; action: "create" | "change_plan" | "activate" | "restrict" | "extend" | "cancel" | "reactivate"; days?: number; confirm: true }) => fn({ data }), onSuccess: () => { client.invalidateQueries({ queryKey: ["admin", "subscriptions"] }); client.invalidateQueries({ queryKey: ["admin", "overview"] }); } });
+}
+export function useAdminSubscriptionPlans() {
+  const fn = useServerFn(listAdminSubscriptionPlans);
+  return useQuery({ queryKey: ["admin", "subscription-plans"], queryFn: () => fn() });
 }
 export function useAdminNotifications() {
   const fn = useServerFn(getAdminNotifications);

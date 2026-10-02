@@ -285,6 +285,18 @@ export const getAdminNotifications = createServerFn({ method: "GET" })
     return items;
   });
 
+export const listAdminSubscriptionPlans = createServerFn({ method: "GET" })
+  .middleware([requireOperationalAdmin])
+  .handler(async ({ context }) => {
+    assertRole(context.platformAdminRole, financialRoles);
+    const { data, error } = await context.supabaseAdmin
+      .from("subscription_plans")
+      .select("id, name, code, price_cents, currency, is_active")
+      .order("price_cents");
+    if (error) throw new Error("Não foi possível carregar os planos.");
+    return data ?? [];
+  });
+
 const notificationInput = z.object({ key: z.string().min(3).max(220) });
 export const markAdminNotificationRead = createServerFn({ method: "POST" })
   .middleware([requireOperationalAdmin])
