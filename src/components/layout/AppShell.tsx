@@ -85,7 +85,21 @@ export function AppShell({
   }, []);
 
   useEffect(() => {
-    const module = pathname.startsWith("/agenda") ? "agenda" : pathname.startsWith("/pacientes") ? "patients" : pathname.startsWith("/atendimentos") ? "appointments" : pathname.startsWith("/documentos") ? "documents" : pathname.startsWith("/pacotes") ? "packages" : pathname.startsWith("/relatorios") ? "reports" : pathname.startsWith("/configuracoes") ? "settings" : "dashboard";
+    const module = pathname.startsWith("/agenda")
+      ? "agenda"
+      : pathname.startsWith("/pacientes")
+        ? "patients"
+        : pathname.startsWith("/atendimentos")
+          ? "appointments"
+          : pathname.startsWith("/documentos")
+            ? "documents"
+            : pathname.startsWith("/pacotes")
+              ? "packages"
+              : pathname.startsWith("/relatorios")
+                ? "reports"
+                : pathname.startsWith("/configuracoes")
+                  ? "settings"
+                  : "dashboard";
     recordUsage({ data: { module, action: "view" } }).catch(() => undefined);
   }, [pathname, recordUsage]);
 

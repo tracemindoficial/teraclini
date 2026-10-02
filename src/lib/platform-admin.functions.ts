@@ -322,19 +322,40 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
     const user = userResult.data.user;
     const { data: profile, error: profileError } = await context.supabaseAdmin
       .from("profiles")
-      .select("account_id, full_name, profession, onboarding_completed, created_at, account:accounts(id, status)")
+      .select(
+        "account_id, full_name, profession, onboarding_completed, created_at, account:accounts(id, status)",
+      )
       .eq("id", data.userId)
       .maybeSingle();
     if (profileError || !profile) throw new Response("Not found", { status: 404 });
     const accountId = profile.account_id;
     const [patients, appointments, documents, packages, activity] = await Promise.all([
-      context.supabaseAdmin.from("patients").select("id", { count: "exact", head: true }).eq("account_id", accountId),
-      context.supabaseAdmin.from("appointments").select("id", { count: "exact", head: true }).eq("account_id", accountId),
-      context.supabaseAdmin.from("documents").select("id", { count: "exact", head: true }).eq("account_id", accountId),
-      context.supabaseAdmin.from("care_packages").select("id", { count: "exact", head: true }).eq("account_id", accountId),
-      context.supabaseAdmin.from("usage_events").select("id, module, occurred_at").eq("account_id", accountId).order("occurred_at", { ascending: false }).limit(10),
+      context.supabaseAdmin
+        .from("patients")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      context.supabaseAdmin
+        .from("appointments")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      context.supabaseAdmin
+        .from("documents")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      context.supabaseAdmin
+        .from("care_packages")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      context.supabaseAdmin
+        .from("usage_events")
+        .select("id, module, occurred_at")
+        .eq("account_id", accountId)
+        .order("occurred_at", { ascending: false })
+        .limit(10),
     ]);
-    const firstError = [patients, appointments, documents, packages, activity].find((result) => result.error)?.error;
+    const firstError = [patients, appointments, documents, packages, activity].find(
+      (result) => result.error,
+    )?.error;
     if (firstError) throw new Error("Não foi possível carregar os indicadores da conta.");
     return {
       id: user.id,

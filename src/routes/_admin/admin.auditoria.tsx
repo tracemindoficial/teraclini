@@ -60,20 +60,38 @@ function AdminAuditPage() {
               <tbody>
                 {data.rows.map((event) => (
                   <tr key={event.id} className="border-b last:border-0">
-                    <td className="px-4 py-3">{new Date(event.created_at).toLocaleString("pt-BR")}</td>
+                    <td className="px-4 py-3">
+                      {new Date(event.created_at).toLocaleString("pt-BR")}
+                    </td>
                     <td className="px-4 py-3 font-medium">{event.action}</td>
                     <td className="px-4 py-3 text-muted-foreground">{event.entity_type}</td>
-                    <td className="px-4 py-3">{event.result === "success" ? "Concluída" : "Falhou"}</td>
+                    <td className="px-4 py-3">
+                      {event.result === "success" ? "Concluída" : "Falhou"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
           <div className="mt-4 flex items-center justify-between gap-3 text-sm">
-            <span className="text-muted-foreground">{data.total} evento{data.total === 1 ? "" : "s"}</span>
+            <span className="text-muted-foreground">
+              {data.total} evento{data.total === 1 ? "" : "s"}
+            </span>
             <div className="flex gap-2">
-              <Button variant="outline" disabled={page === 1} onClick={() => setPage((value) => value - 1)}>Anterior</Button>
-              <Button variant="outline" disabled={page * data.pageSize >= data.total} onClick={() => setPage((value) => value + 1)}>Próxima</Button>
+              <Button
+                variant="outline"
+                disabled={page === 1}
+                onClick={() => setPage((value) => value - 1)}
+              >
+                Anterior
+              </Button>
+              <Button
+                variant="outline"
+                disabled={page * data.pageSize >= data.total}
+                onClick={() => setPage((value) => value + 1)}
+              >
+                Próxima
+              </Button>
             </div>
           </div>
         </>

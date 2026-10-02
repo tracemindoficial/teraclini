@@ -31,7 +31,10 @@ function AdminProfilePage() {
           <ProfileRow label="Nome" value={data.name} />
           <ProfileRow label="E-mail" value={data.email} />
           <ProfileRow label="Permissão" value="Administrador master" />
-          <ProfileRow label="Último acesso" value={data.lastSignInAt ? new Date(data.lastSignInAt).toLocaleString("pt-BR") : "—"} />
+          <ProfileRow
+            label="Último acesso"
+            value={data.lastSignInAt ? new Date(data.lastSignInAt).toLocaleString("pt-BR") : "—"}
+          />
         </dl>
       )}
     </AdminShell>
@@ -39,5 +42,10 @@ function AdminProfilePage() {
 }
 
 function ProfileRow({ label, value }: { label: string; value: string }) {
-  return <div className="grid gap-1 py-4 first:pt-0 last:pb-0 sm:grid-cols-[11rem_1fr]"><dt className="text-sm text-muted-foreground">{label}</dt><dd className="text-sm font-medium">{value}</dd></div>;
+  return (
+    <div className="grid gap-1 py-4 first:pt-0 last:pb-0 sm:grid-cols-[11rem_1fr]">
+      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dd className="text-sm font-medium">{value}</dd>
+    </div>
+  );
 }

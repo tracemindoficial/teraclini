@@ -119,7 +119,9 @@ export function AdminShell({
               <Menu className="size-5" />
             </Button>
             <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-semibold uppercase text-primary">Painel administrativo</p>
+              <p className="text-[11px] font-semibold uppercase text-primary">
+                Painel administrativo
+              </p>
               <h1 className="truncate text-lg font-semibold sm:text-xl">{title}</h1>
               {description ? (
                 <p className="truncate text-xs text-muted-foreground sm:text-sm">{description}</p>

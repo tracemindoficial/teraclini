@@ -113,7 +113,9 @@ function AdminUsersPage() {
                     <td className="px-4 py-3">{formatDate(row.lastSignInAt)}</td>
                     <td className="px-4 py-3">
                       <Button variant="outline" size="sm" asChild>
-                        <Link to="/admin/usuarios/$id" params={{ id: row.id }}>Ver detalhes</Link>
+                        <Link to="/admin/usuarios/$id" params={{ id: row.id }}>
+                          Ver detalhes
+                        </Link>
                       </Button>
                     </td>
                   </tr>

@@ -38,22 +38,55 @@ function AdminUserDetailPage() {
     }
   }
 
-  if (isLoading) return <AdminShell title="Conta"><AdminState kind="loading">Carregando conta...</AdminState></AdminShell>;
-  if (error || !data) return <AdminShell title="Conta"><AdminState kind="error">Conta não encontrada.</AdminState></AdminShell>;
+  if (isLoading)
+    return (
+      <AdminShell title="Conta">
+        <AdminState kind="loading">Carregando conta...</AdminState>
+      </AdminShell>
+    );
+  if (error || !data)
+    return (
+      <AdminShell title="Conta">
+        <AdminState kind="error">Conta não encontrada.</AdminState>
+      </AdminShell>
+    );
 
   return (
     <AdminShell
       title={data.name}
       description="Informações cadastrais e indicadores operacionais"
-      action={data.accountId ? (
-        data.accountStatus === "active" ? (
-          <Button variant="destructive" className="gap-2" disabled={setStatus.isPending} onClick={() => changeStatus("suspended")}><Ban className="size-4" />Suspender</Button>
-        ) : (
-          <Button className="gap-2" disabled={setStatus.isPending} onClick={() => changeStatus("active")}><CheckCircle2 className="size-4" />Reativar</Button>
-        )
-      ) : undefined}
+      action={
+        data.accountId ? (
+          data.accountStatus === "active" ? (
+            <Button
+              variant="destructive"
+              className="gap-2"
+              disabled={setStatus.isPending}
+              onClick={() => changeStatus("suspended")}
+            >
+              <Ban className="size-4" />
+              Suspender
+            </Button>
+          ) : (
+            <Button
+              className="gap-2"
+              disabled={setStatus.isPending}
+              onClick={() => changeStatus("active")}
+            >
+              <CheckCircle2 className="size-4" />
+              Reativar
+            </Button>
+          )
+        ) : undefined
+      }
     >
-      <Link to="/admin/usuarios" className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-primary"><ArrowLeft className="size-4" />Voltar para usuários</Link>
+      <Link
+        to="/admin/usuarios"
+        className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-primary"
+      >
+        <ArrowLeft className="size-4" />
+        Voltar para usuários
+      </Link>
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <AdminMetric label="Pacientes" value={data.counts.patients} />
         <AdminMetric label="Atendimentos" value={data.counts.appointments} />
@@ -65,14 +98,36 @@ function AdminUserDetailPage() {
           <DetailRow label="E-mail" value={data.email} />
           <DetailRow label="Profissão" value={data.profession ?? "—"} />
           <DetailRow label="Situação" value={statusLabel(data.accountStatus)} />
-          <DetailRow label="Cadastro" value={new Date(data.createdAt).toLocaleDateString("pt-BR")} />
-          <DetailRow label="Último acesso" value={data.lastSignInAt ? new Date(data.lastSignInAt).toLocaleString("pt-BR") : "—"} />
-          <DetailRow label="Onboarding" value={data.onboardingCompleted ? "Concluído" : "Pendente"} />
+          <DetailRow
+            label="Cadastro"
+            value={new Date(data.createdAt).toLocaleDateString("pt-BR")}
+          />
+          <DetailRow
+            label="Último acesso"
+            value={data.lastSignInAt ? new Date(data.lastSignInAt).toLocaleString("pt-BR") : "—"}
+          />
+          <DetailRow
+            label="Onboarding"
+            value={data.onboardingCompleted ? "Concluído" : "Pendente"}
+          />
         </dl>
         <div className="surface p-5">
           <h2 className="font-semibold">Atividade recente</h2>
-          {!data.activity.length ? <p className="mt-3 text-sm text-muted-foreground">Nenhuma atividade técnica registrada.</p> : (
-            <ul className="mt-3 divide-y text-sm">{data.activity.map((event) => <li key={event.id} className="flex justify-between gap-3 py-3"><span className="font-medium">{event.module}</span><time className="text-muted-foreground">{new Date(event.occurred_at).toLocaleString("pt-BR")}</time></li>)}</ul>
+          {!data.activity.length ? (
+            <p className="mt-3 text-sm text-muted-foreground">
+              Nenhuma atividade técnica registrada.
+            </p>
+          ) : (
+            <ul className="mt-3 divide-y text-sm">
+              {data.activity.map((event) => (
+                <li key={event.id} className="flex justify-between gap-3 py-3">
+                  <span className="font-medium">{event.module}</span>
+                  <time className="text-muted-foreground">
+                    {new Date(event.occurred_at).toLocaleString("pt-BR")}
+                  </time>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
       </section>
@@ -81,7 +136,12 @@ function AdminUserDetailPage() {
 }
 
 function DetailRow({ label, value }: { label: string; value: string }) {
-  return <div className="grid gap-1 py-3 first:pt-0 last:pb-0 sm:grid-cols-[9rem_1fr]"><dt className="text-sm text-muted-foreground">{label}</dt><dd className="text-sm font-medium">{value}</dd></div>;
+  return (
+    <div className="grid gap-1 py-3 first:pt-0 last:pb-0 sm:grid-cols-[9rem_1fr]">
+      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dd className="text-sm font-medium">{value}</dd>
+    </div>
+  );
 }
 
 function statusLabel(status: string) {
