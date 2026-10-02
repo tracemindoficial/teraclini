@@ -23,7 +23,11 @@ export function MarketingHeader() {
         <BrandLogo className="w-36 sm:w-40" />
         <nav aria-label="Navegação principal" className="ml-auto hidden items-center gap-5 lg:flex">
           {links.map(([label, href]) => (
-            <a key={href} href={href} className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+            <a
+              key={href}
+              href={href}
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
               {label}
             </a>
           ))}
@@ -52,7 +56,12 @@ export function MarketingHeader() {
         <div className="border-t bg-background px-5 py-4 lg:hidden">
           <nav aria-label="Navegação móvel" className="mx-auto grid max-w-7xl gap-1">
             {links.map(([label, href]) => (
-              <a key={href} href={href} onClick={() => setOpen(false)} className="rounded-lg px-3 py-3 text-sm font-medium hover:bg-muted">
+              <a
+                key={href}
+                href={href}
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-3 py-3 text-sm font-medium hover:bg-muted"
+              >
                 {label}
               </a>
             ))}

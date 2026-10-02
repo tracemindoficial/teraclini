@@ -8,9 +8,17 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "TeraClini — sua prática clínica, organizada para acompanhar você" },
-      { name: "description", content: "Agenda, pacientes, locais e registros clínicos em um único espaço para psicólogos, psicopedagogos, fonoaudiólogos, psicanalistas e terapeutas independentes." },
+      {
+        name: "description",
+        content:
+          "Agenda, pacientes, locais e registros clínicos em um único espaço para psicólogos, psicopedagogos, fonoaudiólogos, psicanalistas e terapeutas independentes.",
+      },
       { property: "og:title", content: "TeraClini — sua prática clínica em um só lugar" },
-      { property: "og:description", content: "Uma agenda única para todos os lugares onde você atende. A clínica muda. Sua prática continua com você." },
+      {
+        property: "og:description",
+        content:
+          "Uma agenda única para todos os lugares onde você atende. A clínica muda. Sua prática continua com você.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

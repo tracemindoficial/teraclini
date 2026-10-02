@@ -15,7 +15,11 @@ import { trackCommercialEvent } from "@/lib/commercial-analytics";
 
 const authSearchSchema = z.object({
   mode: z.enum(["signin", "signup", "recovery"]).optional().catch(undefined),
-  plan: z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/).optional().catch(undefined),
+  plan: z
+    .string()
+    .regex(/^[a-zA-Z0-9_-]{1,80}$/)
+    .optional()
+    .catch(undefined),
 });
 
 export const Route = createFileRoute("/auth")({

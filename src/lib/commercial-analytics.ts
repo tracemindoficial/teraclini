@@ -1,11 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export type CommercialEvent =
-  | "landing_view"
-  | "plans_view"
-  | "signup_click"
-  | "login_click"
-  | "plan_select";
+  "landing_view" | "plans_view" | "signup_click" | "login_click" | "plan_select";
 
 export function trackCommercialEvent(
   eventType: CommercialEvent,
