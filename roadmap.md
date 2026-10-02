@@ -58,3 +58,12 @@
 - [x] Refinar Meu Dia, Agenda, Pacientes e Prontuário em todos os tamanhos
 - [x] Consolidar telas compartilhadas, formulários e diálogos
 - [ ] Validar identidade, persistência, acessibilidade e responsividade
+
+## Estabilização pré-lançamento
+- [x] Adicionar recuperação e redefinição segura de senha
+- [x] Confirmar exclusões de atendimentos e locais antes da remoção
+- [x] Bloquear alteração de pacote em atendimento concluído
+- [x] Corrigir histórico de pacote e destaque do menu de pré-cadastros
+- [x] Criar testes automatizados para regras de pacotes e falhas de autenticação
+- [x] Validar login e recuperação públicos em celular e desktop
+- [ ] Validar fluxos internos e isolamento com duas contas fictícias autorizadas
