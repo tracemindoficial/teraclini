@@ -3,7 +3,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { queryKeys } from "@/lib/query-keys";
 export { packageStatus, packageUsage, type PackageDisplayStatus } from "@/lib/package-metrics";
-import { currentUserId, unwrap, type CustomAppointmentType, type Patient, type Tables } from "./shared";
+import {
+  currentUserId,
+  unwrap,
+  type CustomAppointmentType,
+  type Patient,
+  type Tables,
+} from "./shared";
 
 export type CarePackage = Tables["care_packages"]["Row"];
 export type CarePackageEvent = Tables["care_package_events"]["Row"];
@@ -25,7 +31,10 @@ export function usePackages(patientId?: string) {
   return useQuery({
     queryKey: [...queryKeys.packages, patientId ?? "all"],
     queryFn: async () => {
-      let query = supabase.from("care_packages").select(PACKAGE_SELECT).order("start_date", { ascending: false });
+      let query = supabase
+        .from("care_packages")
+        .select(PACKAGE_SELECT)
+        .order("start_date", { ascending: false });
       if (patientId) query = query.eq("patient_id", patientId);
       return unwrap(await query) as unknown as CarePackageWithRefs[];
     },
@@ -36,7 +45,9 @@ export function usePackage(id: string) {
   return useQuery({
     queryKey: queryKeys.package(id),
     queryFn: async () =>
-      unwrap(await supabase.from("care_packages").select(PACKAGE_SELECT).eq("id", id).single()) as unknown as CarePackageWithRefs,
+      unwrap(
+        await supabase.from("care_packages").select(PACKAGE_SELECT).eq("id", id).single(),
+      ) as unknown as CarePackageWithRefs,
     enabled: Boolean(id),
   });
 }
@@ -46,7 +57,11 @@ export function usePackageEvents(packageId: string) {
     queryKey: queryKeys.packageEvents(packageId),
     queryFn: async () =>
       unwrap(
-        await supabase.from("care_package_events").select("*").eq("package_id", packageId).order("created_at", { ascending: false }),
+        await supabase
+          .from("care_package_events")
+          .select("*")
+          .eq("package_id", packageId)
+          .order("created_at", { ascending: false }),
       ) as CarePackageEvent[],
     enabled: Boolean(packageId),
   });
@@ -62,9 +77,17 @@ function invalidatePackages(qc: ReturnType<typeof useQueryClient>, id?: string) 
 export function useSavePackage() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (values: Omit<Tables["care_packages"]["Insert"], "user_id"> & { id?: string }) => {
+    mutationFn: async (
+      values: Omit<Tables["care_packages"]["Insert"], "user_id"> & { id?: string },
+    ) => {
       const userId = await currentUserId();
-      return unwrap(await supabase.from("care_packages").upsert({ ...values, user_id: userId }).select().single()) as CarePackage;
+      return unwrap(
+        await supabase
+          .from("care_packages")
+          .upsert({ ...values, user_id: userId })
+          .select()
+          .single(),
+      ) as CarePackage;
     },
     onSuccess: (item) => invalidatePackages(qc, item.id),
   });
@@ -74,7 +97,14 @@ export function useCancelPackage() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) =>
-      unwrap(await supabase.from("care_packages").update({ lifecycle_status: "cancelado" }).eq("id", id).select().single()) as CarePackage,
+      unwrap(
+        await supabase
+          .from("care_packages")
+          .update({ lifecycle_status: "cancelado" })
+          .eq("id", id)
+          .select()
+          .single(),
+      ) as CarePackage,
     onSuccess: (item) => invalidatePackages(qc, item.id),
   });
 }

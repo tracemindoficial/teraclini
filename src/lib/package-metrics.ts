@@ -1,10 +1,5 @@
 export type PackageDisplayStatus =
-  | "ativo"
-  | "renovacao"
-  | "esgotado"
-  | "expirado"
-  | "cancelado"
-  | "encerrado";
+  "ativo" | "renovacao" | "esgotado" | "expirado" | "cancelado" | "encerrado";
 
 type PackageMetricsInput = {
   quantity: number;
@@ -19,10 +14,7 @@ export function packageUsage(item: PackageMetricsInput) {
   return { used, remaining: Math.max(item.quantity - used, 0) };
 }
 
-export function packageStatus(
-  item: PackageMetricsInput,
-  now = new Date(),
-): PackageDisplayStatus {
+export function packageStatus(item: PackageMetricsInput, now = new Date()): PackageDisplayStatus {
   if (item.lifecycle_status === "cancelado") return "cancelado";
   if (item.lifecycle_status === "encerrado") return "encerrado";
   const { remaining } = packageUsage(item);

@@ -1,4 +1,5 @@
 <!-- LOVABLE:BEGIN -->
+
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
 > published git history — force pushing, or rebasing/amending/squashing commits
@@ -7,6 +8,7 @@
 >
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
+
 <!-- LOVABLE:END -->
 
 ## Project architecture
@@ -20,4 +22,3 @@
 - Derive package usage from linked appointments with `status = realizado`; never persist a duplicate used-session counter, so consumption has one source of truth.
 - Keep the authenticated shell as the single source for responsive navigation: persistent icon-collapse on desktop and bottom navigation plus a “Mais” drawer on mobile.
 - Keep pure business calculations in browser-independent modules with Vitest regression coverage so domain rules can be verified without customer data.
-
