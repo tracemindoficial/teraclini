@@ -45,8 +45,18 @@ function AdminOverviewPage() {
           detail={`${data.users.newMonth} neste mês`}
           icon={<Users className="size-5" />}
         />
-        <AdminMetric label="Novas hoje" value={data.users.newToday} detail={`${data.users.new7Days} em 7 dias`} icon={<UserCheck className="size-5" />} />
-        <AdminMetric label="Suspensas ou encerradas" value={data.users.suspended + data.users.closed} detail={`${data.users.suspended} suspensas · ${data.users.closed} encerradas`} icon={<UserX className="size-5" />} />
+        <AdminMetric
+          label="Novas hoje"
+          value={data.users.newToday}
+          detail={`${data.users.new7Days} em 7 dias`}
+          icon={<UserCheck className="size-5" />}
+        />
+        <AdminMetric
+          label="Suspensas ou encerradas"
+          value={data.users.suspended + data.users.closed}
+          detail={`${data.users.suspended} suspensas · ${data.users.closed} encerradas`}
+          icon={<UserX className="size-5" />}
+        />
         <AdminMetric
           label="Contas ativas"
           value={data.users.active}
