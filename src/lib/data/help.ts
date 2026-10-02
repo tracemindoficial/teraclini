@@ -53,6 +53,7 @@ export function useHelpTutorial(slug: string) {
   return useQuery({
     queryKey: queryKeys.helpTutorial(slug),
     queryFn: () => fetchHelpTutorial(slug),
+    enabled: Boolean(slug),
   });
 }
 

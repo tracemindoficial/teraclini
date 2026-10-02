@@ -31,6 +31,7 @@ const tutorialInput = z.object({
   orderIndex: z.number().int().min(0),
   isActive: z.boolean(),
   mediaUrl: z.string().url().nullable(),
+  steps: z.array(z.object({ title: z.string().min(2).max(140), instruction: z.string().min(5).max(1000) })).max(30),
 });
 
 const categoryInput = z.object({
@@ -47,7 +48,7 @@ export const listAdminHelp = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const [categories, tutorials, events] = await Promise.all([
       context.supabaseAdmin.from("help_categories").select("*").order("order_index"),
-      context.supabaseAdmin.from("help_tutorials").select("*").order("order_index"),
+      context.supabaseAdmin.from("help_tutorials").select("*,help_tutorial_steps(id,title,instruction,target_selector,order_index)").order("order_index"),
       context.supabaseAdmin
         .from("help_events")
         .select("event_type,search_term,tutorial_id")
@@ -92,6 +93,14 @@ export const saveAdminHelpTutorial = createServerFn({ method: "POST" })
           .single()
       : await context.supabaseAdmin.from("help_tutorials").insert(payload).select("id").single();
     if (result.error) throw new Error("Não foi possível salvar o tutorial.");
+    if (data.id) {
+      const { error: deleteError } = await context.supabaseAdmin.from("help_tutorial_steps").delete().eq("tutorial_id", result.data.id);
+      if (deleteError) throw new Error("Não foi possível atualizar as etapas do tutorial.");
+    }
+    if (data.steps.length) {
+      const { error: stepsError } = await context.supabaseAdmin.from("help_tutorial_steps").insert(data.steps.map((step, index) => ({ tutorial_id: result.data.id, title: step.title, instruction: step.instruction, order_index: index })));
+      if (stepsError) throw new Error("Não foi possível salvar as etapas do tutorial.");
+    }
     await context.supabaseAdmin.from("platform_audit_events").insert({
       actor_user_id: context.userId,
       action: data.id ? "help_tutorial.updated" : "help_tutorial.created",

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BarChart3, BookOpen, Pencil, Plus } from "lucide-react";
+import { BarChart3, Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -40,6 +40,7 @@ type TutorialForm = {
   orderIndex: number;
   isActive: boolean;
   mediaUrl: string;
+  steps: string;
 };
 const empty: TutorialForm = {
   categoryId: "",
@@ -55,6 +56,7 @@ const empty: TutorialForm = {
   orderIndex: 0,
   isActive: true,
   mediaUrl: "",
+  steps: "",
 };
 
 export function AdminHelpPage() {
@@ -68,6 +70,8 @@ export function AdminHelpPage() {
   const views = data?.events.filter((e) => e.event_type === "view").length ?? 0;
   const completed = data?.events.filter((e) => e.event_type === "completed").length ?? 0;
   const noResults = data?.events.filter((e) => e.event_type === "no_results").length ?? 0;
+  const tutorialViews = data.tutorials.map((tutorial) => ({ title: tutorial.title, count: data.events.filter((event) => event.event_type === "view" && event.tutorial_id === tutorial.id).length })).sort((a,b) => b.count-a.count).slice(0,3);
+  const searchTerms = [...new Set(data.events.filter((event) => event.search_term).map((event) => event.search_term as string))].slice(0,5);
   if (isLoading) return <p className="text-sm text-muted-foreground">Carregando conteúdos...</p>;
   if (error || !data)
     return <p className="text-sm text-destructive">Não foi possível carregar a gestão da ajuda.</p>;
@@ -78,6 +82,7 @@ export function AdminHelpPage() {
         <Metric label="Conclusões" value={completed} />
         <Metric label="Buscas sem resultado" value={noResults} />
       </section>
+      <section className="grid gap-4 lg:grid-cols-2"><div className="surface p-4"><h2 className="font-semibold">Tutoriais mais vistos</h2><ol className="mt-3 space-y-2 text-sm">{tutorialViews.map((item)=><li key={item.title} className="flex justify-between gap-3"><span>{item.title}</span><strong>{item.count}</strong></li>)}</ol></div><div className="surface p-4"><h2 className="font-semibold">Termos pesquisados</h2><p className="mt-3 text-sm text-muted-foreground">{searchTerms.length ? searchTerms.join(" · ") : "Nenhuma pesquisa registrada."}</p></div></section>
       <div className="flex flex-wrap gap-2">
         <Button onClick={() => setForm({ ...empty, categoryId: data.categories[0]?.id ?? "" })}>
           <Plus className="mr-2 size-4" />
@@ -132,6 +137,7 @@ export function AdminHelpPage() {
                           orderIndex: item.order_index,
                           isActive: item.is_active,
                           mediaUrl: item.media_url ?? "",
+                          steps: [...(item.help_tutorial_steps ?? [])].sort((a,b)=>a.order_index-b.order_index).map((step)=>`${step.title} | ${step.instruction}`).join("\n"),
                         })
                       }
                     >
@@ -215,6 +221,7 @@ export function AdminHelpPage() {
                   value={form.shortDescription}
                   onChange={(e) => setForm({ ...form, shortDescription: e.target.value })}
                 />
+                <Textarea className="min-h-28 sm:col-span-2" aria-label="Etapas" placeholder="Uma etapa por linha: Título | Instrução" value={form.steps} onChange={(e)=>setForm({...form,steps:e.target.value})}/>
                 <Textarea
                   className="sm:col-span-2"
                   aria-label="Objetivo"
@@ -274,6 +281,7 @@ export function AdminHelpPage() {
                           .filter(Boolean),
                         routePath: form.routePath || null,
                         mediaUrl: form.mediaUrl || null,
+                        steps: form.steps.split("\n").map((line)=>{const [title,...instruction]=line.split("|");return {title:title?.trim()??"",instruction:instruction.join("|").trim()};}).filter((step)=>step.title && step.instruction),
                       },
                     });
                     setForm(null);
