@@ -23,6 +23,7 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { GlobalSearch } from "@/components/layout/GlobalSearch";
+import { HelpGuide } from "@/components/help/HelpGuide";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -364,6 +365,7 @@ export function AppShell({
         </Sheet>
 
         <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
+        <HelpGuide />
       </div>
     </TooltipProvider>
   );

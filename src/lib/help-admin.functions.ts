@@ -20,6 +20,11 @@ const tutorialInput = z.object({
   visibility: z.enum(["all", "professional", "admin"]), orderIndex: z.number().int().min(0), isActive: z.boolean(), mediaUrl: z.string().url().nullable(),
 });
 
+const categoryInput = z.object({
+  id: z.string().uuid().optional(), name: z.string().min(2).max(80), slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  description: z.string().max(300).nullable(), orderIndex: z.number().int().min(0), isActive: z.boolean(),
+});
+
 export const listAdminHelp = createServerFn({ method: "GET" }).middleware([requireHelpAdmin]).handler(async ({ context }) => {
   const [categories, tutorials, events] = await Promise.all([
     context.supabaseAdmin.from("help_categories").select("*").order("order_index"),
@@ -44,4 +49,12 @@ export const toggleAdminHelpTutorial = createServerFn({ method: "POST" }).middle
   if (error) throw new Error("Não foi possível alterar o tutorial.");
   await context.supabaseAdmin.from("platform_audit_events").insert({ actor_user_id: context.userId, action: data.isActive ? "help_tutorial.activated" : "help_tutorial.deactivated", entity_type: "help_tutorial", entity_id: data.id, changed_fields: ["is_active"], result: "success" });
   return { ok: true as const };
+});
+
+export const saveAdminHelpCategory = createServerFn({ method: "POST" }).middleware([requireHelpAdmin]).inputValidator((data) => categoryInput.parse(data)).handler(async ({ context, data }) => {
+  const payload = { name: data.name, slug: data.slug, description: data.description, order_index: data.orderIndex, is_active: data.isActive, updated_at: new Date().toISOString() };
+  const result = data.id ? await context.supabaseAdmin.from("help_categories").update(payload).eq("id", data.id).select("id").single() : await context.supabaseAdmin.from("help_categories").insert(payload).select("id").single();
+  if (result.error) throw new Error("Não foi possível salvar a categoria.");
+  await context.supabaseAdmin.from("platform_audit_events").insert({ actor_user_id: context.userId, action: data.id ? "help_category.updated" : "help_category.created", entity_type: "help_category", entity_id: result.data.id, changed_fields: Object.keys(payload), result: "success" });
+  return result.data;
 });
