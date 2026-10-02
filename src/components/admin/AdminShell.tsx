@@ -24,6 +24,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { AdminNotifications } from "@/components/admin/AdminNotifications";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
@@ -148,6 +149,7 @@ export function AdminShell({
                 <p className="truncate text-xs text-muted-foreground sm:text-sm">{description}</p>
               ) : null}
             </div>
+            <AdminNotifications />
             {action}
           </div>
         </header>
