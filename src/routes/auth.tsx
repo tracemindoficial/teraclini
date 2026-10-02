@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,9 +11,20 @@ import { lovable } from "@/integrations/lovable/index";
 import { describeAuthError, logAuthEvent, withTimeout } from "@/lib/auth-errors";
 import { getAuthenticatedDestination } from "@/lib/auth-session";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { trackCommercialEvent } from "@/lib/commercial-analytics";
+
+const authSearchSchema = z.object({
+  mode: z.enum(["signin", "signup", "recovery"]).optional().catch(undefined),
+  plan: z
+    .string()
+    .regex(/^[a-zA-Z0-9_-]{1,80}$/)
+    .optional()
+    .catch(undefined),
+});
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
+  validateSearch: (search) => authSearchSchema.parse(search),
   head: () => ({
     meta: [
       { title: "Entrar — TeraClini" },
@@ -27,7 +39,8 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const [mode, setMode] = useState<"signin" | "signup" | "recovery">("signin");
+  const search = Route.useSearch();
+  const [mode, setMode] = useState<"signin" | "signup" | "recovery">(search.mode ?? "signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -92,6 +105,10 @@ function AuthPage() {
         return;
       }
       if (mode === "signup") {
+        trackCommercialEvent("signup_click", {
+          ...(search.plan ? { planCode: search.plan } : {}),
+          pagePath: "/auth",
+        });
         const { data, error } = await withTimeout(
           supabase.auth.signUp({
             email: email.trim(),
@@ -119,6 +136,7 @@ function AuthPage() {
         toast.success("Sua conta foi criada com sucesso.");
         navigate({ to: "/onboarding", replace: true });
       } else {
+        trackCommercialEvent("login_click", { pagePath: "/auth" });
         const { data, error } = await withTimeout(
           supabase.auth.signInWithPassword({ email: email.trim(), password }),
         );
@@ -193,6 +211,11 @@ function AuthPage() {
           <p className="mt-1 text-sm text-muted-foreground">
             Seu espaço profissional, independente da clínica.
           </p>
+          {mode === "signup" && search.plan ? (
+            <p className="mt-4 rounded-lg bg-secondary px-3 py-2 text-sm text-secondary-foreground">
+              A licença selecionada será confirmada antes de qualquer pagamento.
+            </p>
+          ) : null}
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             {mode === "signup" ? (

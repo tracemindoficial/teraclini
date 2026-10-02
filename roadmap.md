@@ -115,3 +115,11 @@
 - [x] Completar suporte, uso, métricas e permissões administrativas com dados reais
 - [x] Reforçar autorização no servidor, isolamento entre contas e auditoria administrativa
 - [ ] Validar usuário comum, administrador, métricas reais, desktop e celular
+
+## Camada comercial e aquisição
+
+- [x] Auditar landing, autenticação, licenças, pagamentos, suporte e identidade existentes
+- [x] Criar apresentação comercial completa com conteúdo baseado em recursos reais
+- [x] Expor somente licenças ativas e preparar a seleção antes do cadastro
+- [x] Integrar login, cadastro, privacidade, termos e métricas comerciais anônimas
+- [x] Validar aquisição, navegação, acessibilidade, desktop e celular

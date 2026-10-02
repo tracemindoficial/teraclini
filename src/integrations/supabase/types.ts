@@ -753,6 +753,30 @@ export type Database = {
           },
         ]
       }
+      commercial_conversion_events: {
+        Row: {
+          event_type: string
+          id: string
+          occurred_at: string
+          page_path: string
+          plan_code: string | null
+        }
+        Insert: {
+          event_type: string
+          id?: string
+          occurred_at?: string
+          page_path: string
+          plan_code?: string | null
+        }
+        Update: {
+          event_type?: string
+          id?: string
+          occurred_at?: string
+          page_path?: string
+          plan_code?: string | null
+        }
+        Relationships: []
+      }
       commercial_settings: {
         Row: {
           created_at: string
