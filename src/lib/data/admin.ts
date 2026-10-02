@@ -1,11 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
-import { getAdminOverview, getAdminSettings, listAdminPayments, listAdminSubscriptions, listAdminUsers } from "@/lib/platform-admin.functions";
+import {
+  getAdminOverview,
+  getAdminSettings,
+  listAdminPayments,
+  listAdminSubscriptions,
+  listAdminUsers,
+} from "@/lib/platform-admin.functions";
 
 export const adminKeys = {
   overview: ["admin", "overview"] as const,
-  users: (search: string, status: string, page: number) => ["admin", "users", search, status, page] as const,
+  users: (search: string, status: string, page: number) =>
+    ["admin", "users", search, status, page] as const,
   subscriptions: ["admin", "subscriptions"] as const,
   payments: ["admin", "payments"] as const,
   settings: ["admin", "settings"] as const,
@@ -16,9 +23,16 @@ export function useAdminOverview() {
   return useQuery({ queryKey: adminKeys.overview, queryFn: () => fetcher() });
 }
 
-export function useAdminUsers(search: string, status: "all" | "active" | "suspended" | "closed", page: number) {
+export function useAdminUsers(
+  search: string,
+  status: "all" | "active" | "suspended" | "closed",
+  page: number,
+) {
   const fetcher = useServerFn(listAdminUsers);
-  return useQuery({ queryKey: adminKeys.users(search, status, page), queryFn: () => fetcher({ data: { search, status, page, pageSize: 20 } }) });
+  return useQuery({
+    queryKey: adminKeys.users(search, status, page),
+    queryFn: () => fetcher({ data: { search, status, page, pageSize: 20 } }),
+  });
 }
 
 export function useAdminSubscriptions() {

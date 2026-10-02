@@ -1,6 +1,7 @@
 export type PaymentMetric = {
   amount_cents: number;
-  status: "pending" | "under_review" | "confirmed" | "rejected" | "overdue" | "refunded" | "cancelled";
+  status:
+    "pending" | "under_review" | "confirmed" | "rejected" | "overdue" | "refunded" | "cancelled";
   due_on: string;
   paid_at: string | null;
   confirmed_at: string | null;

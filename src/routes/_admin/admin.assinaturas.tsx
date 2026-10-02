@@ -5,6 +5,65 @@ import { brlFromCents } from "@/lib/admin-metrics";
 import { useAdminSubscriptions } from "@/lib/data/admin";
 
 export const Route = createFileRoute("/_admin/admin/assinaturas")({
-  head: () => ({ meta: [{ title: "Assinaturas — Administração TeraClini" }, { name: "description", content: "Ciclo comercial das contas TeraClini." }, { property: "og:title", content: "Assinaturas — Administração TeraClini" }, { property: "og:description", content: "Ciclo comercial das contas TeraClini." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex,nofollow" }] }), component: AdminSubscriptionsPage,
+  head: () => ({
+    meta: [
+      { title: "Assinaturas — Administração TeraClini" },
+      { name: "description", content: "Ciclo comercial das contas TeraClini." },
+      { property: "og:title", content: "Assinaturas — Administração TeraClini" },
+      { property: "og:description", content: "Ciclo comercial das contas TeraClini." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
+  component: AdminSubscriptionsPage,
 });
-function AdminSubscriptionsPage() { const { data, isLoading, error } = useAdminSubscriptions(); return <AdminShell title="Assinaturas" description="Planos, mensalidades e ciclo comercial">{isLoading ? <AdminState kind="loading">Carregando assinaturas...</AdminState> : error ? <AdminState kind="error">Não foi possível carregar as assinaturas.</AdminState> : !data?.length ? <AdminState>Nenhuma assinatura foi criada. As contas atuais permanecem sem cobrança automática.</AdminState> : <div className="surface overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="border-b bg-muted/50 text-xs text-muted-foreground"><tr><th className="px-4 py-3">Conta</th><th className="px-4 py-3">Plano</th><th className="px-4 py-3">Valor</th><th className="px-4 py-3">Estado</th><th className="px-4 py-3">Início</th><th className="px-4 py-3">Próximo vencimento</th></tr></thead><tbody>{data.map((item) => <tr key={item.id} className="border-b last:border-0"><td className="px-4 py-3 font-medium">{item.account?.name ?? "Conta indisponível"}</td><td className="px-4 py-3">{item.plan?.name ?? "Plano indisponível"}</td><td className="px-4 py-3">{brlFromCents(item.contracted_price_cents)}</td><td className="px-4 py-3">{item.status.replaceAll("_", " ")}</td><td className="px-4 py-3">{new Date(`${item.starts_on}T00:00:00`).toLocaleDateString("pt-BR")}</td><td className="px-4 py-3">{new Date(`${item.next_due_on}T00:00:00`).toLocaleDateString("pt-BR")}</td></tr>)}</tbody></table></div>}</AdminShell>; }
+function AdminSubscriptionsPage() {
+  const { data, isLoading, error } = useAdminSubscriptions();
+  return (
+    <AdminShell title="Assinaturas" description="Planos, mensalidades e ciclo comercial">
+      {isLoading ? (
+        <AdminState kind="loading">Carregando assinaturas...</AdminState>
+      ) : error ? (
+        <AdminState kind="error">Não foi possível carregar as assinaturas.</AdminState>
+      ) : !data?.length ? (
+        <AdminState>
+          Nenhuma assinatura foi criada. As contas atuais permanecem sem cobrança automática.
+        </AdminState>
+      ) : (
+        <div className="surface overflow-x-auto">
+          <table className="w-full min-w-[760px] text-left text-sm">
+            <thead className="border-b bg-muted/50 text-xs text-muted-foreground">
+              <tr>
+                <th className="px-4 py-3">Conta</th>
+                <th className="px-4 py-3">Plano</th>
+                <th className="px-4 py-3">Valor</th>
+                <th className="px-4 py-3">Estado</th>
+                <th className="px-4 py-3">Início</th>
+                <th className="px-4 py-3">Próximo vencimento</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item) => (
+                <tr key={item.id} className="border-b last:border-0">
+                  <td className="px-4 py-3 font-medium">
+                    {item.account?.name ?? "Conta indisponível"}
+                  </td>
+                  <td className="px-4 py-3">{item.plan?.name ?? "Plano indisponível"}</td>
+                  <td className="px-4 py-3">{brlFromCents(item.contracted_price_cents)}</td>
+                  <td className="px-4 py-3">{item.status.replaceAll("_", " ")}</td>
+                  <td className="px-4 py-3">
+                    {new Date(`${item.starts_on}T00:00:00`).toLocaleDateString("pt-BR")}
+                  </td>
+                  <td className="px-4 py-3">
+                    {new Date(`${item.next_due_on}T00:00:00`).toLocaleDateString("pt-BR")}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </AdminShell>
+  );
+}

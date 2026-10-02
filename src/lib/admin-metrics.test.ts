@@ -16,16 +16,31 @@ describe("admin financial metrics", () => {
 
   it("counts only confirmed payments as received revenue", () => {
     const rows: PaymentMetric[] = [
-      { ...base, status: "confirmed", paid_at: "2026-10-08T12:00:00Z", confirmed_at: "2026-10-08T12:01:00Z" },
+      {
+        ...base,
+        status: "confirmed",
+        paid_at: "2026-10-08T12:00:00Z",
+        confirmed_at: "2026-10-08T12:01:00Z",
+      },
       { ...base, status: "pending" },
-      { ...base, status: "refunded", paid_at: "2026-10-08T12:00:00Z", confirmed_at: "2026-10-08T12:01:00Z" },
+      {
+        ...base,
+        status: "refunded",
+        paid_at: "2026-10-08T12:00:00Z",
+        confirmed_at: "2026-10-08T12:01:00Z",
+      },
     ];
     expect(confirmedRevenue(rows, from, to)).toBe(6700);
   });
 
   it("does not count confirmation outside the selected period", () => {
     const rows: PaymentMetric[] = [
-      { ...base, status: "confirmed", paid_at: "2026-09-30T12:00:00Z", confirmed_at: "2026-09-30T12:01:00Z" },
+      {
+        ...base,
+        status: "confirmed",
+        paid_at: "2026-09-30T12:00:00Z",
+        confirmed_at: "2026-09-30T12:01:00Z",
+      },
     ];
     expect(confirmedRevenue(rows, from, to)).toBe(0);
   });
