@@ -118,7 +118,7 @@ function PackageDetailsPage() {
               </>
             ) : null}
             <Button asChild variant="ghost">
-              <Link to="/pacientes/$id" params={{ id: item.patient_id }}>
+              <Link to="/pacientes/$id" params={{ id: item.patient_id }} search={{}}>
                 Abrir paciente
               </Link>
             </Button>

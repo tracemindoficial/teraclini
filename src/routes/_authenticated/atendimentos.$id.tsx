@@ -159,7 +159,7 @@ function AppointmentPage() {
             )}
             {appointment.patient_id ? (
               <Button asChild variant="ghost">
-                <Link to="/pacientes/$id" params={{ id: appointment.patient_id }}>
+                <Link to="/pacientes/$id" params={{ id: appointment.patient_id }} search={{}}>
                   Abrir paciente
                 </Link>
               </Button>

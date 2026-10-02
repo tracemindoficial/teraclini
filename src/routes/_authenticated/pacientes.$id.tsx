@@ -36,7 +36,9 @@ import {
 } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/pacientes/$id")({
-  validateSearch: (search: Record<string, unknown>) => ({ schedule: search.schedule === true }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    schedule: search["schedule"] === true || search["schedule"] === "true" || undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Prontuário do Paciente — TeraClini" },
@@ -52,7 +54,7 @@ export const Route = createFileRoute("/_authenticated/pacientes/$id")({
 
 function PatientProfile() {
   const { id } = useParams({ from: "/_authenticated/pacientes/$id" });
-  const { schedule } = Route.useSearch();
+  const schedule = Route.useSearch({ select: (search) => search.schedule });
   const { data: patient, isLoading } = usePatient(id);
   const { data: guardians } = useGuardians(id);
   const { data: appointments } = usePatientAppointments(id);

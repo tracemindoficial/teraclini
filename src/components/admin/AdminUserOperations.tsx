@@ -28,6 +28,7 @@ export interface AdminUserEditableData {
   professionalRegistry: string | null;
   city: string | null;
   state: string | null;
+  phone: string | null;
   careMode: "presencial" | "online" | "ambos" | null;
 }
 export function AdminUserOperations({ user }: { user: AdminUserEditableData }) {
@@ -40,6 +41,7 @@ export function AdminUserOperations({ user }: { user: AdminUserEditableData }) {
     professionalRegistry: user.professionalRegistry ?? "",
     city: user.city ?? "",
     state: user.state ?? "",
+    phone: user.phone ?? "",
     careMode: user.careMode ?? "",
   });
   const [email, setEmail] = useState(user.email);
@@ -154,6 +156,13 @@ export function AdminUserOperations({ user }: { user: AdminUserEditableData }) {
               onChange={(e) => setProfile({ ...profile, state: e.target.value })}
               placeholder="Estado"
             />
+            <Input
+              className="sm:col-span-2"
+              aria-label="Telefone"
+              value={profile.phone}
+              onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+              placeholder="Telefone"
+            />
             <Select
               value={profile.careMode || "unset"}
               onValueChange={(value) =>
@@ -190,6 +199,7 @@ export function AdminUserOperations({ user }: { user: AdminUserEditableData }) {
                       professionalRegistry: profile.professionalRegistry || null,
                       city: profile.city || null,
                       state: profile.state || null,
+                      phone: profile.phone || null,
                       careMode: (profile.careMode || null) as
                         "presencial" | "online" | "ambos" | null,
                       confirm: true,
