@@ -1906,6 +1906,7 @@ export type Database = {
           id: string
           onboarding_completed: boolean
           password_reset_required_at: string | null
+          phone: string | null
           profession: string | null
           professional_registry: string | null
           state: string | null
@@ -1922,6 +1923,7 @@ export type Database = {
           id: string
           onboarding_completed?: boolean
           password_reset_required_at?: string | null
+          phone?: string | null
           profession?: string | null
           professional_registry?: string | null
           state?: string | null
@@ -1938,6 +1940,7 @@ export type Database = {
           id?: string
           onboarding_completed?: boolean
           password_reset_required_at?: string | null
+          phone?: string | null
           profession?: string | null
           professional_registry?: string | null
           state?: string | null
