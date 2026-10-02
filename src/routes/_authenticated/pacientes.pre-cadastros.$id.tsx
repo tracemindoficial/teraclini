@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Pencil, XCircle } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
   useRegistrationDuplicates,
   useRegistrationRequest,
   useRejectRegistration,
+  useSaveRegistrationRequest,
 } from "@/lib/data/patient-registration";
 
 export const Route = createFileRoute("/_authenticated/pacientes/pre-cadastros/$id")({
@@ -47,8 +48,10 @@ function Page() {
   const { data: duplicates } = useRegistrationDuplicates(id);
   const approve = useApproveRegistration();
   const reject = useRejectRegistration();
+  const save = useSaveRegistrationRequest();
   const [reason, setReason] = useState("");
   const [rejectOpen, setRejectOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   if (isLoading || !request)
     return (
       <AppShell title="Revisar pré-cadastro">
@@ -56,13 +59,19 @@ function Page() {
       </AppShell>
     );
   const pending = request.status === "awaiting_approval";
-  const approveNow = (patientId?: string) =>
-    approve.mutate(patientId ? { id, existingPatientId: patientId } : { id }, {
-      onSuccess: (patientId) => {
+  const approveNow = (existingPatientId?: string) =>
+    approve.mutate(existingPatientId ? { id, existingPatientId } : { id }, {
+      onSuccess: (approvedPatientId) => {
         toast.success(
-          patientId ? "Pré-cadastro aprovado e paciente atualizado." : "Pré-cadastro aprovado.",
+          existingPatientId
+            ? "Pré-cadastro aprovado e vinculado ao paciente."
+            : "Pré-cadastro aprovado e paciente criado.",
         );
-        navigate({ to: "/pacientes" });
+        navigate({
+          to: "/pacientes/$id",
+          params: { id: approvedPatientId },
+          search: { schedule: true },
+        });
       },
       onError: (e) => toast.error(e.message),
     });
@@ -124,7 +133,14 @@ function Page() {
           </section>
         )}
         <section className="surface p-5 sm:p-7">
-          <h2 className="text-lg font-semibold">Dados informados</h2>
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold">Dados informados</h2>
+            {pending ? (
+              <Button variant="outline" size="sm" className="gap-2" onClick={() => setEditOpen(true)}>
+                <Pencil className="size-4" /> Editar
+              </Button>
+            ) : null}
+          </div>
           <div className="mt-5 grid gap-x-8 gap-y-4 sm:grid-cols-2">
             <Detail label="Nome" value={request.full_name} />
             <Detail label="CPF" value={request.cpf} />
@@ -207,7 +223,7 @@ function Page() {
           <DialogFooter>
             <Button
               variant="destructive"
-              disabled={!reason.trim() || reject.isPending}
+              disabled={reason.trim().length < 3 || reject.isPending}
               onClick={() =>
                 reject.mutate(
                   { id, reason },
@@ -227,7 +243,99 @@ function Page() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Corrigir dados do pré-cadastro</DialogTitle>
+            <DialogDescription>
+              Revise os dados informados antes de aprovar. A solicitação continuará pendente.
+            </DialogDescription>
+          </DialogHeader>
+          <RegistrationRequestEditor
+            request={request}
+            pending={save.isPending}
+            onCancel={() => setEditOpen(false)}
+            onSave={async (values) => {
+              try {
+                await save.mutateAsync({ id, values });
+                toast.success("Dados do pré-cadastro atualizados.");
+                setEditOpen(false);
+              } catch (error) {
+                toast.error(
+                  error instanceof Error
+                    ? error.message
+                    : "Não foi possível atualizar os dados do pré-cadastro.",
+                );
+              }
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </AppShell>
+  );
+}
+
+function RegistrationRequestEditor({
+  request,
+  pending,
+  onCancel,
+  onSave,
+}: {
+  request: ReturnType<typeof useRegistrationRequest>["data"] & object;
+  pending: boolean;
+  onCancel: () => void;
+  onSave: (values: {
+    full_name: string;
+    email: string;
+    cpf: string;
+    birth_date: string;
+    phone: string | null;
+    city: string;
+    state: string;
+    therapy_reason: string;
+  }) => Promise<void>;
+}) {
+  const [values, setValues] = useState({
+    full_name: request.full_name,
+    email: request.email,
+    cpf: request.cpf,
+    birth_date: request.birth_date,
+    phone: request.phone ?? "",
+    city: request.city,
+    state: request.state,
+    therapy_reason: request.therapy_reason,
+  });
+  const valid =
+    values.full_name.trim().length >= 2 &&
+    values.email.includes("@") &&
+    values.cpf.trim().length >= 11 &&
+    Boolean(values.birth_date) &&
+    values.city.trim().length >= 2 &&
+    values.state.trim().length >= 2 &&
+    values.therapy_reason.trim().length >= 3;
+  return (
+    <form
+      className="grid gap-3 sm:grid-cols-2"
+      onSubmit={(event) => {
+        event.preventDefault();
+        void onSave({ ...values, phone: values.phone.trim() || null });
+      }}
+    >
+      <Input className="sm:col-span-2" aria-label="Nome completo" value={values.full_name} onChange={(event) => setValues({ ...values, full_name: event.target.value })} />
+      <Input type="email" aria-label="E-mail" value={values.email} onChange={(event) => setValues({ ...values, email: event.target.value })} />
+      <Input aria-label="Telefone" value={values.phone} onChange={(event) => setValues({ ...values, phone: event.target.value })} />
+      <Input aria-label="CPF" value={values.cpf} onChange={(event) => setValues({ ...values, cpf: event.target.value })} />
+      <Input type="date" aria-label="Data de nascimento" value={values.birth_date} onChange={(event) => setValues({ ...values, birth_date: event.target.value })} />
+      <Input aria-label="Cidade" value={values.city} onChange={(event) => setValues({ ...values, city: event.target.value })} />
+      <Input aria-label="Estado" value={values.state} onChange={(event) => setValues({ ...values, state: event.target.value })} />
+      <div className="sm:col-span-2">
+        <Input aria-label="Motivo da busca" value={values.therapy_reason} onChange={(event) => setValues({ ...values, therapy_reason: event.target.value })} />
+      </div>
+      <DialogFooter className="sm:col-span-2">
+        <Button type="button" variant="outline" onClick={onCancel}>Cancelar</Button>
+        <Button type="submit" disabled={!valid || pending}>Salvar correções</Button>
+      </DialogFooter>
+    </form>
   );
 }
 function Detail({ label, value, wide }: { label: string; value: string | null; wide?: boolean }) {

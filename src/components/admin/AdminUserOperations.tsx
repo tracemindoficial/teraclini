@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { KeyRound, LogOut, Mail, Pencil, ShieldAlert } from "lucide-react";
+import { KeyRound, Mail, Pencil, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -112,15 +112,6 @@ export function AdminUserOperations({ user }: { user: AdminUserEditableData }) {
         >
           <ShieldAlert className="size-4" />
           Exigir nova senha
-        </Button>
-        <Button
-          variant="destructive"
-          className="justify-start gap-2"
-          disabled
-          title="Indisponível com garantia de segurança neste ambiente"
-        >
-          <LogOut className="size-4" />
-          Encerrar sessões
         </Button>
       </div>
       <Dialog open={profileOpen} onOpenChange={setProfileOpen}>

@@ -277,36 +277,6 @@ export const completeRequiredPasswordReset = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
-export const revokeAdminUserSessions = createServerFn({ method: "POST" })
-  .middleware([requireOperationalAdmin])
-  .inputValidator((input) => accessInput.parse(input))
-  .handler(async ({ data, context }) => {
-    assertRole(context.platformAdminRole, operationalRoles);
-    if (data.userId === context.userId)
-      throw new Error("Use Sair para encerrar sua própria sessão.");
-    const account = await accountForUser(context.supabaseAdmin, data.userId);
-    throw new Error(
-      "O encerramento remoto de sessões não está disponível com segurança neste ambiente. Suspenda a conta para bloquear o acesso imediatamente.",
-    );
-    await context.supabaseAdmin.from("account_access_events").insert({
-      account_id: account.id,
-      user_id: data.userId,
-      actor_user_id: context.userId,
-      event_type: "sessions_revoked",
-      details: {},
-    });
-    await audit(
-      context.supabaseAdmin,
-      context.userId,
-      "access.sessions_revoked",
-      "user",
-      data.userId,
-      account.id,
-      [],
-    );
-    return { ok: true as const };
-  });
-
 const historyInput = z.object({ userId: z.string().uuid() });
 export const getAdminUserHistory = createServerFn({ method: "POST" })
   .middleware([requireOperationalAdmin])

@@ -36,6 +36,7 @@ import {
 } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/pacientes/$id")({
+  validateSearch: (search: Record<string, unknown>) => ({ schedule: search.schedule === true }),
   head: () => ({
     meta: [
       { title: "Prontuário do Paciente — TeraClini" },
@@ -51,6 +52,7 @@ export const Route = createFileRoute("/_authenticated/pacientes/$id")({
 
 function PatientProfile() {
   const { id } = useParams({ from: "/_authenticated/pacientes/$id" });
+  const { schedule } = Route.useSearch();
   const { data: patient, isLoading } = usePatient(id);
   const { data: guardians } = useGuardians(id);
   const { data: appointments } = usePatientAppointments(id);
@@ -60,7 +62,7 @@ function PatientProfile() {
   const { data: packages } = usePackages(id);
 
   const [editOpen, setEditOpen] = useState(false);
-  const [appointmentOpen, setAppointmentOpen] = useState(false);
+  const [appointmentOpen, setAppointmentOpen] = useState(schedule);
   const [anamnesisOpen, setAnamnesisOpen] = useState(false);
   const [editingAnamnesis, setEditingAnamnesis] = useState<Anamnesis | undefined>();
   const [packageOpen, setPackageOpen] = useState(false);

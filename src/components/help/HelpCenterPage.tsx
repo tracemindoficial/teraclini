@@ -173,8 +173,8 @@ export function HelpCenterPage() {
             No momento, consulte os tutoriais e as perguntas frequentes. Os canais de atendimento
             aparecerão aqui quando forem configurados.
           </p>
-          <Button variant="outline" className="mt-4 w-full" disabled>
-            Solicitar ajuda
+          <Button asChild variant="outline" className="mt-4 w-full">
+            <Link to="/suporte">Solicitar ajuda</Link>
           </Button>
         </aside>
       </section>

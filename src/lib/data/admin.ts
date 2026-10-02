@@ -91,6 +91,7 @@ export function useSetAdminAccountStatus(userId: string) {
       queryClient.invalidateQueries({ queryKey: adminKeys.userDetail(userId) });
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       queryClient.invalidateQueries({ queryKey: adminKeys.overview });
+      queryClient.invalidateQueries({ queryKey: ["admin", "history", userId] });
     },
   });
 }
@@ -107,6 +108,7 @@ export function useSetPlatformAdminRole(userId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.userDetail(userId) });
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "history", userId] });
     },
   });
 }
