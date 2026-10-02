@@ -955,6 +955,221 @@ export type Database = {
           },
         ]
       }
+      help_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string
+          id: string
+          is_active: boolean
+          name: string
+          order_index: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          order_index?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          order_index?: number
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      help_events: {
+        Row: {
+          event_type: Database["public"]["Enums"]["help_event_type"]
+          has_results: boolean | null
+          id: string
+          occurred_at: string
+          search_term: string | null
+          tutorial_id: string | null
+          user_id: string
+        }
+        Insert: {
+          event_type: Database["public"]["Enums"]["help_event_type"]
+          has_results?: boolean | null
+          id?: string
+          occurred_at?: string
+          search_term?: string | null
+          tutorial_id?: string | null
+          user_id: string
+        }
+        Update: {
+          event_type?: Database["public"]["Enums"]["help_event_type"]
+          has_results?: boolean | null
+          id?: string
+          occurred_at?: string
+          search_term?: string | null
+          tutorial_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "help_events_tutorial_id_fkey"
+            columns: ["tutorial_id"]
+            isOneToOne: false
+            referencedRelation: "help_tutorials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      help_progress: {
+        Row: {
+          completed_at: string | null
+          current_step: number
+          id: string
+          introduction_seen: boolean
+          tutorial_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          current_step?: number
+          id?: string
+          introduction_seen?: boolean
+          tutorial_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          current_step?: number
+          id?: string
+          introduction_seen?: boolean
+          tutorial_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "help_progress_tutorial_id_fkey"
+            columns: ["tutorial_id"]
+            isOneToOne: false
+            referencedRelation: "help_tutorials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      help_tutorial_steps: {
+        Row: {
+          created_at: string
+          id: string
+          instruction: string
+          order_index: number
+          target_selector: string | null
+          title: string
+          tutorial_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instruction: string
+          order_index: number
+          target_selector?: string | null
+          title: string
+          tutorial_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instruction?: string
+          order_index?: number
+          target_selector?: string | null
+          title?: string
+          tutorial_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "help_tutorial_steps_tutorial_id_fkey"
+            columns: ["tutorial_id"]
+            isOneToOne: false
+            referencedRelation: "help_tutorials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      help_tutorials: {
+        Row: {
+          category_id: string
+          content: string
+          created_at: string
+          expected_result: string
+          id: string
+          is_active: boolean
+          keywords: string[]
+          media_url: string | null
+          objective: string
+          order_index: number
+          route_path: string | null
+          short_description: string
+          slug: string
+          title: string
+          updated_at: string
+          visibility: Database["public"]["Enums"]["help_visibility"]
+        }
+        Insert: {
+          category_id: string
+          content?: string
+          created_at?: string
+          expected_result?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          media_url?: string | null
+          objective: string
+          order_index?: number
+          route_path?: string | null
+          short_description: string
+          slug: string
+          title: string
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["help_visibility"]
+        }
+        Update: {
+          category_id?: string
+          content?: string
+          created_at?: string
+          expected_result?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          media_url?: string | null
+          objective?: string
+          order_index?: number
+          route_path?: string | null
+          short_description?: string
+          slug?: string
+          title?: string
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["help_visibility"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "help_tutorials_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "help_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       locations: {
         Row: {
           account_id: string
@@ -1994,6 +2209,14 @@ export type Database = {
         | "personalizada"
         | "sem_periodicidade"
       document_category: "clinico" | "administrativo" | "anexo" | "outro"
+      help_event_type:
+        | "view"
+        | "search"
+        | "no_results"
+        | "completed"
+        | "guide_started"
+        | "guide_skipped"
+      help_visibility: "all" | "professional" | "admin"
       location_type:
         | "consultorio_proprio"
         | "clinica"
@@ -2175,6 +2398,15 @@ export const Constants = {
         "sem_periodicidade",
       ],
       document_category: ["clinico", "administrativo", "anexo", "outro"],
+      help_event_type: [
+        "view",
+        "search",
+        "no_results",
+        "completed",
+        "guide_started",
+        "guide_skipped",
+      ],
+      help_visibility: ["all", "professional", "admin"],
       location_type: [
         "consultorio_proprio",
         "clinica",
