@@ -92,16 +92,14 @@ export const saveAdminHelpTutorial = createServerFn({ method: "POST" })
           .single()
       : await context.supabaseAdmin.from("help_tutorials").insert(payload).select("id").single();
     if (result.error) throw new Error("Não foi possível salvar o tutorial.");
-    await context.supabaseAdmin
-      .from("platform_audit_events")
-      .insert({
-        actor_user_id: context.userId,
-        action: data.id ? "help_tutorial.updated" : "help_tutorial.created",
-        entity_type: "help_tutorial",
-        entity_id: result.data.id,
-        changed_fields: Object.keys(payload),
-        result: "success",
-      });
+    await context.supabaseAdmin.from("platform_audit_events").insert({
+      actor_user_id: context.userId,
+      action: data.id ? "help_tutorial.updated" : "help_tutorial.created",
+      entity_type: "help_tutorial",
+      entity_id: result.data.id,
+      changed_fields: Object.keys(payload),
+      result: "success",
+    });
     return result.data;
   });
 
@@ -118,16 +116,14 @@ export const toggleAdminHelpTutorial = createServerFn({ method: "POST" })
       .update({ is_active: data.isActive, updated_at: new Date().toISOString() })
       .eq("id", data.id);
     if (error) throw new Error("Não foi possível alterar o tutorial.");
-    await context.supabaseAdmin
-      .from("platform_audit_events")
-      .insert({
-        actor_user_id: context.userId,
-        action: data.isActive ? "help_tutorial.activated" : "help_tutorial.deactivated",
-        entity_type: "help_tutorial",
-        entity_id: data.id,
-        changed_fields: ["is_active"],
-        result: "success",
-      });
+    await context.supabaseAdmin.from("platform_audit_events").insert({
+      actor_user_id: context.userId,
+      action: data.isActive ? "help_tutorial.activated" : "help_tutorial.deactivated",
+      entity_type: "help_tutorial",
+      entity_id: data.id,
+      changed_fields: ["is_active"],
+      result: "success",
+    });
     return { ok: true as const };
   });
 
@@ -152,15 +148,13 @@ export const saveAdminHelpCategory = createServerFn({ method: "POST" })
           .single()
       : await context.supabaseAdmin.from("help_categories").insert(payload).select("id").single();
     if (result.error) throw new Error("Não foi possível salvar a categoria.");
-    await context.supabaseAdmin
-      .from("platform_audit_events")
-      .insert({
-        actor_user_id: context.userId,
-        action: data.id ? "help_category.updated" : "help_category.created",
-        entity_type: "help_category",
-        entity_id: result.data.id,
-        changed_fields: Object.keys(payload),
-        result: "success",
-      });
+    await context.supabaseAdmin.from("platform_audit_events").insert({
+      actor_user_id: context.userId,
+      action: data.id ? "help_category.updated" : "help_category.created",
+      entity_type: "help_category",
+      entity_id: result.data.id,
+      changed_fields: Object.keys(payload),
+      result: "success",
+    });
     return result.data;
   });

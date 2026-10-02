@@ -84,17 +84,15 @@ export function useCompleteHelpTutorial() {
   return useMutation({
     mutationFn: async (tutorialId: string) => {
       const userId = await currentUserId();
-      const { error } = await supabase
-        .from("help_progress")
-        .upsert(
-          {
-            user_id: userId,
-            tutorial_id: tutorialId,
-            completed_at: new Date().toISOString(),
-            current_step: 0,
-          },
-          { onConflict: "user_id,tutorial_id" },
-        );
+      const { error } = await supabase.from("help_progress").upsert(
+        {
+          user_id: userId,
+          tutorial_id: tutorialId,
+          completed_at: new Date().toISOString(),
+          current_step: 0,
+        },
+        { onConflict: "user_id,tutorial_id" },
+      );
       if (error) throw error;
       await recordHelpEvent({ eventType: "completed", tutorialId });
     },
