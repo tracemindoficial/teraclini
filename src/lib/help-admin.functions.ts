@@ -108,16 +108,14 @@ export const saveAdminHelpTutorial = createServerFn({ method: "POST" })
       if (deleteError) throw new Error("Não foi possível atualizar as etapas do tutorial.");
     }
     if (data.steps.length) {
-      const { error: stepsError } = await context.supabaseAdmin
-        .from("help_tutorial_steps")
-        .insert(
-          data.steps.map((step, index) => ({
-            tutorial_id: result.data.id,
-            title: step.title,
-            instruction: step.instruction,
-            order_index: index,
-          })),
-        );
+      const { error: stepsError } = await context.supabaseAdmin.from("help_tutorial_steps").insert(
+        data.steps.map((step, index) => ({
+          tutorial_id: result.data.id,
+          title: step.title,
+          instruction: step.instruction,
+          order_index: index,
+        })),
+      );
       if (stepsError) throw new Error("Não foi possível salvar as etapas do tutorial.");
     }
     await context.supabaseAdmin.from("platform_audit_events").insert({
