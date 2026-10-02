@@ -15,7 +15,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   type RegistrationRequest,
   useApproveRegistration,
@@ -434,15 +440,25 @@ function RegistrationRequestEditor({
           setValues({ ...values, age_group: age_group as RegistrationRequest["age_group"] })
         }
       >
-        <SelectTrigger aria-label="Faixa etária"><SelectValue /></SelectTrigger>
+        <SelectTrigger aria-label="Faixa etária">
+          <SelectValue />
+        </SelectTrigger>
         <SelectContent>
           <SelectItem value="crianca">Criança</SelectItem>
           <SelectItem value="adolescente">Adolescente</SelectItem>
           <SelectItem value="adulto">Adulto</SelectItem>
         </SelectContent>
       </Select>
-      <Input aria-label="Gênero" value={values.gender} onChange={(event) => setValues({ ...values, gender: event.target.value })} />
-      <Input aria-label="Profissão ou ocupação" value={values.occupation} onChange={(event) => setValues({ ...values, occupation: event.target.value })} />
+      <Input
+        aria-label="Gênero"
+        value={values.gender}
+        onChange={(event) => setValues({ ...values, gender: event.target.value })}
+      />
+      <Input
+        aria-label="Profissão ou ocupação"
+        value={values.occupation}
+        onChange={(event) => setValues({ ...values, occupation: event.target.value })}
+      />
       <Input
         type="date"
         aria-label="Data de nascimento"
@@ -454,10 +470,26 @@ function RegistrationRequestEditor({
         value={values.postal_code}
         onChange={(event) => setValues({ ...values, postal_code: event.target.value })}
       />
-      <Input aria-label="Logradouro" value={values.street} onChange={(event) => setValues({ ...values, street: event.target.value })} />
-      <Input aria-label="Número" value={values.address_number} onChange={(event) => setValues({ ...values, address_number: event.target.value })} />
-      <Input aria-label="Complemento" value={values.address_complement} onChange={(event) => setValues({ ...values, address_complement: event.target.value })} />
-      <Input aria-label="Bairro" value={values.neighborhood} onChange={(event) => setValues({ ...values, neighborhood: event.target.value })} />
+      <Input
+        aria-label="Logradouro"
+        value={values.street}
+        onChange={(event) => setValues({ ...values, street: event.target.value })}
+      />
+      <Input
+        aria-label="Número"
+        value={values.address_number}
+        onChange={(event) => setValues({ ...values, address_number: event.target.value })}
+      />
+      <Input
+        aria-label="Complemento"
+        value={values.address_complement}
+        onChange={(event) => setValues({ ...values, address_complement: event.target.value })}
+      />
+      <Input
+        aria-label="Bairro"
+        value={values.neighborhood}
+        onChange={(event) => setValues({ ...values, neighborhood: event.target.value })}
+      />
       <Input
         aria-label="Cidade"
         value={values.city}
@@ -470,16 +502,51 @@ function RegistrationRequestEditor({
       />
       {values.age_group !== "adulto" ? (
         <>
-          <Input aria-label="Nome do responsável" value={values.guardian_name} onChange={(event) => setValues({ ...values, guardian_name: event.target.value })} />
-          <Input aria-label="Relação do responsável" value={values.guardian_relationship} onChange={(event) => setValues({ ...values, guardian_relationship: event.target.value })} />
-          <Input aria-label="Telefone do responsável" value={values.guardian_phone} onChange={(event) => setValues({ ...values, guardian_phone: event.target.value })} />
-          <Input type="email" aria-label="E-mail do responsável" value={values.guardian_email} onChange={(event) => setValues({ ...values, guardian_email: event.target.value })} />
+          <Input
+            aria-label="Nome do responsável"
+            value={values.guardian_name}
+            onChange={(event) => setValues({ ...values, guardian_name: event.target.value })}
+          />
+          <Input
+            aria-label="Relação do responsável"
+            value={values.guardian_relationship}
+            onChange={(event) =>
+              setValues({ ...values, guardian_relationship: event.target.value })
+            }
+          />
+          <Input
+            aria-label="Telefone do responsável"
+            value={values.guardian_phone}
+            onChange={(event) => setValues({ ...values, guardian_phone: event.target.value })}
+          />
+          <Input
+            type="email"
+            aria-label="E-mail do responsável"
+            value={values.guardian_email}
+            onChange={(event) => setValues({ ...values, guardian_email: event.target.value })}
+          />
         </>
       ) : null}
-      <Input aria-label="Contato de emergência" value={values.emergency_name} onChange={(event) => setValues({ ...values, emergency_name: event.target.value })} />
-      <Input aria-label="Relação do contato de emergência" value={values.emergency_relationship} onChange={(event) => setValues({ ...values, emergency_relationship: event.target.value })} />
-      <Input aria-label="Telefone de emergência" value={values.emergency_phone} onChange={(event) => setValues({ ...values, emergency_phone: event.target.value })} />
-      <Input aria-label="Observações de emergência" value={values.emergency_notes} onChange={(event) => setValues({ ...values, emergency_notes: event.target.value })} />
+      <Input
+        aria-label="Contato de emergência"
+        value={values.emergency_name}
+        onChange={(event) => setValues({ ...values, emergency_name: event.target.value })}
+      />
+      <Input
+        aria-label="Relação do contato de emergência"
+        value={values.emergency_relationship}
+        onChange={(event) => setValues({ ...values, emergency_relationship: event.target.value })}
+      />
+      <Input
+        aria-label="Telefone de emergência"
+        value={values.emergency_phone}
+        onChange={(event) => setValues({ ...values, emergency_phone: event.target.value })}
+      />
+      <Input
+        aria-label="Observações de emergência"
+        value={values.emergency_notes}
+        onChange={(event) => setValues({ ...values, emergency_notes: event.target.value })}
+      />
       <div className="sm:col-span-2">
         <Textarea
           aria-label="Motivo da busca"
@@ -498,15 +565,28 @@ function RegistrationRequestEditor({
         ],
       ].map(([field, label, options]) => (
         <div key={field as string} className="sm:col-span-2 grid gap-2 sm:grid-cols-2">
-          <Select value={values[field as keyof typeof values] as string} onValueChange={(value) => setValues({ ...values, [field as string]: value })}>
-            <SelectTrigger aria-label={label as string}><SelectValue /></SelectTrigger>
-            <SelectContent>{(options as readonly (readonly [string, string])[]).map(([key, text]) => <SelectItem key={key} value={key}>{text}</SelectItem>)}</SelectContent>
+          <Select
+            value={values[field as keyof typeof values] as string}
+            onValueChange={(value) => setValues({ ...values, [field as string]: value })}
+          >
+            <SelectTrigger aria-label={label as string}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {(options as readonly (readonly [string, string])[]).map(([key, text]) => (
+                <SelectItem key={key} value={key}>
+                  {text}
+                </SelectItem>
+              ))}
+            </SelectContent>
           </Select>
           <Textarea
             aria-label={`Detalhes: ${label as string}`}
             placeholder="Detalhes, quando aplicável"
             value={values[`${field as string}_details` as keyof typeof values] as string}
-            onChange={(event) => setValues({ ...values, [`${field as string}_details`]: event.target.value })}
+            onChange={(event) =>
+              setValues({ ...values, [`${field as string}_details`]: event.target.value })
+            }
           />
         </div>
       ))}
