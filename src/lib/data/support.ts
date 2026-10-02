@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { queryKeys } from "@/lib/query-keys";
 
-export type SupportStatus = "open" | "in_progress" | "waiting_user" | "resolved";
+export type SupportStatus = "open" | "in_progress" | "waiting_user" | "resolved" | "closed";
 
 export function useSupportTickets() {
   return useQuery({
