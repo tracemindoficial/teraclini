@@ -70,6 +70,9 @@ export function AdminHelpPage() {
   const views = data?.events.filter((e) => e.event_type === "view").length ?? 0;
   const completed = data?.events.filter((e) => e.event_type === "completed").length ?? 0;
   const noResults = data?.events.filter((e) => e.event_type === "no_results").length ?? 0;
+  if (isLoading) return <p className="text-sm text-muted-foreground">Carregando conteúdos...</p>;
+  if (error || !data)
+    return <p className="text-sm text-destructive">Não foi possível carregar a gestão da ajuda.</p>;
   const tutorialViews = data.tutorials
     .map((tutorial) => ({
       title: tutorial.title,
@@ -84,9 +87,6 @@ export function AdminHelpPage() {
       data.events.filter((event) => event.search_term).map((event) => event.search_term as string),
     ),
   ].slice(0, 5);
-  if (isLoading) return <p className="text-sm text-muted-foreground">Carregando conteúdos...</p>;
-  if (error || !data)
-    return <p className="text-sm text-destructive">Não foi possível carregar a gestão da ajuda.</p>;
   return (
     <div className="space-y-6">
       <section className="grid gap-3 sm:grid-cols-3">
