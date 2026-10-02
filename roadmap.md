@@ -133,3 +133,11 @@
 - [x] Ampliar suporte com prioridade, responsável e encerramento
 - [x] Criar notificações derivadas com estado de leitura
 - [ ] Validar visualmente os fluxos internos com uma sessão administrativa disponível
+
+## Auditoria funcional geral
+
+- [ ] Corrigir e validar edição administrativa de usuário com persistência e histórico
+- [ ] Corrigir e validar pré-cadastro, aprovação e continuidade para agendamento
+- [ ] Auditar controles, formulários, modais, filtros, notificações e rotas sem ações mortas
+- [ ] Validar persistência, erros, permissões e isolamento com identidades fictícias
+- [ ] Consolidar matriz de funcionalidades e relatório final com pendências reais
