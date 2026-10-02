@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { AdminShell, AdminState } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { adminKeys, useAdminPayments } from "@/lib/data/admin";
 import { confirmAdminPayment } from "@/lib/platform-admin.functions";
 
 export const Route = createFileRoute("/_admin/admin/pagamentos")({
+  validateSearch: z.object({ payment: z.string().uuid().optional() }),
   head: () => ({
     meta: [
       { title: "Pagamentos — Administração TeraClini" },
@@ -24,6 +26,7 @@ export const Route = createFileRoute("/_admin/admin/pagamentos")({
   component: AdminPaymentsPage,
 });
 function AdminPaymentsPage() {
+  const payment = Route.useSearch({ select: (search) => search.payment });
   const queryClient = useQueryClient();
   const confirmPayment = useServerFn(confirmAdminPayment);
   const { data, isLoading, error } = useAdminPayments();
@@ -66,7 +69,14 @@ function AdminPaymentsPage() {
             </thead>
             <tbody>
               {data.map((item) => (
-                <tr key={item.id} className="border-b last:border-0">
+                <tr
+                  key={item.id}
+                  className={
+                    item.id === payment
+                      ? "border-b bg-primary/10 last:border-0"
+                      : "border-b last:border-0"
+                  }
+                >
                   <td className="px-4 py-3 font-medium">
                     {item.account?.name ?? "Conta indisponível"}
                   </td>

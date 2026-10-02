@@ -9,7 +9,6 @@ import {
   markAllAdminNotificationsRead,
   requireAdminPasswordReset,
   resendAdminAccessInstructions,
-  revokeAdminUserSessions,
   sendAdminPasswordReset,
   updateAdminUserEmail,
   updateAdminUserProfile,
@@ -27,7 +26,6 @@ export function useAdminUserOperations(userId: string) {
   const reset = useServerFn(sendAdminPasswordReset);
   const resend = useServerFn(resendAdminAccessInstructions);
   const force = useServerFn(requireAdminPasswordReset);
-  const revoke = useServerFn(revokeAdminUserSessions);
   const options = { onSuccess: () => refreshUser(client, userId) };
   return {
     updateProfile: useMutation({
@@ -38,6 +36,7 @@ export function useAdminUserOperations(userId: string) {
         professionalRegistry: string | null;
         city: string | null;
         state: string | null;
+        phone: string | null;
         careMode: "presencial" | "online" | "ambos" | null;
         confirm: true;
       }) => profile({ data }),
@@ -57,10 +56,6 @@ export function useAdminUserOperations(userId: string) {
     }),
     forceReset: useMutation({
       mutationFn: () => force({ data: { userId, confirm: true } }),
-      ...options,
-    }),
-    revokeSessions: useMutation({
-      mutationFn: () => revoke({ data: { userId, confirm: true } }),
       ...options,
     }),
   };

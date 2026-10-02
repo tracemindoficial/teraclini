@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { CalendarPlus, Pencil, Plus } from "lucide-react";
+import { z } from "zod";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { AppointmentDialog } from "@/components/AppointmentDialog";
@@ -36,6 +37,7 @@ import {
 } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/pacientes/$id")({
+  validateSearch: z.object({ schedule: z.coerce.boolean().optional() }),
   head: () => ({
     meta: [
       { title: "Prontuário do Paciente — TeraClini" },
@@ -51,6 +53,7 @@ export const Route = createFileRoute("/_authenticated/pacientes/$id")({
 
 function PatientProfile() {
   const { id } = useParams({ from: "/_authenticated/pacientes/$id" });
+  const schedule = Route.useSearch({ select: (search) => search.schedule });
   const { data: patient, isLoading } = usePatient(id);
   const { data: guardians } = useGuardians(id);
   const { data: appointments } = usePatientAppointments(id);
@@ -60,7 +63,7 @@ function PatientProfile() {
   const { data: packages } = usePackages(id);
 
   const [editOpen, setEditOpen] = useState(false);
-  const [appointmentOpen, setAppointmentOpen] = useState(false);
+  const [appointmentOpen, setAppointmentOpen] = useState(Boolean(schedule));
   const [anamnesisOpen, setAnamnesisOpen] = useState(false);
   const [editingAnamnesis, setEditingAnamnesis] = useState<Anamnesis | undefined>();
   const [packageOpen, setPackageOpen] = useState(false);
@@ -299,10 +302,30 @@ function PatientProfile() {
         </TabsContent>
 
         <TabsContent value="pacotes" className="mt-5">
-          <Button className="gap-2" onClick={() => { setRenewPackage(undefined); setPackageOpen(true); }}><Plus className="size-4" />Novo pacote</Button>
+          <Button
+            className="gap-2"
+            onClick={() => {
+              setRenewPackage(undefined);
+              setPackageOpen(true);
+            }}
+          >
+            <Plus className="size-4" />
+            Novo pacote
+          </Button>
           <div className="mt-4 grid gap-4 xl:grid-cols-2">
-            {(packages ?? []).map((item) => <PackageCard key={item.id} item={item} onRenew={(source) => { setRenewPackage(source); setPackageOpen(true); }} />)}
-            {(packages ?? []).length === 0 ? <p className="text-sm text-muted-foreground">Nenhum pacote cadastrado.</p> : null}
+            {(packages ?? []).map((item) => (
+              <PackageCard
+                key={item.id}
+                item={item}
+                onRenew={(source) => {
+                  setRenewPackage(source);
+                  setPackageOpen(true);
+                }}
+              />
+            ))}
+            {(packages ?? []).length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nenhum pacote cadastrado.</p>
+            ) : null}
           </div>
         </TabsContent>
       </Tabs>
@@ -319,7 +342,12 @@ function PatientProfile() {
         patientId={id}
         anamnesis={editingAnamnesis}
       />
-      <PackageDialog open={packageOpen} onOpenChange={setPackageOpen} defaultPatientId={id} renewFrom={renewPackage} />
+      <PackageDialog
+        open={packageOpen}
+        onOpenChange={setPackageOpen}
+        defaultPatientId={id}
+        renewFrom={renewPackage}
+      />
     </AppShell>
   );
 }

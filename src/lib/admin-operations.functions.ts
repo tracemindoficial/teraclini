@@ -71,6 +71,7 @@ const profileInput = z.object({
   professionalRegistry: z.string().trim().max(80).nullable(),
   city: z.string().trim().max(120).nullable(),
   state: z.string().trim().max(60).nullable(),
+  phone: z.string().trim().max(30).nullable(),
   careMode: z.enum(["presencial", "online", "ambos"]).nullable(),
   confirm: z.literal(true),
 });
@@ -80,40 +81,19 @@ export const updateAdminUserProfile = createServerFn({ method: "POST" })
   .inputValidator((input) => profileInput.parse(input))
   .handler(async ({ data, context }) => {
     assertRole(context.platformAdminRole, operationalRoles);
-    const account = await accountForUser(context.supabaseAdmin, data.userId);
-    const { data: previous, error: readError } = await context.supabaseAdmin
-      .from("profiles")
-      .select("full_name, profession, professional_registry, city, state, care_mode")
-      .eq("id", data.userId)
-      .single();
-    if (readError) throw new Error("Cadastro não encontrado.");
-    const next = {
-      full_name: data.fullName,
-      profession: data.profession,
-      professional_registry: data.professionalRegistry,
-      city: data.city,
-      state: data.state,
-      care_mode: data.careMode,
-    };
-    const changed = Object.keys(next).filter(
-      (key) => previous[key as keyof typeof previous] !== next[key as keyof typeof next],
-    );
-    if (!changed.length) return { ok: true as const, unchanged: true };
-    const { error } = await context.supabaseAdmin
-      .from("profiles")
-      .update(next)
-      .eq("id", data.userId);
-    if (error) throw new Error("Não foi possível atualizar o cadastro.");
-    await audit(
-      context.supabaseAdmin,
-      context.userId,
-      "user.profile_update",
-      "user",
-      data.userId,
-      account.id,
-      changed,
-    );
-    return { ok: true as const, unchanged: false };
+    const { data: changed, error } = await context.supabaseAdmin.rpc("admin_update_user_profile", {
+      _actor_user_id: context.userId,
+      _target_user_id: data.userId,
+      _full_name: data.fullName,
+      _profession: data.profession ?? "",
+      _professional_registry: data.professionalRegistry ?? "",
+      _city: data.city ?? "",
+      _state: data.state ?? "",
+      _care_mode: data.careMode ?? "presencial",
+      _phone: data.phone ?? "",
+    });
+    if (error) throw new Error(error.message || "Não foi possível atualizar os dados do usuário.");
+    return { ok: true as const, unchanged: !changed };
   });
 
 const emailInput = z.object({
@@ -274,36 +254,6 @@ export const completeRequiredPasswordReset = createServerFn({ method: "POST" })
       event_type: "password_changed",
       details: {},
     });
-    return { ok: true as const };
-  });
-
-export const revokeAdminUserSessions = createServerFn({ method: "POST" })
-  .middleware([requireOperationalAdmin])
-  .inputValidator((input) => accessInput.parse(input))
-  .handler(async ({ data, context }) => {
-    assertRole(context.platformAdminRole, operationalRoles);
-    if (data.userId === context.userId)
-      throw new Error("Use Sair para encerrar sua própria sessão.");
-    const account = await accountForUser(context.supabaseAdmin, data.userId);
-    throw new Error(
-      "O encerramento remoto de sessões não está disponível com segurança neste ambiente. Suspenda a conta para bloquear o acesso imediatamente.",
-    );
-    await context.supabaseAdmin.from("account_access_events").insert({
-      account_id: account.id,
-      user_id: data.userId,
-      actor_user_id: context.userId,
-      event_type: "sessions_revoked",
-      details: {},
-    });
-    await audit(
-      context.supabaseAdmin,
-      context.userId,
-      "access.sessions_revoked",
-      "user",
-      data.userId,
-      account.id,
-      [],
-    );
     return { ok: true as const };
   });
 

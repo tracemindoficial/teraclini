@@ -5,11 +5,19 @@ import { brlFromCents } from "@/lib/admin-metrics";
 import { useAdminSubscriptions } from "@/lib/data/admin";
 import { useAdminSubscriptionPlans, useManageAdminSubscription } from "@/lib/data/admin-operations";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useState } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 export const Route = createFileRoute("/_admin/admin/assinaturas")({
+  validateSearch: z.object({ account: z.string().uuid().optional() }),
   head: () => ({
     meta: [
       { title: "Assinaturas — Administração TeraClini" },
@@ -24,19 +32,38 @@ export const Route = createFileRoute("/_admin/admin/assinaturas")({
   component: AdminSubscriptionsPage,
 });
 function AdminSubscriptionsPage() {
+  const account = Route.useSearch({ select: (search) => search.account });
   const { data, isLoading, error } = useAdminSubscriptions();
   const plans = useAdminSubscriptionPlans();
   const manage = useManageAdminSubscription();
   const [planByAccount, setPlanByAccount] = useState<Record<string, string>>({});
-  async function apply(accountId: string, action: "change_plan" | "activate" | "restrict" | "extend" | "cancel" | "reactivate") {
-    const labels = { change_plan: "trocar o plano", activate: "ativar a licença", restrict: "suspender a licença", extend: "estender o vencimento por 30 dias", cancel: "cancelar a licença", reactivate: "reativar a licença" };
+  async function apply(
+    accountId: string,
+    action: "change_plan" | "activate" | "restrict" | "extend" | "cancel" | "reactivate",
+  ) {
+    const labels = {
+      change_plan: "trocar o plano",
+      activate: "ativar a licença",
+      restrict: "suspender a licença",
+      extend: "estender o vencimento por 30 dias",
+      cancel: "cancelar a licença",
+      reactivate: "reativar a licença",
+    };
     if (!window.confirm(`Confirma ${labels[action]}?`)) return;
     try {
       const planId = action === "change_plan" ? planByAccount[accountId] : undefined;
       const days = action === "extend" ? 30 : undefined;
-      await manage.mutateAsync({ accountId, action, ...(planId ? { planId } : {}), ...(days ? { days } : {}), confirm: true });
+      await manage.mutateAsync({
+        accountId,
+        action,
+        ...(planId ? { planId } : {}),
+        ...(days ? { days } : {}),
+        confirm: true,
+      });
       toast.success("Licença atualizada.");
-    } catch (error) { toast.error(error instanceof Error ? error.message : "Não foi possível atualizar a licença."); }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível atualizar a licença.");
+    }
   }
   return (
     <AdminShell title="Assinaturas" description="Planos, mensalidades e ciclo comercial">
@@ -64,7 +91,14 @@ function AdminSubscriptionsPage() {
             </thead>
             <tbody>
               {data.map((item) => (
-                <tr key={item.id} className="border-b last:border-0">
+                <tr
+                  key={item.id}
+                  className={
+                    item.account_id === account
+                      ? "border-b bg-primary/10 last:border-0"
+                      : "border-b last:border-0"
+                  }
+                >
                   <td className="px-4 py-3 font-medium">
                     {item.account?.name ?? "Conta indisponível"}
                   </td>
@@ -79,13 +113,73 @@ function AdminSubscriptionsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex min-w-[22rem] flex-wrap gap-2">
-                      <Select value={planByAccount[item.account_id] ?? item.plan_id} onValueChange={(value) => setPlanByAccount((current) => ({ ...current, [item.account_id]: value }))}>
-                        <SelectTrigger className="w-40"><SelectValue /></SelectTrigger><SelectContent>{plans.data?.filter((plan) => plan.is_active).map((plan) => <SelectItem key={plan.id} value={plan.id}>{plan.name}</SelectItem>)}</SelectContent>
+                      <Select
+                        value={planByAccount[item.account_id] ?? item.plan_id}
+                        onValueChange={(value) =>
+                          setPlanByAccount((current) => ({ ...current, [item.account_id]: value }))
+                        }
+                      >
+                        <SelectTrigger className="w-40">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {plans.data
+                            ?.filter((plan) => plan.is_active)
+                            .map((plan) => (
+                              <SelectItem key={plan.id} value={plan.id}>
+                                {plan.name}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
                       </Select>
-                      {planByAccount[item.account_id] && planByAccount[item.account_id] !== item.plan_id ? <Button size="sm" variant="outline" onClick={() => apply(item.account_id, "change_plan")}>Trocar plano</Button> : null}
-                      <Button size="sm" variant="outline" onClick={() => apply(item.account_id, "extend")}>+30 dias</Button>
-                      {item.status === "active" ? <Button size="sm" variant="outline" onClick={() => apply(item.account_id, "restrict")}>Suspender</Button> : <Button size="sm" variant="outline" onClick={() => apply(item.account_id, item.status === "cancelled" ? "reactivate" : "activate")}>Ativar</Button>}
-                      {item.status !== "cancelled" ? <Button size="sm" variant="destructive" onClick={() => apply(item.account_id, "cancel")}>Cancelar</Button> : null}
+                      {planByAccount[item.account_id] &&
+                      planByAccount[item.account_id] !== item.plan_id ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => apply(item.account_id, "change_plan")}
+                        >
+                          Trocar plano
+                        </Button>
+                      ) : null}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => apply(item.account_id, "extend")}
+                      >
+                        +30 dias
+                      </Button>
+                      {item.status === "active" ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => apply(item.account_id, "restrict")}
+                        >
+                          Suspender
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            apply(
+                              item.account_id,
+                              item.status === "cancelled" ? "reactivate" : "activate",
+                            )
+                          }
+                        >
+                          Ativar
+                        </Button>
+                      )}
+                      {item.status !== "cancelled" ? (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => apply(item.account_id, "cancel")}
+                        >
+                          Cancelar
+                        </Button>
+                      ) : null}
                     </div>
                   </td>
                 </tr>

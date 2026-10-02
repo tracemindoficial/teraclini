@@ -147,11 +147,50 @@ function AdminUserDetailPage() {
           )}
         </div>
       </section>
-      <AdminUserOperations user={{ id: data.id, email: data.email, name: data.name, profession: data.profession, professionalRegistry: data.professionalRegistry, city: data.city, state: data.state, careMode: data.careMode }} />
+      <AdminUserOperations
+        user={{
+          id: data.id,
+          email: data.email,
+          name: data.name,
+          profession: data.profession,
+          professionalRegistry: data.professionalRegistry,
+          city: data.city,
+          state: data.state,
+          phone: data.phone,
+          careMode: data.careMode,
+        }}
+      />
       <section className="surface mt-6 p-5">
         <h2 className="font-semibold">Linha do tempo operacional</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Alterações administrativas, acesso e licença; sem conteúdo clínico.</p>
-        {history.isLoading ? <p className="mt-4 text-sm text-muted-foreground">Carregando histórico...</p> : history.error ? <p className="mt-4 text-sm text-destructive">Não foi possível carregar o histórico.</p> : !history.data?.length ? <p className="mt-4 text-sm text-muted-foreground">Nenhum evento operacional registrado.</p> : <ol className="mt-4 divide-y">{history.data.map((event) => <li key={event.id} className="grid gap-1 py-3 sm:grid-cols-[minmax(12rem,1fr)_minmax(10rem,1fr)_auto]"><span className="text-sm font-medium">{event.type.replaceAll("_", " ")}</span><span className="text-sm text-muted-foreground">{event.detail || "Alteração registrada"}</span><time className="text-xs text-muted-foreground">{new Date(event.createdAt).toLocaleString("pt-BR")}</time></li>)}</ol>}
+        <p className="mt-1 text-sm text-muted-foreground">
+          Alterações administrativas, acesso e licença; sem conteúdo clínico.
+        </p>
+        {history.isLoading ? (
+          <p className="mt-4 text-sm text-muted-foreground">Carregando histórico...</p>
+        ) : history.error ? (
+          <p className="mt-4 text-sm text-destructive">Não foi possível carregar o histórico.</p>
+        ) : !history.data?.length ? (
+          <p className="mt-4 text-sm text-muted-foreground">
+            Nenhum evento operacional registrado.
+          </p>
+        ) : (
+          <ol className="mt-4 divide-y">
+            {history.data.map((event) => (
+              <li
+                key={event.id}
+                className="grid gap-1 py-3 sm:grid-cols-[minmax(12rem,1fr)_minmax(10rem,1fr)_auto]"
+              >
+                <span className="text-sm font-medium">{event.type.replaceAll("_", " ")}</span>
+                <span className="text-sm text-muted-foreground">
+                  {event.detail || "Alteração registrada"}
+                </span>
+                <time className="text-xs text-muted-foreground">
+                  {new Date(event.createdAt).toLocaleString("pt-BR")}
+                </time>
+              </li>
+            ))}
+          </ol>
+        )}
       </section>
       <section className="mt-6 grid gap-5 lg:grid-cols-2">
         <div className="surface p-5">
@@ -226,9 +265,15 @@ function AdminUserDetailPage() {
         {data.support.length ? (
           <ul className="mt-3 divide-y text-sm">
             {data.support.map((ticket) => (
-              <li key={ticket.id} className="flex flex-wrap justify-between gap-3 py-3">
-                <span className="font-medium">{ticket.subject}</span>
-                <span className="text-muted-foreground">{ticket.status}</span>
+              <li key={ticket.id}>
+                <Link
+                  to="/admin/suporte"
+                  search={{ ticket: ticket.id }}
+                  className="flex flex-wrap justify-between gap-3 py-3 hover:text-primary"
+                >
+                  <span className="font-medium">{ticket.subject}</span>
+                  <span className="text-muted-foreground">{ticket.status}</span>
+                </Link>
               </li>
             ))}
           </ul>
