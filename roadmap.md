@@ -84,6 +84,6 @@
 - [x] Criar fundação isolada de administrador global e dados comerciais sem cobrança automática
 - [x] Criar consultas protegidas, métricas reais e telemetria mínima sem conteúdo clínico
 - [x] Criar visão geral, usuários, assinaturas, pagamentos, relatórios e configurações
-- [ ] Conceder o primeiro acesso master ao usuário autorizado
+- [x] Conceder o primeiro acesso master ao usuário autorizado
 - [ ] Confirmar e cadastrar plano, valor, vencimento e tolerância
-- [ ] Validar permissões e isolamento com identidades descartáveis autorizadas
+- [x] Validar permissões e isolamento com identidades descartáveis autorizadas
