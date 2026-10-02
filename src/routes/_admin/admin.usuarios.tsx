@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { useState } from "react";
 
@@ -92,6 +92,7 @@ function AdminUsersPage() {
                   <th className="px-4 py-3">Próximo vencimento</th>
                   <th className="px-4 py-3">Último pagamento</th>
                   <th className="px-4 py-3">Último acesso</th>
+                  <th className="px-4 py-3">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -110,6 +111,11 @@ function AdminUsersPage() {
                     <td className="px-4 py-3">{formatDate(row.nextDueOn)}</td>
                     <td className="px-4 py-3">{formatDate(row.lastPaymentAt)}</td>
                     <td className="px-4 py-3">{formatDate(row.lastSignInAt)}</td>
+                    <td className="px-4 py-3">
+                      <Button variant="outline" size="sm" asChild>
+                        <Link to="/admin/usuarios/$id" params={{ id: row.id }}>Ver detalhes</Link>
+                      </Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
