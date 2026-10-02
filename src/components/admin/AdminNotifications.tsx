@@ -1,5 +1,7 @@
-import { Bell, Check, ExternalLink } from "lucide-react";
+import { Bell } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { AdminNotificationList } from "@/components/admin/AdminNotificationList";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useAdminNotifications, useMarkAdminNotificationRead } from "@/lib/data/admin-operations";
@@ -8,6 +10,10 @@ export function AdminNotifications() {
   const { data = [], isLoading } = useAdminNotifications();
   const markRead = useMarkAdminNotificationRead();
   const unread = data.filter((item) => !item.read).length;
+  async function read(key: string) {
+    try { return await markRead.mutateAsync(key); }
+    catch { toast.error("Não foi possível marcar a notificação como lida."); }
+  }
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -22,18 +28,8 @@ export function AdminNotifications() {
         <div className="mt-5 space-y-2">
           {isLoading ? <p className="text-sm text-muted-foreground">Carregando alertas...</p> : null}
           {!isLoading && !data.length ? <p className="text-sm text-muted-foreground">Nenhum alerta no momento.</p> : null}
-          {data.map((item) => (
-            <article key={item.key} className={`rounded-lg border p-3 ${item.read ? "bg-muted/30" : "bg-card"}`}>
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0"><p className="text-sm font-semibold">{item.title}</p><p className="truncate text-xs text-muted-foreground">{item.detail}</p></div>
-                {!item.read ? <Button size="icon" variant="ghost" aria-label="Marcar como lida" onClick={() => markRead.mutate(item.key)}><Check className="size-4" /></Button> : null}
-              </div>
-              <div className="mt-3 flex items-center justify-between gap-3">
-                <time className="text-xs text-muted-foreground">{new Date(item.date).toLocaleString("pt-BR")}</time>
-                <Button asChild size="sm" variant="ghost"><Link to={item.to}><ExternalLink className="mr-1 size-3" />Abrir</Link></Button>
-              </div>
-            </article>
-          ))}
+          <AdminNotificationList items={data} onRead={read} compact />
+          <Button asChild variant="outline" className="mt-4 w-full"><Link to="/admin/notificacoes">Ver todas as notificações</Link></Button>
         </div>
       </SheetContent>
     </Sheet>
