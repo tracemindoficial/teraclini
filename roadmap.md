@@ -98,3 +98,12 @@
 - [x] Validar três contas descartáveis, suspensão e tentativas de acesso entre contas
 - [x] Remover integralmente as três identidades e os dados fictícios após o teste
 - [ ] Validar visualmente as telas internas com uma sessão administrativa aprovada
+
+## Central de Ajuda interativa
+
+- [ ] Criar conteúdo pesquisável com categorias, tutoriais, etapas e FAQ baseados nas funções reais
+- [ ] Integrar Ajuda ao menu, cabeçalho e páginas principais do profissional
+- [ ] Criar tutoriais guiados e introdução opcional no primeiro acesso
+- [ ] Criar gestão administrativa de categorias, conteúdos, visibilidade, mídia e ordem
+- [ ] Registrar pesquisas, visualizações, buscas sem resultado e conclusões sem dados clínicos
+- [ ] Validar acesso comum, acesso administrativo, busca, orientação e celular
