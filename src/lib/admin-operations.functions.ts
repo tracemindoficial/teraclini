@@ -33,18 +33,33 @@ function assertRole(role: PlatformRole, allowed: readonly PlatformRole[]) {
 }
 
 async function audit(
-  client: SupabaseClient<Database>, actor: string, action: string, entityType: string,
-  entityId: string | null, accountId: string | null, changedFields: string[], result = "success",
+  client: SupabaseClient<Database>,
+  actor: string,
+  action: string,
+  entityType: string,
+  entityId: string | null,
+  accountId: string | null,
+  changedFields: string[],
+  result = "success",
 ) {
   const { error } = await client.from("platform_audit_events").insert({
-    actor_user_id: actor, action, entity_type: entityType, entity_id: entityId,
-    account_id: accountId, changed_fields: changedFields, result,
+    actor_user_id: actor,
+    action,
+    entity_type: entityType,
+    entity_id: entityId,
+    account_id: accountId,
+    changed_fields: changedFields,
+    result,
   });
   if (error) throw new Error("Não foi possível registrar a auditoria administrativa.");
 }
 
 async function accountForUser(client: SupabaseClient<Database>, userId: string) {
-  const { data, error } = await client.from("accounts").select("id, status").eq("owner_user_id", userId).maybeSingle();
+  const { data, error } = await client
+    .from("accounts")
+    .select("id, status")
+    .eq("owner_user_id", userId)
+    .maybeSingle();
   if (error || !data) throw new Error("Conta não encontrada.");
   return data;
 }
@@ -69,22 +84,43 @@ export const updateAdminUserProfile = createServerFn({ method: "POST" })
     const { data: previous, error: readError } = await context.supabaseAdmin
       .from("profiles")
       .select("full_name, profession, professional_registry, city, state, care_mode")
-      .eq("id", data.userId).single();
+      .eq("id", data.userId)
+      .single();
     if (readError) throw new Error("Cadastro não encontrado.");
     const next = {
-      full_name: data.fullName, profession: data.profession,
-      professional_registry: data.professionalRegistry, city: data.city,
-      state: data.state, care_mode: data.careMode,
+      full_name: data.fullName,
+      profession: data.profession,
+      professional_registry: data.professionalRegistry,
+      city: data.city,
+      state: data.state,
+      care_mode: data.careMode,
     };
-    const changed = Object.keys(next).filter((key) => previous[key as keyof typeof previous] !== next[key as keyof typeof next]);
+    const changed = Object.keys(next).filter(
+      (key) => previous[key as keyof typeof previous] !== next[key as keyof typeof next],
+    );
     if (!changed.length) return { ok: true as const, unchanged: true };
-    const { error } = await context.supabaseAdmin.from("profiles").update(next).eq("id", data.userId);
+    const { error } = await context.supabaseAdmin
+      .from("profiles")
+      .update(next)
+      .eq("id", data.userId);
     if (error) throw new Error("Não foi possível atualizar o cadastro.");
-    await audit(context.supabaseAdmin, context.userId, "user.profile_update", "user", data.userId, account.id, changed);
+    await audit(
+      context.supabaseAdmin,
+      context.userId,
+      "user.profile_update",
+      "user",
+      data.userId,
+      account.id,
+      changed,
+    );
     return { ok: true as const, unchanged: false };
   });
 
-const emailInput = z.object({ userId: z.string().uuid(), email: z.string().trim().email().max(254), confirm: z.literal(true) });
+const emailInput = z.object({
+  userId: z.string().uuid(),
+  email: z.string().trim().email().max(254),
+  confirm: z.literal(true),
+});
 export const updateAdminUserEmail = createServerFn({ method: "POST" })
   .middleware([requireOperationalAdmin])
   .inputValidator((input) => emailInput.parse(input))
@@ -93,11 +129,17 @@ export const updateAdminUserEmail = createServerFn({ method: "POST" })
     const account = await accountForUser(context.supabaseAdmin, data.userId);
     const current = await context.supabaseAdmin.auth.admin.getUserById(data.userId);
     if (current.error || !current.data.user) throw new Error("Usuário não encontrado.");
-    if (current.data.user.email?.toLowerCase() === data.email.toLowerCase()) return { ok: true as const, unchanged: true };
+    if (current.data.user.email?.toLowerCase() === data.email.toLowerCase())
+      return { ok: true as const, unchanged: true };
     for (let page = 1; page <= 100; page += 1) {
       const users = await context.supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 });
       if (users.error) throw new Error("Não foi possível validar o novo e-mail.");
-      if (users.data.users.some((user) => user.id !== data.userId && user.email?.toLowerCase() === data.email.toLowerCase())) {
+      if (
+        users.data.users.some(
+          (user) =>
+            user.id !== data.userId && user.email?.toLowerCase() === data.email.toLowerCase(),
+        )
+      ) {
         throw new Error("Este e-mail já está em uso.");
       }
       if (users.data.users.length < 1000) break;
@@ -108,17 +150,33 @@ export const updateAdminUserEmail = createServerFn({ method: "POST" })
     });
     if (updated.error) throw new Error("Não foi possível alterar o e-mail.");
     await context.supabaseAdmin.from("account_access_events").insert({
-      account_id: account.id, user_id: data.userId, actor_user_id: context.userId,
-      event_type: "email_changed", details: { previous_email_domain: current.data.user.email?.split("@")[1] ?? null },
+      account_id: account.id,
+      user_id: data.userId,
+      actor_user_id: context.userId,
+      event_type: "email_changed",
+      details: { previous_email_domain: current.data.user.email?.split("@")[1] ?? null },
     });
-    await audit(context.supabaseAdmin, context.userId, "user.email_change", "user", data.userId, account.id, ["email"]);
+    await audit(
+      context.supabaseAdmin,
+      context.userId,
+      "user.email_change",
+      "user",
+      data.userId,
+      account.id,
+      ["email"],
+    );
     return { ok: true as const, unchanged: false };
   });
 
 const accessInput = z.object({ userId: z.string().uuid(), confirm: z.literal(true) });
 async function sendRecovery(
-  context: { supabaseAdmin: SupabaseClient<Database>; userId: string; platformAdminRole: PlatformRole },
-  targetUserId: string, eventType: "password_reset_sent" | "access_instructions_sent",
+  context: {
+    supabaseAdmin: SupabaseClient<Database>;
+    userId: string;
+    platformAdminRole: PlatformRole;
+  },
+  targetUserId: string,
+  eventType: "password_reset_sent" | "access_instructions_sent",
 ) {
   assertRole(context.platformAdminRole, operationalRoles);
   const account = await accountForUser(context.supabaseAdmin, targetUserId);
@@ -132,10 +190,21 @@ async function sendRecovery(
   });
   if (result.error) throw new Error("Não foi possível enviar as instruções de acesso.");
   await context.supabaseAdmin.from("account_access_events").insert({
-    account_id: account.id, user_id: targetUserId, actor_user_id: context.userId,
-    event_type: eventType, details: {},
+    account_id: account.id,
+    user_id: targetUserId,
+    actor_user_id: context.userId,
+    event_type: eventType,
+    details: {},
   });
-  await audit(context.supabaseAdmin, context.userId, `access.${eventType}`, "user", targetUserId, account.id, []);
+  await audit(
+    context.supabaseAdmin,
+    context.userId,
+    `access.${eventType}`,
+    "user",
+    targetUserId,
+    account.id,
+    [],
+  );
   return { ok: true as const };
 }
 
@@ -147,7 +216,9 @@ export const sendAdminPasswordReset = createServerFn({ method: "POST" })
 export const resendAdminAccessInstructions = createServerFn({ method: "POST" })
   .middleware([requireOperationalAdmin])
   .inputValidator((input) => accessInput.parse(input))
-  .handler(async ({ data, context }) => sendRecovery(context, data.userId, "access_instructions_sent"));
+  .handler(async ({ data, context }) =>
+    sendRecovery(context, data.userId, "access_instructions_sent"),
+  );
 
 export const requireAdminPasswordReset = createServerFn({ method: "POST" })
   .middleware([requireOperationalAdmin])
@@ -156,10 +227,29 @@ export const requireAdminPasswordReset = createServerFn({ method: "POST" })
     assertRole(context.platformAdminRole, operationalRoles);
     const account = await accountForUser(context.supabaseAdmin, data.userId);
     const now = new Date().toISOString();
-    const { error } = await context.supabaseAdmin.from("profiles").update({ force_password_reset: true, password_reset_required_at: now }).eq("id", data.userId);
+    const { error } = await context.supabaseAdmin
+      .from("profiles")
+      .update({ force_password_reset: true, password_reset_required_at: now })
+      .eq("id", data.userId);
     if (error) throw new Error("Não foi possível exigir a redefinição.");
-    await context.supabaseAdmin.from("account_access_events").insert({ account_id: account.id, user_id: data.userId, actor_user_id: context.userId, event_type: "password_reset_required", details: {} });
-    await audit(context.supabaseAdmin, context.userId, "access.password_reset_required", "user", data.userId, account.id, ["force_password_reset"]);
+    await context.supabaseAdmin
+      .from("account_access_events")
+      .insert({
+        account_id: account.id,
+        user_id: data.userId,
+        actor_user_id: context.userId,
+        event_type: "password_reset_required",
+        details: {},
+      });
+    await audit(
+      context.supabaseAdmin,
+      context.userId,
+      "access.password_reset_required",
+      "user",
+      data.userId,
+      account.id,
+      ["force_password_reset"],
+    );
     return { ok: true as const };
   });
 
@@ -174,9 +264,20 @@ export const completeRequiredPasswordReset = createServerFn({ method: "POST" })
     if (profileError || !profile) throw new Error("Perfil não encontrado.");
     if (!profile.force_password_reset) return { ok: true as const };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("profiles").update({ force_password_reset: false, password_reset_required_at: null }).eq("id", context.userId);
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({ force_password_reset: false, password_reset_required_at: null })
+      .eq("id", context.userId);
     if (error) throw new Error("Não foi possível concluir a redefinição obrigatória.");
-    await supabaseAdmin.from("account_access_events").insert({ account_id: profile.account_id, user_id: context.userId, actor_user_id: context.userId, event_type: "password_changed", details: {} });
+    await supabaseAdmin
+      .from("account_access_events")
+      .insert({
+        account_id: profile.account_id,
+        user_id: context.userId,
+        actor_user_id: context.userId,
+        event_type: "password_changed",
+        details: {},
+      });
     return { ok: true as const };
   });
 
@@ -185,13 +286,30 @@ export const revokeAdminUserSessions = createServerFn({ method: "POST" })
   .inputValidator((input) => accessInput.parse(input))
   .handler(async ({ data, context }) => {
     assertRole(context.platformAdminRole, operationalRoles);
-    if (data.userId === context.userId) throw new Error("Use Sair para encerrar sua própria sessão.");
+    if (data.userId === context.userId)
+      throw new Error("Use Sair para encerrar sua própria sessão.");
     const account = await accountForUser(context.supabaseAdmin, data.userId);
     throw new Error(
       "O encerramento remoto de sessões não está disponível com segurança neste ambiente. Suspenda a conta para bloquear o acesso imediatamente.",
     );
-    await context.supabaseAdmin.from("account_access_events").insert({ account_id: account.id, user_id: data.userId, actor_user_id: context.userId, event_type: "sessions_revoked", details: {} });
-    await audit(context.supabaseAdmin, context.userId, "access.sessions_revoked", "user", data.userId, account.id, []);
+    await context.supabaseAdmin
+      .from("account_access_events")
+      .insert({
+        account_id: account.id,
+        user_id: data.userId,
+        actor_user_id: context.userId,
+        event_type: "sessions_revoked",
+        details: {},
+      });
+    await audit(
+      context.supabaseAdmin,
+      context.userId,
+      "access.sessions_revoked",
+      "user",
+      data.userId,
+      account.id,
+      [],
+    );
     return { ok: true as const };
   });
 
@@ -202,22 +320,63 @@ export const getAdminUserHistory = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const account = await accountForUser(context.supabaseAdmin, data.userId);
     const [auditRows, accessRows, subscriptionRows] = await Promise.all([
-      context.supabaseAdmin.from("platform_audit_events").select("id, action, changed_fields, result, created_at").or(`entity_id.eq.${data.userId},account_id.eq.${account.id}`).order("created_at", { ascending: false }).limit(50),
-      context.supabaseAdmin.from("account_access_events").select("id, event_type, created_at").eq("user_id", data.userId).order("created_at", { ascending: false }).limit(50),
-      context.supabaseAdmin.from("subscription_events").select("id, event_type, previous_status, new_status, created_at").eq("account_id", account.id).order("created_at", { ascending: false }).limit(50),
+      context.supabaseAdmin
+        .from("platform_audit_events")
+        .select("id, action, changed_fields, result, created_at")
+        .or(`entity_id.eq.${data.userId},account_id.eq.${account.id}`)
+        .order("created_at", { ascending: false })
+        .limit(50),
+      context.supabaseAdmin
+        .from("account_access_events")
+        .select("id, event_type, created_at")
+        .eq("user_id", data.userId)
+        .order("created_at", { ascending: false })
+        .limit(50),
+      context.supabaseAdmin
+        .from("subscription_events")
+        .select("id, event_type, previous_status, new_status, created_at")
+        .eq("account_id", account.id)
+        .order("created_at", { ascending: false })
+        .limit(50),
     ]);
-    if (auditRows.error || accessRows.error || subscriptionRows.error) throw new Error("Não foi possível carregar o histórico.");
+    if (auditRows.error || accessRows.error || subscriptionRows.error)
+      throw new Error("Não foi possível carregar o histórico.");
     return [
-      ...(auditRows.data ?? []).map((item) => ({ id: `audit-${item.id}`, type: item.action, detail: item.changed_fields.join(", "), createdAt: item.created_at })),
-      ...(accessRows.data ?? []).map((item) => ({ id: `access-${item.id}`, type: item.event_type, detail: "Acesso e segurança", createdAt: item.created_at })),
-      ...(subscriptionRows.data ?? []).map((item) => ({ id: `subscription-${item.id}`, type: item.event_type, detail: [item.previous_status, item.new_status].filter(Boolean).join(" → "), createdAt: item.created_at })),
+      ...(auditRows.data ?? []).map((item) => ({
+        id: `audit-${item.id}`,
+        type: item.action,
+        detail: item.changed_fields.join(", "),
+        createdAt: item.created_at,
+      })),
+      ...(accessRows.data ?? []).map((item) => ({
+        id: `access-${item.id}`,
+        type: item.event_type,
+        detail: "Acesso e segurança",
+        createdAt: item.created_at,
+      })),
+      ...(subscriptionRows.data ?? []).map((item) => ({
+        id: `subscription-${item.id}`,
+        type: item.event_type,
+        detail: [item.previous_status, item.new_status].filter(Boolean).join(" → "),
+        createdAt: item.created_at,
+      })),
     ].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   });
 
 const subscriptionInput = z.object({
-  accountId: z.string().uuid(), planId: z.string().uuid().optional(),
-  action: z.enum(["create", "change_plan", "activate", "restrict", "extend", "cancel", "reactivate"]),
-  days: z.number().int().min(1).max(365).optional(), confirm: z.literal(true),
+  accountId: z.string().uuid(),
+  planId: z.string().uuid().optional(),
+  action: z.enum([
+    "create",
+    "change_plan",
+    "activate",
+    "restrict",
+    "extend",
+    "cancel",
+    "reactivate",
+  ]),
+  days: z.number().int().min(1).max(365).optional(),
+  confirm: z.literal(true),
 });
 export const manageAdminSubscription = createServerFn({ method: "POST" })
   .middleware([requireOperationalAdmin])
@@ -234,30 +393,98 @@ export const manageAdminSubscription = createServerFn({ method: "POST" })
         _days: data.days ?? null,
       },
     );
-    if (error || !subscriptionId) throw new Error(error?.message ?? "Não foi possível atualizar a licença.");
+    if (error || !subscriptionId)
+      throw new Error(error?.message ?? "Não foi possível atualizar a licença.");
     return { ok: true as const };
   });
 
 export const getAdminNotifications = createServerFn({ method: "GET" })
   .middleware([requireOperationalAdmin])
   .handler(async ({ context }) => {
-    const now = new Date(); const in30 = new Date(now); in30.setDate(in30.getDate() + 30);
+    const now = new Date();
+    const in30 = new Date(now);
+    in30.setDate(in30.getDate() + 30);
     const [accounts, tickets, subscriptions, payments, reads] = await Promise.all([
-      context.supabaseAdmin.from("accounts").select("id, name, status, created_at").order("created_at", { ascending: false }).limit(20),
-      context.supabaseAdmin.from("support_tickets").select("id, subject, status, priority, last_message_at").in("status", ["open", "in_progress", "waiting_user"]).order("last_message_at", { ascending: false }).limit(30),
-      context.supabaseAdmin.from("account_subscriptions").select("id, account_id, status, next_due_on, account:accounts(name)").lte("next_due_on", in30.toISOString().slice(0, 10)).neq("status", "cancelled").order("next_due_on").limit(30),
-      context.supabaseAdmin.from("payments").select("id, account_id, status, due_on, account:accounts(name)").in("status", ["pending", "under_review", "overdue"]).order("due_on").limit(30),
-      context.supabaseAdmin.from("admin_notification_reads").select("notification_key").eq("admin_user_id", context.userId),
+      context.supabaseAdmin
+        .from("accounts")
+        .select("id, name, status, created_at")
+        .order("created_at", { ascending: false })
+        .limit(20),
+      context.supabaseAdmin
+        .from("support_tickets")
+        .select("id, subject, status, priority, last_message_at")
+        .in("status", ["open", "in_progress", "waiting_user"])
+        .order("last_message_at", { ascending: false })
+        .limit(30),
+      context.supabaseAdmin
+        .from("account_subscriptions")
+        .select("id, account_id, status, next_due_on, account:accounts(name)")
+        .lte("next_due_on", in30.toISOString().slice(0, 10))
+        .neq("status", "cancelled")
+        .order("next_due_on")
+        .limit(30),
+      context.supabaseAdmin
+        .from("payments")
+        .select("id, account_id, status, due_on, account:accounts(name)")
+        .in("status", ["pending", "under_review", "overdue"])
+        .order("due_on")
+        .limit(30),
+      context.supabaseAdmin
+        .from("admin_notification_reads")
+        .select("notification_key")
+        .eq("admin_user_id", context.userId),
     ]);
-    if (accounts.error || tickets.error || subscriptions.error || payments.error || reads.error) throw new Error("Não foi possível carregar os alertas.");
+    if (accounts.error || tickets.error || subscriptions.error || payments.error || reads.error)
+      throw new Error("Não foi possível carregar os alertas.");
     const read = new Set((reads.data ?? []).map((item) => item.notification_key));
     const items = [
-      ...(accounts.data ?? []).filter((a) => new Date(a.created_at).getTime() >= now.getTime() - 7 * 86400000).map((a) => ({ key: `account:${a.id}`, kind: "account", title: "Novo cadastro", detail: a.name, date: a.created_at, to: `/admin/usuarios/${a.id}` })),
-      ...(accounts.data ?? []).filter((a) => a.status === "suspended").map((a) => ({ key: `suspended:${a.id}`, kind: "account", title: "Conta suspensa", detail: a.name, date: a.created_at, to: `/admin/usuarios/${a.id}` })),
-      ...(tickets.data ?? []).map((t) => ({ key: `ticket:${t.id}:${t.last_message_at}`, kind: "support", title: t.priority === "urgent" ? "Chamado urgente" : "Chamado pendente", detail: t.subject, date: t.last_message_at, to: `/admin/suporte?ticket=${t.id}` })),
-      ...(subscriptions.data ?? []).map((s) => ({ key: `subscription:${s.id}:${s.next_due_on}`, kind: "subscription", title: "Licença próxima do vencimento", detail: s.account?.name ?? "Conta", date: `${s.next_due_on}T12:00:00Z`, to: `/admin/assinaturas?account=${s.account_id}` })),
-      ...(payments.data ?? []).map((p) => ({ key: `payment:${p.id}:${p.status}`, kind: "payment", title: p.status === "overdue" ? "Pagamento vencido" : "Pagamento pendente", detail: p.account?.name ?? "Conta", date: `${p.due_on}T12:00:00Z`, to: `/admin/pagamentos?payment=${p.id}` })),
-    ].map((item) => ({ ...item, read: read.has(item.key) })).sort((a, b) => b.date.localeCompare(a.date));
+      ...(accounts.data ?? [])
+        .filter((a) => new Date(a.created_at).getTime() >= now.getTime() - 7 * 86400000)
+        .map((a) => ({
+          key: `account:${a.id}`,
+          kind: "account",
+          title: "Novo cadastro",
+          detail: a.name,
+          date: a.created_at,
+          to: `/admin/usuarios/${a.id}`,
+        })),
+      ...(accounts.data ?? [])
+        .filter((a) => a.status === "suspended")
+        .map((a) => ({
+          key: `suspended:${a.id}`,
+          kind: "account",
+          title: "Conta suspensa",
+          detail: a.name,
+          date: a.created_at,
+          to: `/admin/usuarios/${a.id}`,
+        })),
+      ...(tickets.data ?? []).map((t) => ({
+        key: `ticket:${t.id}:${t.last_message_at}`,
+        kind: "support",
+        title: t.priority === "urgent" ? "Chamado urgente" : "Chamado pendente",
+        detail: t.subject,
+        date: t.last_message_at,
+        to: `/admin/suporte?ticket=${t.id}`,
+      })),
+      ...(subscriptions.data ?? []).map((s) => ({
+        key: `subscription:${s.id}:${s.next_due_on}`,
+        kind: "subscription",
+        title: "Licença próxima do vencimento",
+        detail: s.account?.name ?? "Conta",
+        date: `${s.next_due_on}T12:00:00Z`,
+        to: `/admin/assinaturas?account=${s.account_id}`,
+      })),
+      ...(payments.data ?? []).map((p) => ({
+        key: `payment:${p.id}:${p.status}`,
+        kind: "payment",
+        title: p.status === "overdue" ? "Pagamento vencido" : "Pagamento pendente",
+        detail: p.account?.name ?? "Conta",
+        date: `${p.due_on}T12:00:00Z`,
+        to: `/admin/pagamentos?payment=${p.id}`,
+      })),
+    ]
+      .map((item) => ({ ...item, read: read.has(item.key) }))
+      .sort((a, b) => b.date.localeCompare(a.date));
     return items;
   });
 
@@ -278,19 +505,34 @@ export const markAdminNotificationRead = createServerFn({ method: "POST" })
   .middleware([requireOperationalAdmin])
   .inputValidator((input) => notificationInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabaseAdmin.from("admin_notification_reads").upsert({ admin_user_id: context.userId, notification_key: data.key, read_at: new Date().toISOString() }, { onConflict: "admin_user_id,notification_key" });
+    const { error } = await context.supabaseAdmin
+      .from("admin_notification_reads")
+      .upsert(
+        {
+          admin_user_id: context.userId,
+          notification_key: data.key,
+          read_at: new Date().toISOString(),
+        },
+        { onConflict: "admin_user_id,notification_key" },
+      );
     if (error) throw new Error("Não foi possível dispensar o alerta.");
     return { ok: true as const };
   });
 
 export const markAllAdminNotificationsRead = createServerFn({ method: "POST" })
   .middleware([requireOperationalAdmin])
-  .inputValidator((input) => z.object({ keys: z.array(z.string().min(3).max(220)).max(200) }).parse(input))
+  .inputValidator((input) =>
+    z.object({ keys: z.array(z.string().min(3).max(220)).max(200) }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     if (!data.keys.length) return { ok: true as const };
     const readAt = new Date().toISOString();
     const { error } = await context.supabaseAdmin.from("admin_notification_reads").upsert(
-      data.keys.map((key) => ({ admin_user_id: context.userId, notification_key: key, read_at: readAt })),
+      data.keys.map((key) => ({
+        admin_user_id: context.userId,
+        notification_key: key,
+        read_at: readAt,
+      })),
       { onConflict: "admin_user_id,notification_key" },
     );
     if (error) throw new Error("Não foi possível marcar os alertas como lidos.");

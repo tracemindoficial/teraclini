@@ -11,25 +11,45 @@ export function AdminNotifications() {
   const markRead = useMarkAdminNotificationRead();
   const unread = data.filter((item) => !item.read).length;
   async function read(key: string) {
-    try { return await markRead.mutateAsync(key); }
-    catch { toast.error("Não foi possível marcar a notificação como lida."); }
+    try {
+      return await markRead.mutateAsync(key);
+    } catch {
+      toast.error("Não foi possível marcar a notificação como lida.");
+    }
   }
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="relative" aria-label={`Notificações${unread ? `, ${unread} novas` : ""}`}>
+        <Button
+          variant="outline"
+          size="icon"
+          className="relative"
+          aria-label={`Notificações${unread ? `, ${unread} novas` : ""}`}
+        >
           <Bell className="size-4" />
-          {unread ? <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-destructive-foreground">{unread > 99 ? "99+" : unread}</span> : null}
+          {unread ? (
+            <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-destructive-foreground">
+              {unread > 99 ? "99+" : unread}
+            </span>
+          ) : null}
         </Button>
       </SheetTrigger>
       <SheetContent className="w-[min(94vw,28rem)] overflow-y-auto">
         <SheetTitle>Notificações operacionais</SheetTitle>
-        <p className="mt-1 text-sm text-muted-foreground">Alertas derivados dos dados atuais da operação.</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Alertas derivados dos dados atuais da operação.
+        </p>
         <div className="mt-5 space-y-2">
-          {isLoading ? <p className="text-sm text-muted-foreground">Carregando alertas...</p> : null}
-          {!isLoading && !data.length ? <p className="text-sm text-muted-foreground">Nenhum alerta no momento.</p> : null}
+          {isLoading ? (
+            <p className="text-sm text-muted-foreground">Carregando alertas...</p>
+          ) : null}
+          {!isLoading && !data.length ? (
+            <p className="text-sm text-muted-foreground">Nenhum alerta no momento.</p>
+          ) : null}
           <AdminNotificationList items={data} onRead={read} compact />
-          <Button asChild variant="outline" className="mt-4 w-full"><Link to="/admin/notificacoes">Ver todas as notificações</Link></Button>
+          <Button asChild variant="outline" className="mt-4 w-full">
+            <Link to="/admin/notificacoes">Ver todas as notificações</Link>
+          </Button>
         </div>
       </SheetContent>
     </Sheet>
