@@ -34,9 +34,11 @@ describe("withTimeout", () => {
 
   it("rejects stalled requests with the timeout code", async () => {
     vi.useFakeTimers();
-    const expectation = expect(withTimeout(new Promise(() => undefined), 20)).rejects.toMatchObject({
-      code: "timeout",
-    });
+    const expectation = expect(withTimeout(new Promise(() => undefined), 20)).rejects.toMatchObject(
+      {
+        code: "timeout",
+      },
+    );
     await vi.advanceTimersByTimeAsync(20);
     await expectation;
     vi.useRealTimers();
