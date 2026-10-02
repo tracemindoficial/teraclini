@@ -2,7 +2,9 @@ import { createMiddleware, createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 import { confirmedRevenue, expectedRevenue, type PaymentMetric } from "@/lib/admin-metrics";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 const requirePlatformAdmin = createMiddleware({ type: "function" })
   .middleware([requireSupabaseAuth])
@@ -32,7 +34,7 @@ function addDays(date: Date, days: number) {
 }
 
 async function recordAudit(
-  supabaseAdmin: Awaited<ReturnType<typeof import("@/integrations/supabase/client.server")>>["supabaseAdmin"],
+  supabaseAdmin: SupabaseClient<Database>,
   actorUserId: string,
   action: string,
   entityType: string,
@@ -148,7 +150,7 @@ export const listAdminUsers = createServerFn({ method: "POST" })
   .middleware([requirePlatformAdmin])
   .inputValidator((input) => userListInput.parse(input))
   .handler(async ({ data, context }) => {
-    const users = [] as Array<{ id: string; email?: string; created_at: string; last_sign_in_at?: string }>;
+    const users = [] as Array<{ id: string; email: string | undefined; created_at: string; last_sign_in_at: string | undefined }>;
     for (let page = 1; page <= 100; page += 1) {
       const result = await context.supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 });
       if (result.error) throw new Error("Não foi possível carregar os usuários.");
