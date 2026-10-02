@@ -8,6 +8,7 @@ import {
   ClipboardList,
   FileText,
   Home,
+  HelpCircle,
   LogOut,
   MapPin,
   Menu,
@@ -40,6 +41,7 @@ const NAV = [
   { to: "/documentos", label: "Documentos", icon: FileText },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/configuracoes", label: "Configurações", icon: Settings },
+  { to: "/ajuda", label: "Ajuda", icon: HelpCircle },
 ] as const;
 
 const PRIMARY_MOBILE_NAV = NAV.slice(0, 3);
@@ -99,7 +101,9 @@ export function AppShell({
                 ? "reports"
                 : pathname.startsWith("/configuracoes")
                   ? "settings"
-                  : "dashboard";
+                  : pathname.startsWith("/ajuda")
+                    ? "help"
+                    : "dashboard";
     recordUsage({ data: { module, action: "view" } }).catch(() => undefined);
   }, [pathname, recordUsage]);
 

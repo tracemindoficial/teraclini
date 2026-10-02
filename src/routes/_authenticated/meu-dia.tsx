@@ -10,6 +10,7 @@ import { LocationDialog } from "@/components/LocationDialog";
 import { AppointmentRow } from "@/components/appointments/AppointmentRow";
 import { Button } from "@/components/ui/button";
 import { SetupChecklist } from "@/components/onboarding/SetupChecklist";
+import { HelpIntroduction } from "@/components/help/HelpIntroduction";
 import { useOnboardingTasks } from "@/lib/account-data";
 import { packageStatus, useAppointments, usePackages, usePatients, usePendingEvolutions, useProfile, useRegistrationRequests } from "@/lib/data";
 import { formatDateLong, greeting } from "@/lib/domain";
@@ -211,6 +212,7 @@ function MeuDia() {
       <AppointmentDialog open={appointmentOpen} onOpenChange={setAppointmentOpen} />
       <PatientDialog open={patientOpen} onOpenChange={setPatientOpen} />
       <LocationDialog open={locationOpen} onOpenChange={setLocationOpen} />
+      {profile?.onboarding_completed ? <HelpIntroduction /> : null}
     </AppShell>
   );
 }
