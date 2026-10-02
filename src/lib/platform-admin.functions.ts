@@ -69,7 +69,7 @@ export const getAdminSelf = createServerFn({ method: "GET" })
       .eq("id", context.userId)
       .maybeSingle();
     return {
-      name: profile?.full_name || data.user.user_metadata?.full_name || "Administrador",
+      name: profile?.full_name || data.user.user_metadata?.["full_name"] || "Administrador",
       email: data.user.email ?? "E-mail indisponível",
       lastSignInAt: data.user.last_sign_in_at ?? null,
     };
