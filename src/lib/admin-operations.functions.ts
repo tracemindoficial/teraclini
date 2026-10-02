@@ -377,15 +377,22 @@ export const manageAdminSubscription = createServerFn({ method: "POST" })
   .inputValidator((input) => subscriptionInput.parse(input))
   .handler(async ({ data, context }) => {
     assertRole(context.platformAdminRole, financialRoles);
+    const rpcInput: {
+      _actor_user_id: string;
+      _account_id: string;
+      _action: string;
+      _plan_id?: string;
+      _days?: number;
+    } = {
+      _actor_user_id: context.userId,
+      _account_id: data.accountId,
+      _action: data.action,
+    };
+    if (data.planId) rpcInput._plan_id = data.planId;
+    if (data.days !== undefined) rpcInput._days = data.days;
     const { data: subscriptionId, error } = await context.supabaseAdmin.rpc(
       "admin_manage_subscription",
-      {
-        _actor_user_id: context.userId,
-        _account_id: data.accountId,
-        _action: data.action,
-        _plan_id: data.planId,
-        _days: data.days,
-      },
+      rpcInput,
     );
     if (error || !subscriptionId)
       throw new Error(error?.message ?? "Não foi possível atualizar a licença.");
