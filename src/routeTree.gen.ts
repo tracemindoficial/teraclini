@@ -34,6 +34,7 @@ import { Route as AdminAdminPagamentosRouteImport } from './routes/_admin/admin.
 import { Route as AdminAdminPerfilRouteImport } from './routes/_admin/admin.perfil'
 import { Route as AdminAdminRelatoriosRouteImport } from './routes/_admin/admin.relatorios'
 import { Route as AdminAdminUsuariosRouteImport } from './routes/_admin/admin.usuarios'
+import { Route as AdminAdminVencimentosRouteImport } from './routes/_admin/admin.vencimentos'
 import { Route as AuthenticatedAtendimentosIdRouteImport } from './routes/_authenticated/atendimentos.$id'
 import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes.index'
 import { Route as AuthenticatedPacientesIdRouteImport } from './routes/_authenticated/pacientes.$id'
@@ -166,6 +167,11 @@ const AdminAdminUsuariosRoute = AdminAdminUsuariosRouteImport.update({
   path: '/usuarios',
   getParentRoute: () => AdminAdminRoute,
 } as any)
+const AdminAdminVencimentosRoute = AdminAdminVencimentosRouteImport.update({
+  id: '/vencimentos',
+  path: '/vencimentos',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
 const AuthenticatedAtendimentosIdRoute =
   AuthenticatedAtendimentosIdRouteImport.update({
     id: '/atendimentos/$id',
@@ -230,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/admin/perfil': typeof AdminAdminPerfilRoute
   '/admin/relatorios': typeof AdminAdminRelatoriosRoute
   '/admin/usuarios': typeof AdminAdminUsuariosRouteWithChildren
+  '/admin/vencimentos': typeof AdminAdminVencimentosRoute
   '/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
@@ -261,6 +268,7 @@ export interface FileRoutesByTo {
   '/admin/perfil': typeof AdminAdminPerfilRoute
   '/admin/relatorios': typeof AdminAdminRelatoriosRoute
   '/admin/usuarios': typeof AdminAdminUsuariosRouteWithChildren
+  '/admin/vencimentos': typeof AdminAdminVencimentosRoute
   '/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
@@ -296,6 +304,7 @@ export interface FileRoutesById {
   '/_admin/admin/perfil': typeof AdminAdminPerfilRoute
   '/_admin/admin/relatorios': typeof AdminAdminRelatoriosRoute
   '/_admin/admin/usuarios': typeof AdminAdminUsuariosRouteWithChildren
+  '/_admin/admin/vencimentos': typeof AdminAdminVencimentosRoute
   '/_authenticated/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
   '/_authenticated/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/_authenticated/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
@@ -330,6 +339,7 @@ export interface FileRouteTypes {
     | '/admin/perfil'
     | '/admin/relatorios'
     | '/admin/usuarios'
+    | '/admin/vencimentos'
     | '/atendimentos/$id'
     | '/pacientes/$id'
     | '/pacientes/pre-cadastros'
@@ -361,6 +371,7 @@ export interface FileRouteTypes {
     | '/admin/perfil'
     | '/admin/relatorios'
     | '/admin/usuarios'
+    | '/admin/vencimentos'
     | '/atendimentos/$id'
     | '/pacientes/$id'
     | '/pacientes/pre-cadastros'
@@ -395,6 +406,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/perfil'
     | '/_admin/admin/relatorios'
     | '/_admin/admin/usuarios'
+    | '/_admin/admin/vencimentos'
     | '/_authenticated/atendimentos/$id'
     | '/_authenticated/pacientes/$id'
     | '/_authenticated/pacientes/pre-cadastros'
@@ -593,6 +605,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminUsuariosRouteImport
       parentRoute: typeof AdminAdminRoute
     }
+    '/_admin/admin/vencimentos': {
+      id: '/_admin/admin/vencimentos'
+      path: '/vencimentos'
+      fullPath: '/admin/vencimentos'
+      preLoaderRoute: typeof AdminAdminVencimentosRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
     '/_authenticated/atendimentos/$id': {
       id: '/_authenticated/atendimentos/$id'
       path: '/atendimentos/$id'
@@ -664,6 +683,7 @@ interface AdminAdminRouteChildren {
   AdminAdminPerfilRoute: typeof AdminAdminPerfilRoute
   AdminAdminRelatoriosRoute: typeof AdminAdminRelatoriosRoute
   AdminAdminUsuariosRoute: typeof AdminAdminUsuariosRouteWithChildren
+  AdminAdminVencimentosRoute: typeof AdminAdminVencimentosRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
 }
 
@@ -675,6 +695,7 @@ const AdminAdminRouteChildren: AdminAdminRouteChildren = {
   AdminAdminPerfilRoute: AdminAdminPerfilRoute,
   AdminAdminRelatoriosRoute: AdminAdminRelatoriosRoute,
   AdminAdminUsuariosRoute: AdminAdminUsuariosRouteWithChildren,
+  AdminAdminVencimentosRoute: AdminAdminVencimentosRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
 }
 
