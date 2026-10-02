@@ -18,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { GlobalSearch } from "@/components/layout/GlobalSearch";
@@ -27,6 +28,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/lib/data";
 import { cn } from "@/lib/utils";
+import { recordUsageEvent } from "@/lib/usage.functions";
 
 const NAV = [
   { to: "/meu-dia", label: "Meu Dia", mobileLabel: "Início", icon: Home },
@@ -71,6 +73,7 @@ export function AppShell({
   const { data: profile } = useProfile();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const recordUsage = useServerFn(recordUsageEvent);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(SIDEBAR_STORAGE_KEY);
@@ -80,6 +83,11 @@ export function AppShell({
     }
     setSidebarExpanded(window.innerWidth >= 1280);
   }, []);
+
+  useEffect(() => {
+    const module = pathname.startsWith("/agenda") ? "agenda" : pathname.startsWith("/pacientes") ? "patients" : pathname.startsWith("/atendimentos") ? "appointments" : pathname.startsWith("/documentos") ? "documents" : pathname.startsWith("/pacotes") ? "packages" : pathname.startsWith("/relatorios") ? "reports" : pathname.startsWith("/configuracoes") ? "settings" : "dashboard";
+    recordUsage({ data: { module, action: "view" } }).catch(() => undefined);
+  }, [pathname, recordUsage]);
 
   function toggleSidebar() {
     setSidebarExpanded((current) => {

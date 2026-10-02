@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 type BrandLogoProps = {
   compact?: boolean;
   className?: string;
-  to?: "/" | "/meu-dia";
+  to?: "/" | "/meu-dia" | "/admin";
 };
 
 export function BrandLogo({ compact = false, className, to = "/" }: BrandLogoProps) {

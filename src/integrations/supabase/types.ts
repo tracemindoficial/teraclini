@@ -49,6 +49,75 @@ export type Database = {
           },
         ]
       }
+      account_subscriptions: {
+        Row: {
+          account_id: string
+          billing_period: string
+          cancellation_requested_at: string | null
+          cancelled_at: string | null
+          contracted_price_cents: number
+          created_at: string
+          currency: string
+          id: string
+          next_due_on: string
+          plan_id: string
+          provider_subscription_id: string | null
+          restricted_at: string | null
+          starts_on: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          billing_period: string
+          cancellation_requested_at?: string | null
+          cancelled_at?: string | null
+          contracted_price_cents: number
+          created_at?: string
+          currency?: string
+          id?: string
+          next_due_on: string
+          plan_id: string
+          provider_subscription_id?: string | null
+          restricted_at?: string | null
+          starts_on: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          billing_period?: string
+          cancellation_requested_at?: string | null
+          cancelled_at?: string | null
+          contracted_price_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          next_due_on?: string
+          plan_id?: string
+          provider_subscription_id?: string | null
+          restricted_at?: string | null
+          starts_on?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_subscriptions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: true
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "account_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       accounts: {
         Row: {
           created_at: string
@@ -107,6 +176,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "activity_log_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_notes: {
+        Row: {
+          account_id: string
+          author_user_id: string
+          content: string
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          author_user_id: string
+          content: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          author_user_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_notes_account_id_fkey"
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts"
@@ -648,6 +752,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      commercial_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          setting_key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          setting_key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          setting_key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
       }
       documents: {
         Row: {
@@ -1259,6 +1393,203 @@ export type Database = {
           },
         ]
       }
+      payment_events: {
+        Row: {
+          account_id: string
+          actor_user_id: string | null
+          amount_cents: number | null
+          created_at: string
+          event_type: string
+          id: string
+          new_status: Database["public"]["Enums"]["payment_status"] | null
+          note: string | null
+          payment_id: string
+          previous_status: Database["public"]["Enums"]["payment_status"] | null
+        }
+        Insert: {
+          account_id: string
+          actor_user_id?: string | null
+          amount_cents?: number | null
+          created_at?: string
+          event_type: string
+          id?: string
+          new_status?: Database["public"]["Enums"]["payment_status"] | null
+          note?: string | null
+          payment_id: string
+          previous_status?: Database["public"]["Enums"]["payment_status"] | null
+        }
+        Update: {
+          account_id?: string
+          actor_user_id?: string | null
+          amount_cents?: number | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          new_status?: Database["public"]["Enums"]["payment_status"] | null
+          note?: string | null
+          payment_id?: string
+          previous_status?: Database["public"]["Enums"]["payment_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_events_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_events_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          account_id: string
+          amount_cents: number
+          billing_period: string
+          charge_id: string | null
+          confirmation_source: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          currency: string
+          due_on: string
+          id: string
+          method: string
+          paid_at: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+          subscription_id: string
+          transaction_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          amount_cents: number
+          billing_period: string
+          charge_id?: string | null
+          confirmation_source?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          currency?: string
+          due_on: string
+          id?: string
+          method?: string
+          paid_at?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          subscription_id: string
+          transaction_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          amount_cents?: number
+          billing_period?: string
+          charge_id?: string | null
+          confirmation_source?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          currency?: string
+          due_on?: string
+          id?: string
+          method?: string
+          paid_at?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          subscription_id?: string
+          transaction_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "account_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_admins: {
+        Row: {
+          created_at: string
+          granted_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["platform_admin_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["platform_admin_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["platform_admin_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      platform_audit_events: {
+        Row: {
+          account_id: string | null
+          action: string
+          actor_user_id: string | null
+          changed_fields: string[]
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          result: string
+        }
+        Insert: {
+          account_id?: string | null
+          action: string
+          actor_user_id?: string | null
+          changed_fields?: string[]
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          result?: string
+        }
+        Update: {
+          account_id?: string | null
+          action?: string
+          actor_user_id?: string | null
+          changed_fields?: string[]
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          result?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_audit_events_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           account_id: string
@@ -1421,6 +1752,146 @@ export type Database = {
           },
         ]
       }
+      subscription_events: {
+        Row: {
+          account_id: string
+          actor_user_id: string | null
+          changed_fields: string[]
+          created_at: string
+          event_type: string
+          id: string
+          new_status: Database["public"]["Enums"]["subscription_status"] | null
+          note: string | null
+          previous_status:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          subscription_id: string
+        }
+        Insert: {
+          account_id: string
+          actor_user_id?: string | null
+          changed_fields?: string[]
+          created_at?: string
+          event_type: string
+          id?: string
+          new_status?: Database["public"]["Enums"]["subscription_status"] | null
+          note?: string | null
+          previous_status?:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          subscription_id: string
+        }
+        Update: {
+          account_id?: string
+          actor_user_id?: string | null
+          changed_fields?: string[]
+          created_at?: string
+          event_type?: string
+          id?: string
+          new_status?: Database["public"]["Enums"]["subscription_status"] | null
+          note?: string | null
+          previous_status?:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          subscription_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_events_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_events_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "account_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_plans: {
+        Row: {
+          billing_interval_months: number
+          code: string
+          created_at: string
+          currency: string
+          first_payment_days: number
+          grace_period_days: number
+          id: string
+          is_active: boolean
+          name: string
+          price_cents: number
+          promotional_until: string | null
+          updated_at: string
+        }
+        Insert: {
+          billing_interval_months?: number
+          code: string
+          created_at?: string
+          currency?: string
+          first_payment_days?: number
+          grace_period_days?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          price_cents: number
+          promotional_until?: string | null
+          updated_at?: string
+        }
+        Update: {
+          billing_interval_months?: number
+          code?: string
+          created_at?: string
+          currency?: string
+          first_payment_days?: number
+          grace_period_days?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_cents?: number
+          promotional_until?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      usage_events: {
+        Row: {
+          account_id: string
+          action: string
+          id: string
+          module: string
+          occurred_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          action: string
+          id?: string
+          module: string
+          occurred_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          action?: string
+          id?: string
+          module?: string
+          occurred_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "usage_events_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           account_id: string
@@ -1475,6 +1946,7 @@ export type Database = {
         Args: { _account_id: string; _user_id?: string }
         Returns: boolean
       }
+      is_platform_admin: { Args: never; Returns: boolean }
       patient_registration_duplicates: {
         Args: { _request_id: string }
         Returns: {
@@ -1530,6 +2002,23 @@ export type Database = {
         | "online"
         | "outro"
       patient_status: "ativo" | "inativo" | "alta" | "avaliacao"
+      payment_status:
+        | "pending"
+        | "under_review"
+        | "confirmed"
+        | "rejected"
+        | "overdue"
+        | "refunded"
+        | "cancelled"
+      platform_admin_role: "super_admin"
+      subscription_status:
+        | "awaiting_first_payment"
+        | "active"
+        | "payment_pending"
+        | "grace_period"
+        | "restricted"
+        | "cancellation_requested"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1695,6 +2184,25 @@ export const Constants = {
         "outro",
       ],
       patient_status: ["ativo", "inativo", "alta", "avaliacao"],
+      payment_status: [
+        "pending",
+        "under_review",
+        "confirmed",
+        "rejected",
+        "overdue",
+        "refunded",
+        "cancelled",
+      ],
+      platform_admin_role: ["super_admin"],
+      subscription_status: [
+        "awaiting_first_payment",
+        "active",
+        "payment_pending",
+        "grace_period",
+        "restricted",
+        "cancellation_requested",
+        "cancelled",
+      ],
     },
   },
 } as const
