@@ -11,12 +11,14 @@ import {
   listAdminSubscriptions,
   listAdminUsers,
   setAdminAccountStatus,
+  setPlatformAdminRole,
+  upsertAdminSetting,
 } from "@/lib/platform-admin.functions";
 
 export const adminKeys = {
   overview: ["admin", "overview"] as const,
-  users: (search: string, status: string, page: number) =>
-    ["admin", "users", search, status, page] as const,
+  users: (search: string, status: string, sort: string, page: number) =>
+    ["admin", "users", search, status, sort, page] as const,
   subscriptions: ["admin", "subscriptions"] as const,
   payments: ["admin", "payments"] as const,
   settings: ["admin", "settings"] as const,
@@ -33,12 +35,13 @@ export function useAdminOverview() {
 export function useAdminUsers(
   search: string,
   status: "all" | "active" | "suspended" | "closed",
+  sort: "newest" | "oldest" | "name" | "last_activity",
   page: number,
 ) {
   const fetcher = useServerFn(listAdminUsers);
   return useQuery({
-    queryKey: adminKeys.users(search, status, page),
-    queryFn: () => fetcher({ data: { search, status, page, pageSize: 20 } }),
+    queryKey: adminKeys.users(search, status, sort, page),
+    queryFn: () => fetcher({ data: { search, status, sort, page, pageSize: 20 } }),
   });
 }
 
@@ -89,5 +92,35 @@ export function useSetAdminAccountStatus(userId: string) {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       queryClient.invalidateQueries({ queryKey: adminKeys.overview });
     },
+  });
+}
+
+export function useSetPlatformAdminRole(userId: string) {
+  const queryClient = useQueryClient();
+  const mutation = useServerFn(setPlatformAdminRole);
+  return useMutation({
+    mutationFn: (data: {
+      userId: string;
+      role: "super_admin" | "support_admin" | "analyst" | "finance_admin" | "content_admin" | null;
+      confirm: true;
+    }) => mutation({ data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.userDetail(userId) });
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+    },
+  });
+}
+
+export function useUpsertAdminSetting() {
+  const queryClient = useQueryClient();
+  const mutation = useServerFn(upsertAdminSetting);
+  return useMutation({
+    mutationFn: (data: {
+      key: string;
+      value: string | number | boolean | null;
+      description: string | null;
+      confirm: true;
+    }) => mutation({ data }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: adminKeys.settings }),
   });
 }

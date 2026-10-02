@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, Banknote, CalendarClock, UserCheck, Users } from "lucide-react";
+import { AlertTriangle, Banknote, CalendarClock, UserCheck, Users, UserX } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 import { AdminMetric, AdminShell, AdminState } from "@/components/admin/AdminShell";
@@ -38,13 +38,15 @@ function AdminOverviewPage() {
     );
   return (
     <AdminShell title="Visão geral" description="Situação comercial e operacional do TeraClini">
-      <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+      <section className="grid grid-cols-2 gap-3 xl:grid-cols-5">
         <AdminMetric
           label="Contas cadastradas"
           value={data.users.total}
           detail={`${data.users.newMonth} neste mês`}
           icon={<Users className="size-5" />}
         />
+        <AdminMetric label="Novas hoje" value={data.users.newToday} detail={`${data.users.new7Days} em 7 dias`} icon={<UserCheck className="size-5" />} />
+        <AdminMetric label="Suspensas ou encerradas" value={data.users.suspended + data.users.closed} detail={`${data.users.suspended} suspensas · ${data.users.closed} encerradas`} icon={<UserX className="size-5" />} />
         <AdminMetric
           label="Contas ativas"
           value={data.users.active}

@@ -54,6 +54,9 @@ function AdminAuditPage() {
                   <th className="px-4 py-3">Data</th>
                   <th className="px-4 py-3">Ação</th>
                   <th className="px-4 py-3">Registro</th>
+                  <th className="px-4 py-3">Administrador</th>
+                  <th className="px-4 py-3">Conta afetada</th>
+                  <th className="px-4 py-3">Campos</th>
                   <th className="px-4 py-3">Resultado</th>
                 </tr>
               </thead>
@@ -65,6 +68,11 @@ function AdminAuditPage() {
                     </td>
                     <td className="px-4 py-3 font-medium">{event.action}</td>
                     <td className="px-4 py-3 text-muted-foreground">{event.entity_type}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{event.actorName}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{event.account_id ?? "—"}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {event.changed_fields.length ? event.changed_fields.join(", ") : "—"}
+                    </td>
                     <td className="px-4 py-3">
                       {event.result === "success" ? "Concluída" : "Falhou"}
                     </td>

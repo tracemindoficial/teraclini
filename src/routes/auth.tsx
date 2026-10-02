@@ -119,12 +119,15 @@ function AuthPage() {
         toast.success("Sua conta foi criada com sucesso.");
         navigate({ to: "/onboarding", replace: true });
       } else {
-        const { error } = await withTimeout(
+        const { data, error } = await withTimeout(
           supabase.auth.signInWithPassword({ email: email.trim(), password }),
         );
         if (error) throw error;
         logAuthEvent(step, "success", { durationMs: Date.now() - startedAt });
-        navigate({ to: "/meu-dia", replace: true });
+        const userId = data.user?.id;
+        if (!userId) throw new Error("Sessão não estabelecida após o acesso.");
+        const destination = await getAuthenticatedDestination(userId);
+        navigate({ to: destination, replace: true });
       }
     } catch (error) {
       const failure = describeAuthError(error);

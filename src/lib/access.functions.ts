@@ -9,7 +9,7 @@ export const getSessionAccess = createServerFn({ method: "GET" })
     const [adminResult, profileResult] = await Promise.all([
       supabaseAdmin
         .from("platform_admins")
-        .select("role")
+        .select("role, revoked_at")
         .eq("user_id", context.userId)
         .maybeSingle(),
       supabaseAdmin
@@ -25,7 +25,7 @@ export const getSessionAccess = createServerFn({ method: "GET" })
 
     const account = profileResult.data?.account;
     return {
-      isPlatformAdmin: adminResult.data?.role === "super_admin",
+      isPlatformAdmin: Boolean(adminResult.data?.role && !adminResult.data.revoked_at),
       accountStatus: account?.status ?? null,
       onboardingCompleted: profileResult.data?.onboarding_completed ?? false,
     };

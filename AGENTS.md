@@ -26,3 +26,4 @@
 - Store commercial billing and immutable platform audits in dedicated non-clinical tables; never expose clinical content to platform administration because business operations require data minimization.
 - Enforce professional-account status in both database membership helpers and authenticated navigation; only platform-admin server functions may change account status.
 - Keep help content globally readable by its declared audience, but restrict authoring to platform-admin server functions and store only non-clinical help analytics.
+- Keep support conversations account-scoped and explicitly non-clinical; administrative actions may record metadata but never copy message text into audit logs.

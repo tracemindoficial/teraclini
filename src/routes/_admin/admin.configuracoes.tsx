@@ -1,8 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState, type FormEvent } from "react";
+import { toast } from "sonner";
 
 import { AdminShell, AdminState } from "@/components/admin/AdminShell";
 import { brlFromCents } from "@/lib/admin-metrics";
-import { useAdminSettings } from "@/lib/data/admin";
+import { useAdminSettings, useUpsertAdminSetting } from "@/lib/data/admin";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_admin/admin/configuracoes")({
   head: () => ({
@@ -20,6 +25,29 @@ export const Route = createFileRoute("/_admin/admin/configuracoes")({
 });
 function AdminSettingsPage() {
   const { data, isLoading, error } = useAdminSettings();
+  const save = useUpsertAdminSetting();
+  const [key, setKey] = useState("");
+  const [value, setValue] = useState("");
+  const [description, setDescription] = useState("");
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    if (!window.confirm("Confirma a gravação desta configuração global?")) return;
+    try {
+      await save.mutateAsync({
+        key: key.trim(),
+        value,
+        description: description.trim() || null,
+        confirm: true,
+      });
+      setKey("");
+      setValue("");
+      setDescription("");
+      toast.success("Configuração salva.");
+    } catch {
+      toast.error("Não foi possível salvar a configuração.");
+    }
+  }
   return (
     <AdminShell title="Configurações" description="Parâmetros comerciais não secretos">
       {isLoading ? (
@@ -72,6 +100,49 @@ function AdminSettingsPage() {
                 automáticas permanecem desativadas.
               </p>
             )}
+          </section>
+          <section className="surface p-5 lg:col-span-2">
+            <h2 className="font-semibold">Adicionar configuração global</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Use apenas parâmetros operacionais não secretos. Planos e cobranças automáticas
+              permanecem desativados.
+            </p>
+            <form onSubmit={submit} className="mt-4 grid gap-4 md:grid-cols-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="setting-key">Identificador</Label>
+                <Input
+                  id="setting-key"
+                  value={key}
+                  onChange={(event) => setKey(event.target.value)}
+                  placeholder="exemplo.configuracao"
+                  pattern="[a-z0-9_.-]+"
+                  required
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="setting-value">Valor</Label>
+                <Input
+                  id="setting-value"
+                  value={value}
+                  onChange={(event) => setValue(event.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="setting-description">Descrição</Label>
+                <Input
+                  id="setting-description"
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  maxLength={300}
+                />
+              </div>
+              <div className="md:col-span-3">
+                <Button type="submit" disabled={save.isPending}>
+                  Salvar configuração
+                </Button>
+              </div>
+            </form>
           </section>
         </div>
       )}

@@ -1742,6 +1742,7 @@ export type Database = {
           created_at: string
           granted_by: string | null
           id: string
+          revoked_at: string | null
           role: Database["public"]["Enums"]["platform_admin_role"]
           user_id: string
         }
@@ -1749,6 +1750,7 @@ export type Database = {
           created_at?: string
           granted_by?: string | null
           id?: string
+          revoked_at?: string | null
           role?: Database["public"]["Enums"]["platform_admin_role"]
           user_id: string
         }
@@ -1756,6 +1758,7 @@ export type Database = {
           created_at?: string
           granted_by?: string | null
           id?: string
+          revoked_at?: string | null
           role?: Database["public"]["Enums"]["platform_admin_role"]
           user_id?: string
         }
@@ -2072,6 +2075,95 @@ export type Database = {
         }
         Relationships: []
       }
+      support_messages: {
+        Row: {
+          account_id: string
+          author_type: Database["public"]["Enums"]["support_message_author"]
+          author_user_id: string
+          created_at: string
+          id: string
+          message: string
+          ticket_id: string
+        }
+        Insert: {
+          account_id: string
+          author_type?: Database["public"]["Enums"]["support_message_author"]
+          author_user_id: string
+          created_at?: string
+          id?: string
+          message: string
+          ticket_id: string
+        }
+        Update: {
+          account_id?: string
+          author_type?: Database["public"]["Enums"]["support_message_author"]
+          author_user_id?: string
+          created_at?: string
+          id?: string
+          message?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          account_id: string
+          created_at: string
+          id: string
+          last_message_at: string
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["support_ticket_status"]
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["support_ticket_status"]
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["support_ticket_status"]
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       usage_events: {
         Row: {
           account_id: string
@@ -2148,6 +2240,10 @@ export type Database = {
         Args: { _existing_patient_id?: string; _request_id: string }
         Returns: string
       }
+      create_support_ticket: {
+        Args: { _message: string; _subject: string }
+        Returns: string
+      }
       current_account_id: { Args: never; Returns: string }
       has_account_role: {
         Args: {
@@ -2176,6 +2272,10 @@ export type Database = {
       reject_patient_registration: {
         Args: { _reason: string; _request_id: string }
         Returns: undefined
+      }
+      reply_support_ticket: {
+        Args: { _message: string; _ticket_id: string }
+        Returns: string
       }
       submit_patient_registration: {
         Args: { _bucket_key: string; _payload: Json; _token_hash: string }
@@ -2216,6 +2316,7 @@ export type Database = {
         | "completed"
         | "guide_started"
         | "guide_skipped"
+        | "support_view"
       help_visibility: "all" | "professional" | "admin"
       location_type:
         | "consultorio_proprio"
@@ -2233,7 +2334,12 @@ export type Database = {
         | "overdue"
         | "refunded"
         | "cancelled"
-      platform_admin_role: "super_admin"
+      platform_admin_role:
+        | "super_admin"
+        | "support_admin"
+        | "analyst"
+        | "finance_admin"
+        | "content_admin"
       subscription_status:
         | "awaiting_first_payment"
         | "active"
@@ -2242,6 +2348,12 @@ export type Database = {
         | "restricted"
         | "cancellation_requested"
         | "cancelled"
+      support_message_author: "professional" | "admin"
+      support_ticket_status:
+        | "open"
+        | "in_progress"
+        | "waiting_user"
+        | "resolved"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2405,6 +2517,7 @@ export const Constants = {
         "completed",
         "guide_started",
         "guide_skipped",
+        "support_view",
       ],
       help_visibility: ["all", "professional", "admin"],
       location_type: [
@@ -2425,7 +2538,13 @@ export const Constants = {
         "refunded",
         "cancelled",
       ],
-      platform_admin_role: ["super_admin"],
+      platform_admin_role: [
+        "super_admin",
+        "support_admin",
+        "analyst",
+        "finance_admin",
+        "content_admin",
+      ],
       subscription_status: [
         "awaiting_first_payment",
         "active",
@@ -2434,6 +2553,13 @@ export const Constants = {
         "restricted",
         "cancellation_requested",
         "cancelled",
+      ],
+      support_message_author: ["professional", "admin"],
+      support_ticket_status: [
+        "open",
+        "in_progress",
+        "waiting_user",
+        "resolved",
       ],
     },
   },

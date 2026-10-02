@@ -110,8 +110,8 @@
 
 ## Perfis, permissões e administração integrada
 
-- [ ] Fazer o administrador entrar na área profissional por padrão e preservar todas as funções profissionais
-- [ ] Exibir acesso adicional à Administração somente para administrador autorizado
-- [ ] Completar suporte, uso, métricas e permissões administrativas com dados reais
-- [ ] Reforçar autorização no servidor, isolamento entre contas e auditoria administrativa
+- [x] Fazer o administrador entrar na área profissional por padrão e preservar todas as funções profissionais
+- [x] Exibir acesso adicional à Administração somente para administrador autorizado
+- [x] Completar suporte, uso, métricas e permissões administrativas com dados reais
+- [x] Reforçar autorização no servidor, isolamento entre contas e auditoria administrativa
 - [ ] Validar usuário comum, administrador, métricas reais, desktop e celular

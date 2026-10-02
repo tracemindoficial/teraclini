@@ -9,6 +9,8 @@ import {
   FileText,
   Home,
   HelpCircle,
+  Headphones,
+  ShieldCheck,
   LogOut,
   MapPin,
   Menu,
@@ -31,6 +33,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { recordUsageEvent } from "@/lib/usage.functions";
+import { getSessionAccess } from "@/lib/access.functions";
 
 const NAV = [
   { to: "/meu-dia", label: "Meu Dia", mobileLabel: "Início", icon: Home },
@@ -43,6 +46,7 @@ const NAV = [
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/configuracoes", label: "Configurações", icon: Settings },
   { to: "/ajuda", label: "Ajuda", icon: HelpCircle },
+  { to: "/suporte", label: "Suporte", icon: Headphones },
 ] as const;
 
 const PRIMARY_MOBILE_NAV = NAV.slice(0, 3);
@@ -77,6 +81,14 @@ export function AppShell({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const recordUsage = useServerFn(recordUsageEvent);
+  const getAccess = useServerFn(getSessionAccess);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    getAccess()
+      .then((access) => setIsAdmin(access.isPlatformAdmin))
+      .catch(() => setIsAdmin(false));
+  }, [getAccess]);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(SIDEBAR_STORAGE_KEY);
@@ -102,9 +114,11 @@ export function AppShell({
                 ? "reports"
                 : pathname.startsWith("/configuracoes")
                   ? "settings"
-                  : pathname.startsWith("/ajuda")
-                    ? "help"
-                    : "dashboard";
+                  : pathname.startsWith("/suporte")
+                    ? "support"
+                    : pathname.startsWith("/ajuda")
+                      ? "help"
+                      : "dashboard";
     recordUsage({ data: { module, action: "view" } }).catch(() => undefined);
   }, [pathname, recordUsage]);
 
@@ -154,6 +168,33 @@ export function AppShell({
           </Tooltip>
         );
       })}
+      {isAdmin ? (
+        <>
+          {!collapsed ? (
+            <p className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase text-sidebar-foreground/50">
+              Administração
+            </p>
+          ) : null}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                to="/admin"
+                onClick={onNavigate}
+                className={cn(
+                  "flex min-h-11 items-center rounded-lg text-sm font-medium text-sidebar-foreground/72 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+                  collapsed ? "justify-center" : "gap-3 px-3",
+                )}
+              >
+                <ShieldCheck className="size-5 shrink-0" />
+                {!collapsed ? <span>Central administrativa</span> : null}
+              </Link>
+            </TooltipTrigger>
+            {collapsed ? (
+              <TooltipContent side="right">Central administrativa</TooltipContent>
+            ) : null}
+          </Tooltip>
+        </>
+      ) : null}
     </nav>
   );
 

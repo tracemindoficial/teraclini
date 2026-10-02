@@ -14,6 +14,8 @@ const usageInput = z.object({
     "packages",
     "reports",
     "settings",
+    "help",
+    "support",
   ]),
   action: z.enum(["view"]),
 });

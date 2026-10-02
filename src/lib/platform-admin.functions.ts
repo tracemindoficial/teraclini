@@ -12,11 +12,24 @@ const requirePlatformAdmin = createMiddleware({ type: "function" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("platform_admins")
-      .select("id, role")
+      .select("id, role, revoked_at")
       .eq("user_id", context.userId)
       .maybeSingle();
-    if (error || !data) throw new Response("Forbidden", { status: 403 });
-    return next({ context: { ...context, supabaseAdmin, platformAdminId: data.id } });
+    if (error || !data || data.revoked_at) throw new Response("Forbidden", { status: 403 });
+    const { data: account } = await supabaseAdmin
+      .from("accounts")
+      .select("status")
+      .eq("owner_user_id", context.userId)
+      .maybeSingle();
+    if (!account || account.status !== "active") throw new Response("Forbidden", { status: 403 });
+    return next({
+      context: {
+        ...context,
+        supabaseAdmin,
+        platformAdminId: data.id,
+        platformAdminRole: data.role,
+      },
+    });
   });
 
 function startOfMonth(date = new Date()) {
@@ -72,6 +85,7 @@ export const getAdminSelf = createServerFn({ method: "GET" })
       name: profile?.full_name || data.user.user_metadata?.["full_name"] || "Administrador",
       email: data.user.email ?? "E-mail indisponível",
       lastSignInAt: data.user.last_sign_in_at ?? null,
+      role: context.platformAdminRole,
     };
   });
 
@@ -160,6 +174,11 @@ export const getAdminOverview = createServerFn({ method: "GET" })
       users: {
         total: accounts.length,
         active: accounts.filter((item) => item.status === "active").length,
+        suspended: accounts.filter((item) => item.status === "suspended").length,
+        closed: accounts.filter((item) => item.status === "closed").length,
+        newToday: accounts.filter(
+          (item) => new Date(item.created_at).toDateString() === now.toDateString(),
+        ).length,
         newMonth: accounts.filter((item) => new Date(item.created_at) >= monthStart).length,
         new7Days: accounts.filter((item) => new Date(item.created_at) >= sevenDaysAgo).length,
         new30Days: accounts.filter((item) => new Date(item.created_at) >= thirtyDaysAgo).length,
@@ -202,6 +221,7 @@ const userListInput = z.object({
   status: z.enum(["all", "active", "suspended", "closed"]).default("all"),
   page: z.number().int().positive().default(1),
   pageSize: z.number().int().min(10).max(100).default(20),
+  sort: z.enum(["newest", "oldest", "name", "last_activity"]).default("newest"),
 });
 
 export const listAdminUsers = createServerFn({ method: "POST" })
@@ -228,30 +248,44 @@ export const listAdminUsers = createServerFn({ method: "POST" })
       if (result.data.users.length < 1000) break;
     }
 
-    const [profilesResult, accountsResult, subscriptionsResult, plansResult, paymentsResult] =
-      await Promise.all([
-        context.supabaseAdmin
-          .from("profiles")
-          .select("id, account_id, full_name, profession, onboarding_completed"),
-        context.supabaseAdmin.from("accounts").select("id, owner_user_id, status, created_at"),
-        context.supabaseAdmin
-          .from("account_subscriptions")
-          .select(
-            "id, account_id, plan_id, contracted_price_cents, starts_on, next_due_on, status, cancelled_at",
-          ),
-        context.supabaseAdmin.from("subscription_plans").select("id, name"),
-        context.supabaseAdmin
-          .from("payments")
-          .select("account_id, status, confirmed_at")
-          .eq("status", "confirmed")
-          .order("confirmed_at", { ascending: false }),
-      ]);
+    const [
+      profilesResult,
+      accountsResult,
+      subscriptionsResult,
+      plansResult,
+      paymentsResult,
+      adminsResult,
+      usageResult,
+    ] = await Promise.all([
+      context.supabaseAdmin
+        .from("profiles")
+        .select("id, account_id, full_name, profession, onboarding_completed"),
+      context.supabaseAdmin.from("accounts").select("id, owner_user_id, status, created_at"),
+      context.supabaseAdmin
+        .from("account_subscriptions")
+        .select(
+          "id, account_id, plan_id, contracted_price_cents, starts_on, next_due_on, status, cancelled_at",
+        ),
+      context.supabaseAdmin.from("subscription_plans").select("id, name"),
+      context.supabaseAdmin
+        .from("payments")
+        .select("account_id, status, confirmed_at")
+        .eq("status", "confirmed")
+        .order("confirmed_at", { ascending: false }),
+      context.supabaseAdmin.from("platform_admins").select("user_id, role, revoked_at"),
+      context.supabaseAdmin
+        .from("usage_events")
+        .select("account_id, occurred_at")
+        .order("occurred_at", { ascending: false }),
+    ]);
     const firstError = [
       profilesResult,
       accountsResult,
       subscriptionsResult,
       plansResult,
       paymentsResult,
+      adminsResult,
+      usageResult,
     ].find((result) => result.error)?.error;
     if (firstError) throw new Error("Não foi possível carregar o diretório administrativo.");
 
@@ -266,6 +300,15 @@ export const listAdminUsers = createServerFn({ method: "POST" })
       if (payment.confirmed_at && !lastPayments.has(payment.account_id))
         lastPayments.set(payment.account_id, payment.confirmed_at);
     }
+    const admins = new Map(
+      (adminsResult.data ?? [])
+        .filter((item) => !item.revoked_at)
+        .map((item) => [item.user_id, item.role]),
+    );
+    const lastActivity = new Map<string, string>();
+    for (const event of usageResult.data ?? [])
+      if (!lastActivity.has(event.account_id))
+        lastActivity.set(event.account_id, event.occurred_at);
 
     const search = data.search.trim().toLocaleLowerCase("pt-BR");
     const rows = users
@@ -290,6 +333,8 @@ export const listAdminUsers = createServerFn({ method: "POST" })
           nextDueOn: subscription?.next_due_on ?? null,
           cancelledAt: subscription?.cancelled_at ?? null,
           lastPaymentAt: account ? (lastPayments.get(account.id) ?? null) : null,
+          lastActivityAt: account ? (lastActivity.get(account.id) ?? null) : null,
+          platformRole: admins.get(user.id) ?? null,
         };
       })
       .filter((row) => {
@@ -300,7 +345,16 @@ export const listAdminUsers = createServerFn({ method: "POST" })
         const matchesStatus = data.status === "all" || row.accountStatus === data.status;
         return matchesSearch && matchesStatus;
       })
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      .sort((a, b) => {
+        if (data.sort === "oldest")
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        if (data.sort === "name") return a.name.localeCompare(b.name, "pt-BR");
+        if (data.sort === "last_activity")
+          return (
+            new Date(b.lastActivityAt ?? 0).getTime() - new Date(a.lastActivityAt ?? 0).getTime()
+          );
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
 
     const start = (data.page - 1) * data.pageSize;
     return {
@@ -329,7 +383,16 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
       .maybeSingle();
     if (profileError || !profile) throw new Response("Not found", { status: 404 });
     const accountId = profile.account_id;
-    const [patients, appointments, documents, packages, activity] = await Promise.all([
+    const [
+      patients,
+      appointments,
+      documents,
+      packages,
+      activity,
+      subscription,
+      support,
+      platformAdmin,
+    ] = await Promise.all([
       context.supabaseAdmin
         .from("patients")
         .select("id", { count: "exact", head: true })
@@ -352,10 +415,35 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
         .eq("account_id", accountId)
         .order("occurred_at", { ascending: false })
         .limit(10),
+      context.supabaseAdmin
+        .from("account_subscriptions")
+        .select(
+          "status, contracted_price_cents, starts_on, next_due_on, plan:subscription_plans(name)",
+        )
+        .eq("account_id", accountId)
+        .maybeSingle(),
+      context.supabaseAdmin
+        .from("support_tickets")
+        .select("id, subject, status, created_at")
+        .eq("account_id", accountId)
+        .order("created_at", { ascending: false })
+        .limit(10),
+      context.supabaseAdmin
+        .from("platform_admins")
+        .select("role, revoked_at")
+        .eq("user_id", data.userId)
+        .maybeSingle(),
     ]);
-    const firstError = [patients, appointments, documents, packages, activity].find(
-      (result) => result.error,
-    )?.error;
+    const firstError = [
+      patients,
+      appointments,
+      documents,
+      packages,
+      activity,
+      subscription,
+      support,
+      platformAdmin,
+    ].find((result) => result.error)?.error;
     if (firstError) throw new Error("Não foi possível carregar os indicadores da conta.");
     return {
       id: user.id,
@@ -374,6 +462,10 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
         packages: packages.count ?? 0,
       },
       activity: activity.data ?? [],
+      subscription: subscription.data ?? null,
+      support: support.data ?? [],
+      platformRole:
+        platformAdmin.data && !platformAdmin.data.revoked_at ? platformAdmin.data.role : null,
     };
   });
 
@@ -425,13 +517,33 @@ export const listAdminAuditEvents = createServerFn({ method: "POST" })
     const to = from + data.pageSize - 1;
     let query = context.supabaseAdmin
       .from("platform_audit_events")
-      .select("id, action, entity_type, result, created_at", { count: "exact" })
+      .select(
+        "id, actor_user_id, action, entity_type, entity_id, account_id, changed_fields, result, created_at",
+        { count: "exact" },
+      )
       .order("created_at", { ascending: false })
       .range(from, to);
     if (data.action.trim()) query = query.ilike("action", `%${data.action.trim()}%`);
     const { data: rows, count, error } = await query;
     if (error) throw new Error("Não foi possível carregar a auditoria administrativa.");
-    return { rows: rows ?? [], total: count ?? 0, page: data.page, pageSize: data.pageSize };
+    const actorIds = [
+      ...new Set((rows ?? []).flatMap((item) => (item.actor_user_id ? [item.actor_user_id] : []))),
+    ];
+    const { data: profiles } = actorIds.length
+      ? await context.supabaseAdmin.from("profiles").select("id, full_name").in("id", actorIds)
+      : { data: [] };
+    const names = new Map((profiles ?? []).map((item) => [item.id, item.full_name]));
+    return {
+      rows: (rows ?? []).map((item) => ({
+        ...item,
+        actorName: item.actor_user_id
+          ? names.get(item.actor_user_id) || "Administrador"
+          : "Sistema",
+      })),
+      total: count ?? 0,
+      page: data.page,
+      pageSize: data.pageSize,
+    };
   });
 
 export const listAdminSubscriptions = createServerFn({ method: "GET" })
@@ -466,6 +578,92 @@ export const getAdminSettings = createServerFn({ method: "GET" })
     if (plans.error || settings.error)
       throw new Error("Não foi possível carregar as configurações.");
     return { plans: plans.data ?? [], settings: settings.data ?? [] };
+  });
+
+const settingInput = z.object({
+  key: z
+    .string()
+    .trim()
+    .min(2)
+    .max(100)
+    .regex(/^[a-z0-9_.-]+$/),
+  value: z.union([z.string(), z.number(), z.boolean(), z.null()]),
+  description: z.string().trim().max(300).nullable(),
+  confirm: z.literal(true),
+});
+export const upsertAdminSetting = createServerFn({ method: "POST" })
+  .middleware([requirePlatformAdmin])
+  .inputValidator((input) => settingInput.parse(input))
+  .handler(async ({ data, context }) => {
+    if (context.platformAdminRole !== "super_admin")
+      throw new Response("Forbidden", { status: 403 });
+    const { error } = await context.supabaseAdmin.from("commercial_settings").upsert(
+      {
+        setting_key: data.key,
+        value: data.value,
+        description: data.description,
+        updated_by: context.userId,
+      },
+      { onConflict: "setting_key" },
+    );
+    if (error) throw new Error("Não foi possível salvar a configuração.");
+    await recordAudit(
+      context.supabaseAdmin,
+      context.userId,
+      "settings.upsert",
+      "commercial_setting",
+      null,
+      null,
+      ["value", "description"],
+    );
+    return { ok: true as const };
+  });
+
+const adminRoleInput = z.object({
+  userId: z.string().uuid(),
+  role: z
+    .enum(["super_admin", "support_admin", "analyst", "finance_admin", "content_admin"])
+    .nullable(),
+  confirm: z.literal(true),
+});
+export const setPlatformAdminRole = createServerFn({ method: "POST" })
+  .middleware([requirePlatformAdmin])
+  .inputValidator((input) => adminRoleInput.parse(input))
+  .handler(async ({ data, context }) => {
+    if (context.platformAdminRole !== "super_admin")
+      throw new Response("Forbidden", { status: 403 });
+    if (data.role) {
+      const { error } = await context.supabaseAdmin
+        .from("platform_admins")
+        .upsert(
+          { user_id: data.userId, role: data.role, granted_by: context.userId, revoked_at: null },
+          { onConflict: "user_id" },
+        );
+      if (error) throw new Error("Não foi possível conceder a permissão.");
+    } else {
+      const { count } = await context.supabaseAdmin
+        .from("platform_admins")
+        .select("id", { count: "exact", head: true })
+        .is("revoked_at", null);
+      if ((count ?? 0) <= 1) throw new Error("O último administrador não pode ser removido.");
+      if (data.userId === context.userId)
+        throw new Error("Transfira a administração antes de remover seu próprio acesso.");
+      const { error } = await context.supabaseAdmin
+        .from("platform_admins")
+        .update({ revoked_at: new Date().toISOString() })
+        .eq("user_id", data.userId);
+      if (error) throw new Error("Não foi possível remover a permissão.");
+    }
+    await recordAudit(
+      context.supabaseAdmin,
+      context.userId,
+      data.role ? "admin.grant" : "admin.revoke",
+      "platform_admin",
+      data.userId,
+      null,
+      ["role", "revoked_at"],
+    );
+    return { ok: true as const };
   });
 
 const paymentActionInput = z.object({ paymentId: z.string().uuid(), confirm: z.literal(true) });
