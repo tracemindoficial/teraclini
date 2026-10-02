@@ -78,6 +78,13 @@
       "when": 1790966645509,
       "tag": "0010_add_public_commercial_layer",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790967824205,
+      "tag": "0011_expand_admin_operations",
+      "breakpoints": true
     }
   ]
 }

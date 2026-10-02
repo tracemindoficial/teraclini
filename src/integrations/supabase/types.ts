@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_access_events: {
+        Row: {
+          account_id: string
+          actor_user_id: string | null
+          created_at: string
+          details: Json
+          event_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          actor_user_id?: string | null
+          created_at?: string
+          details?: Json
+          event_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          actor_user_id?: string | null
+          created_at?: string
+          details?: Json
+          event_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_access_events_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       account_members: {
         Row: {
           account_id: string
@@ -217,6 +255,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      admin_notification_reads: {
+        Row: {
+          admin_user_id: string
+          created_at: string
+          id: string
+          notification_key: string
+          read_at: string
+        }
+        Insert: {
+          admin_user_id: string
+          created_at?: string
+          id?: string
+          notification_key: string
+          read_at?: string
+        }
+        Update: {
+          admin_user_id?: string
+          created_at?: string
+          id?: string
+          notification_key?: string
+          read_at?: string
+        }
+        Relationships: []
       }
       anamneses: {
         Row: {
@@ -1839,9 +1901,11 @@ export type Database = {
           care_mode: Database["public"]["Enums"]["care_mode"] | null
           city: string | null
           created_at: string
+          force_password_reset: boolean
           full_name: string
           id: string
           onboarding_completed: boolean
+          password_reset_required_at: string | null
           profession: string | null
           professional_registry: string | null
           state: string | null
@@ -1853,9 +1917,11 @@ export type Database = {
           care_mode?: Database["public"]["Enums"]["care_mode"] | null
           city?: string | null
           created_at?: string
+          force_password_reset?: boolean
           full_name?: string
           id: string
           onboarding_completed?: boolean
+          password_reset_required_at?: string | null
           profession?: string | null
           professional_registry?: string | null
           state?: string | null
@@ -1867,9 +1933,11 @@ export type Database = {
           care_mode?: Database["public"]["Enums"]["care_mode"] | null
           city?: string | null
           created_at?: string
+          force_password_reset?: boolean
           full_name?: string
           id?: string
           onboarding_completed?: boolean
+          password_reset_required_at?: string | null
           profession?: string | null
           professional_registry?: string | null
           state?: string | null
@@ -2147,9 +2215,12 @@ export type Database = {
       support_tickets: {
         Row: {
           account_id: string
+          assigned_admin_user_id: string | null
+          closed_at: string | null
           created_at: string
           id: string
           last_message_at: string
+          priority: string
           resolved_at: string | null
           status: Database["public"]["Enums"]["support_ticket_status"]
           subject: string
@@ -2158,9 +2229,12 @@ export type Database = {
         }
         Insert: {
           account_id: string
+          assigned_admin_user_id?: string | null
+          closed_at?: string | null
           created_at?: string
           id?: string
           last_message_at?: string
+          priority?: string
           resolved_at?: string | null
           status?: Database["public"]["Enums"]["support_ticket_status"]
           subject: string
@@ -2169,9 +2243,12 @@ export type Database = {
         }
         Update: {
           account_id?: string
+          assigned_admin_user_id?: string | null
+          closed_at?: string | null
           created_at?: string
           id?: string
           last_message_at?: string
+          priority?: string
           resolved_at?: string | null
           status?: Database["public"]["Enums"]["support_ticket_status"]
           subject?: string
@@ -2378,6 +2455,7 @@ export type Database = {
         | "in_progress"
         | "waiting_user"
         | "resolved"
+        | "closed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2584,6 +2662,7 @@ export const Constants = {
         "in_progress",
         "waiting_user",
         "resolved",
+        "closed",
       ],
     },
   },
