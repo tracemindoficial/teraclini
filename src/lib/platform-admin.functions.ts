@@ -377,7 +377,7 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
     const { data: profile, error: profileError } = await context.supabaseAdmin
       .from("profiles")
       .select(
-        "account_id, full_name, profession, professional_registry, city, state, care_mode, onboarding_completed, force_password_reset, created_at, account:accounts(id, status)",
+        "account_id, full_name, profession, professional_registry, city, state, phone, care_mode, onboarding_completed, force_password_reset, created_at, account:accounts(id, status)",
       )
       .eq("id", data.userId)
       .maybeSingle();
@@ -454,6 +454,7 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
       professionalRegistry: profile.professional_registry,
       city: profile.city,
       state: profile.state,
+      phone: profile.phone,
       careMode: profile.care_mode,
       forcePasswordReset: profile.force_password_reset,
       accountStatus: profile.account?.status ?? "unknown",
@@ -484,28 +485,15 @@ export const setAdminAccountStatus = createServerFn({ method: "POST" })
   .middleware([requirePlatformAdmin])
   .inputValidator((input) => accountStatusInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { data: account, error: readError } = await context.supabaseAdmin
-      .from("accounts")
-      .select("id, status")
-      .eq("id", data.accountId)
-      .single();
-    if (readError || !account) throw new Error("Conta não encontrada.");
-    if (account.status === data.status) return { ok: true, unchanged: true };
-    const { error } = await context.supabaseAdmin
-      .from("accounts")
-      .update({ status: data.status })
-      .eq("id", data.accountId);
-    if (error) throw new Error("Não foi possível alterar a situação da conta.");
-    await recordAudit(
-      context.supabaseAdmin,
-      context.userId,
-      data.status === "active" ? "account.activate" : "account.suspend",
-      "account",
-      account.id,
-      account.id,
-      ["status"],
-    );
-    return { ok: true, unchanged: false };
+    if (!["super_admin", "support_admin"].includes(context.platformAdminRole))
+      throw new Response("Forbidden", { status: 403 });
+    const { data: changed, error } = await context.supabaseAdmin.rpc("admin_set_account_status", {
+      _actor_user_id: context.userId,
+      _account_id: data.accountId,
+      _status: data.status,
+    });
+    if (error) throw new Error(error.message || "Não foi possível alterar a situação da conta.");
+    return { ok: true, unchanged: !changed };
   });
 
 const auditListInput = z.object({

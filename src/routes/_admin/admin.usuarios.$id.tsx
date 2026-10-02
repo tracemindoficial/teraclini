@@ -147,7 +147,7 @@ function AdminUserDetailPage() {
           )}
         </div>
       </section>
-      <AdminUserOperations user={{ id: data.id, email: data.email, name: data.name, profession: data.profession, professionalRegistry: data.professionalRegistry, city: data.city, state: data.state, careMode: data.careMode }} />
+      <AdminUserOperations user={{ id: data.id, email: data.email, name: data.name, profession: data.profession, professionalRegistry: data.professionalRegistry, city: data.city, state: data.state, phone: data.phone, careMode: data.careMode }} />
       <section className="surface mt-6 p-5">
         <h2 className="font-semibold">Linha do tempo operacional</h2>
         <p className="mt-1 text-sm text-muted-foreground">Alterações administrativas, acesso e licença; sem conteúdo clínico.</p>
@@ -226,9 +226,15 @@ function AdminUserDetailPage() {
         {data.support.length ? (
           <ul className="mt-3 divide-y text-sm">
             {data.support.map((ticket) => (
-              <li key={ticket.id} className="flex flex-wrap justify-between gap-3 py-3">
-                <span className="font-medium">{ticket.subject}</span>
-                <span className="text-muted-foreground">{ticket.status}</span>
+              <li key={ticket.id}>
+                <Link
+                  to="/admin/suporte"
+                  search={{ ticket: ticket.id }}
+                  className="flex flex-wrap justify-between gap-3 py-3 hover:text-primary"
+                >
+                  <span className="font-medium">{ticket.subject}</span>
+                  <span className="text-muted-foreground">{ticket.status}</span>
+                </Link>
               </li>
             ))}
           </ul>

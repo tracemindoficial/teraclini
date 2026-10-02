@@ -81,7 +81,6 @@ export const updateAdminUserProfile = createServerFn({ method: "POST" })
   .inputValidator((input) => profileInput.parse(input))
   .handler(async ({ data, context }) => {
     assertRole(context.platformAdminRole, operationalRoles);
-    const account = await accountForUser(context.supabaseAdmin, data.userId);
     const { data: changed, error } = await context.supabaseAdmin.rpc(
       "admin_update_user_profile",
       {

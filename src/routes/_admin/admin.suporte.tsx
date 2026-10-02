@@ -20,6 +20,9 @@ import {
 import type { SupportStatus } from "@/lib/data/support";
 
 export const Route = createFileRoute("/_admin/admin/suporte")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    ticket: typeof search["ticket"] === "string" ? search["ticket"] : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Suporte — Administração TeraClini" },
@@ -34,7 +37,9 @@ export const Route = createFileRoute("/_admin/admin/suporte")({
   component: AdminSupportPage,
 });
 function AdminSupportPage() {
-  const [selected, setSelected] = useState<string | null>(null);
+  const navigate = Route.useNavigate();
+  const ticket = Route.useSearch({ select: (search) => search.ticket });
+  const [selected, setSelected] = useState<string | null>(ticket ?? null);
   const [reply, setReply] = useState("");
   const list = useAdminSupportTickets();
   const detail = useAdminSupportTicket(selected);
@@ -68,7 +73,10 @@ function AdminSupportPage() {
                 key={ticket.id}
                 variant="ghost"
                 className="h-auto w-full justify-start rounded-none p-4 text-left"
-                onClick={() => setSelected(ticket.id)}
+                onClick={() => {
+                  setSelected(ticket.id);
+                  void navigate({ to: ".", search: { ticket: ticket.id }, replace: true });
+                }}
               >
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium">{ticket.subject}</span>

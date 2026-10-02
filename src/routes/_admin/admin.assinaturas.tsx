@@ -10,6 +10,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/assinaturas")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    account: typeof search["account"] === "string" ? search["account"] : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Assinaturas — Administração TeraClini" },
@@ -24,6 +27,7 @@ export const Route = createFileRoute("/_admin/admin/assinaturas")({
   component: AdminSubscriptionsPage,
 });
 function AdminSubscriptionsPage() {
+  const account = Route.useSearch({ select: (search) => search.account });
   const { data, isLoading, error } = useAdminSubscriptions();
   const plans = useAdminSubscriptionPlans();
   const manage = useManageAdminSubscription();
@@ -64,7 +68,7 @@ function AdminSubscriptionsPage() {
             </thead>
             <tbody>
               {data.map((item) => (
-                <tr key={item.id} className="border-b last:border-0">
+                <tr key={item.id} className={item.account_id === account ? "border-b bg-primary/10 last:border-0" : "border-b last:border-0"}>
                   <td className="px-4 py-3 font-medium">
                     {item.account?.name ?? "Conta indisponível"}
                   </td>
