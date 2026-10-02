@@ -34,7 +34,8 @@ function ResetPasswordPage() {
 
   useEffect(() => {
     let active = true;
-    const hashIsRecovery = new URLSearchParams(window.location.hash.slice(1)).get("type") === "recovery";
+    const hashIsRecovery =
+      new URLSearchParams(window.location.hash.slice(1)).get("type") === "recovery";
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       if (active && event === "PASSWORD_RECOVERY" && session) {
         setRecoveryReady(true);
@@ -89,18 +90,40 @@ function ResetPasswordPage() {
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="new-password">Nova senha</Label>
-                <Input id="new-password" type="password" autoComplete="new-password" minLength={8} required value={password} onChange={(event) => setPassword(event.target.value)} />
+                <Input
+                  id="new-password"
+                  type="password"
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="confirm-password">Confirmar nova senha</Label>
-                <Input id="confirm-password" type="password" autoComplete="new-password" minLength={8} required value={confirmation} onChange={(event) => setConfirmation(event.target.value)} />
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                  value={confirmation}
+                  onChange={(event) => setConfirmation(event.target.value)}
+                />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>{loading ? "Salvando..." : "Salvar nova senha"}</Button>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Salvando..." : "Salvar nova senha"}
+              </Button>
             </form>
           ) : (
             <div className="mt-4 space-y-4">
-              <p className="text-sm text-muted-foreground">Este link expirou ou já foi utilizado. Solicite uma nova recuperação.</p>
-              <Button asChild className="w-full"><Link to="/auth">Voltar para entrar</Link></Button>
+              <p className="text-sm text-muted-foreground">
+                Este link expirou ou já foi utilizado. Solicite uma nova recuperação.
+              </p>
+              <Button asChild className="w-full">
+                <Link to="/auth">Voltar para entrar</Link>
+              </Button>
             </div>
           )}
         </section>

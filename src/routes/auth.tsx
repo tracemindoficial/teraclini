@@ -74,7 +74,8 @@ function AuthPage() {
     submitting.current = true;
     setLoading(true);
     const startedAt = Date.now();
-    const step = mode === "signup" ? "signup" : mode === "recovery" ? "password_recovery" : "signin";
+    const step =
+      mode === "signup" ? "signup" : mode === "recovery" ? "password_recovery" : "signin";
     logAuthEvent(step, "start");
     try {
       if (mode === "recovery") {
@@ -85,7 +86,9 @@ function AuthPage() {
         );
         if (error) throw error;
         logAuthEvent(step, "success", { durationMs: Date.now() - startedAt });
-        setFormError("Se existir uma conta com este e-mail, enviaremos um link para redefinir a senha.");
+        setFormError(
+          "Se existir uma conta com este e-mail, enviaremos um link para redefinir a senha.",
+        );
         return;
       }
       if (mode === "signup") {
@@ -178,7 +181,11 @@ function AuthPage() {
 
         <div className="surface mt-7 p-6 sm:p-8">
           <h1 className="text-xl font-semibold">
-            {mode === "signin" ? "Entrar" : mode === "signup" ? "Criar sua conta" : "Recuperar senha"}
+            {mode === "signin"
+              ? "Entrar"
+              : mode === "signup"
+                ? "Criar sua conta"
+                : "Recuperar senha"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Seu espaço profissional, independente da clínica.
@@ -197,17 +204,19 @@ function AuthPage() {
                 />
               </div>
             ) : null}
-            {mode !== "recovery" ? <div className="space-y-1.5">
-              <Label htmlFor="email">E-mail</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-                autoComplete="email"
-              />
-            </div> : null}
+            {mode !== "recovery" ? (
+              <div className="space-y-1.5">
+                <Label htmlFor="email">E-mail</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                  autoComplete="email"
+                />
+              </div>
+            ) : null}
             <div className="space-y-1.5">
               <Label htmlFor="password">Senha</Label>
               <Input
@@ -248,19 +257,35 @@ function AuthPage() {
             </Button>
           </form>
 
-          {mode !== "recovery" ? <><div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="h-px flex-1 bg-border" />
-            ou
-            <span className="h-px flex-1 bg-border" />
-          </div>
+          {mode !== "recovery" ? (
+            <>
+              <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
+                <span className="h-px flex-1 bg-border" />
+                ou
+                <span className="h-px flex-1 bg-border" />
+              </div>
 
-          <Button variant="outline" className="w-full" onClick={handleGoogle} disabled={loading}>
-            Continuar com Google
-          </Button>
-          </> : null}
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleGoogle}
+                disabled={loading}
+              >
+                Continuar com Google
+              </Button>
+            </>
+          ) : null}
 
           {mode === "signin" ? (
-            <Button type="button" variant="link" onClick={() => { setFormError(null); setMode("recovery"); }} className="mt-3 w-full text-center text-sm">
+            <Button
+              type="button"
+              variant="link"
+              onClick={() => {
+                setFormError(null);
+                setMode("recovery");
+              }}
+              className="mt-3 w-full text-center text-sm"
+            >
               Esqueci minha senha
             </Button>
           ) : null}

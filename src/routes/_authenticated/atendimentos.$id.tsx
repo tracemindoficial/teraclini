@@ -164,7 +164,13 @@ function AppointmentPage() {
                 </Link>
               </Button>
             ) : null}
-            {appointment.package_id ? <Button asChild variant="ghost"><Link to="/pacotes/$id" params={{ id: appointment.package_id }}>Abrir pacote</Link></Button> : null}
+            {appointment.package_id ? (
+              <Button asChild variant="ghost">
+                <Link to="/pacotes/$id" params={{ id: appointment.package_id }}>
+                  Abrir pacote
+                </Link>
+              </Button>
+            ) : null}
             <Button variant="ghost" onClick={handleDelete}>
               Excluir
             </Button>
