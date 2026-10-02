@@ -95,4 +95,6 @@
 - [x] Direcionar administradores e profissionais aos espaços corretos após entrar
 - [x] Criar detalhe de usuário, alteração auditada de situação e histórico administrativo
 - [x] Identificar claramente o painel administrativo e o painel profissional
-- [ ] Validar três contas descartáveis, suspensão, autopromoção e telas autenticadas
+- [x] Validar três contas descartáveis, suspensão e tentativas de acesso entre contas
+- [x] Remover integralmente as três identidades e os dados fictícios após o teste
+- [ ] Validar visualmente as telas internas com uma sessão administrativa aprovada

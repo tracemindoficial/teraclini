@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   BarChart3,
+  CalendarClock,
   ClipboardClock,
   CreditCard,
   FileBarChart,
@@ -28,6 +29,7 @@ const links = [
   { to: "/admin/usuarios", label: "Usuários", icon: Users },
   { to: "/admin/assinaturas", label: "Assinaturas", icon: WalletCards },
   { to: "/admin/pagamentos", label: "Pagamentos", icon: CreditCard },
+  { to: "/admin/vencimentos", label: "Vencimentos", icon: CalendarClock },
   { to: "/admin/relatorios", label: "Relatórios", icon: FileBarChart },
   { to: "/admin/auditoria", label: "Auditoria", icon: ClipboardClock },
   { to: "/admin/configuracoes", label: "Configurações", icon: Settings },
