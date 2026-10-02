@@ -141,7 +141,8 @@ export function SupportPage() {
                     </article>
                   ))}
                 </div>
-                {detail.data.ticket.status !== "resolved" && detail.data.ticket.status !== "closed" ? (
+                {detail.data.ticket.status !== "resolved" &&
+                detail.data.ticket.status !== "closed" ? (
                   <form onSubmit={submitReply} className="border-t pt-4">
                     <Label htmlFor="support-reply">Responder</Label>
                     <Textarea
