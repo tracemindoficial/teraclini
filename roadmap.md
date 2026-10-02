@@ -77,3 +77,13 @@
 - [x] Criar testes automatizados para regras de pacotes e falhas de autenticação
 - [x] Validar login e recuperação públicos em celular e desktop
 - [ ] Validar fluxos internos e isolamento com duas contas fictícias autorizadas
+
+## Dashboard Master administrativa
+
+- [x] Auditar autenticação, contas, permissões, dados comerciais, atividade e interface
+- [x] Criar fundação isolada de administrador global e dados comerciais sem cobrança automática
+- [x] Criar consultas protegidas, métricas reais e telemetria mínima sem conteúdo clínico
+- [x] Criar visão geral, usuários, assinaturas, pagamentos, relatórios e configurações
+- [ ] Conceder o primeiro acesso master ao usuário autorizado
+- [ ] Confirmar e cadastrar plano, valor, vencimento e tolerância
+- [ ] Validar permissões e isolamento com identidades descartáveis autorizadas

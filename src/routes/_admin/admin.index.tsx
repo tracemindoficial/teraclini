@@ -7,7 +7,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { brlFromCents } from "@/lib/admin-metrics";
 import { useAdminOverview } from "@/lib/data/admin";
 
-export const Route = createFileRoute("/_admin/admin")({
+export const Route = createFileRoute("/_admin/admin/")({
   head: () => ({ meta: [{ title: "Administração Master — TeraClini" }, { name: "description", content: "Visão administrativa da operação TeraClini." }, { property: "og:title", content: "Administração Master — TeraClini" }, { property: "og:description", content: "Visão administrativa da operação TeraClini." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex,nofollow" }] }),
   component: AdminOverviewPage,
 });
