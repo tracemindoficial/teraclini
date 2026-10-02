@@ -63,6 +63,7 @@ export function AppointmentDialog({
     package_id: "none",
   });
   const { data: patientPackages } = usePackages(values.patient_id || undefined);
+  const completedAppointment = appointment?.status === "realizado";
 
   useEffect(() => {
     if (!open) return;
@@ -259,15 +260,30 @@ export function AppointmentDialog({
             {values.patient_id ? (
               <div className="space-y-1.5">
                 <Label>Pacote de sessões (opcional)</Label>
-                <Select value={values.package_id} onValueChange={(package_id) => setValues({ ...values, package_id })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select
+                  disabled={completedAppointment}
+                  value={values.package_id}
+                  onValueChange={(package_id) => setValues({ ...values, package_id })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">Sem pacote</SelectItem>
-                    {(patientPackages ?? []).filter((item) => item.lifecycle_status === "ativo").map((item) => (
-                      <SelectItem key={item.id} value={item.id}>{item.appointment_type?.name ?? "Pacote"} · {item.quantity} sessões</SelectItem>
-                    ))}
+                    {(patientPackages ?? [])
+                      .filter((item) => item.lifecycle_status === "ativo")
+                      .map((item) => (
+                        <SelectItem key={item.id} value={item.id}>
+                          {item.appointment_type?.name ?? "Pacote"} · {item.quantity} sessões
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
+                {completedAppointment ? (
+                  <p className="text-xs text-muted-foreground">
+                    O vínculo do pacote não pode ser alterado após a conclusão do atendimento.
+                  </p>
+                ) : null}
               </div>
             ) : null}
 

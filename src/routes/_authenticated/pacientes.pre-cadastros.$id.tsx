@@ -5,16 +5,245 @@ import { AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useApproveRegistration, useRegistrationDuplicates, useRegistrationRequest, useRejectRegistration } from "@/lib/data/patient-registration";
+import {
+  useApproveRegistration,
+  useRegistrationDuplicates,
+  useRegistrationRequest,
+  useRejectRegistration,
+} from "@/lib/data/patient-registration";
 
-export const Route = createFileRoute("/_authenticated/pacientes/pre-cadastros/$id")({ head: () => ({ meta: [{ title: "Revisar pré-cadastro — TeraClini" }] }), component: Page });
-function Page() { const { id } = Route.useParams(); const navigate = useNavigate(); const { data: request, isLoading } = useRegistrationRequest(id); const { data: duplicates } = useRegistrationDuplicates(id); const approve = useApproveRegistration(); const reject = useRejectRegistration(); const [reason, setReason] = useState(""); const [rejectOpen, setRejectOpen] = useState(false);
- if (isLoading || !request) return <AppShell title="Revisar pré-cadastro"><p className="text-sm text-muted-foreground">Carregando dados protegidos...</p></AppShell>;
- const pending = request.status === "awaiting_approval";
- const approveNow = (patientId?: string) => approve.mutate(patientId ? { id, existingPatientId: patientId } : { id }, { onSuccess: (patientId) => { toast.success(patientId ? "Pré-cadastro aprovado e paciente atualizado." : "Pré-cadastro aprovado."); navigate({ to: "/pacientes" }); }, onError: (e) => toast.error(e.message) });
- return <AppShell title="Revisar pré-cadastro" description="Dados visíveis apenas no seu espaço profissional"><div className="mx-auto max-w-4xl space-y-5"><div className="surface flex flex-wrap items-center justify-between gap-3 p-5"><div><h2 className="text-xl font-semibold">{request.full_name}</h2><p className="text-sm text-muted-foreground">Enviado em {new Date(request.submitted_at).toLocaleString("pt-BR")}</p></div><Badge>{request.status === "awaiting_approval" ? "Aguardando aprovação" : request.status === "approved" ? "Aprovado" : "Recusado"}</Badge></div>{pending && duplicates && duplicates.length > 0 && <section className="rounded-xl border border-accent/40 bg-accent/10 p-5"><div className="flex gap-3"><AlertTriangle className="mt-0.5 size-5 text-accent" /><div><h2 className="font-semibold">Possível cadastro existente</h2><p className="mt-1 text-sm text-muted-foreground">Não haverá mesclagem automática. Revise e escolha se deseja vincular.</p></div></div><div className="mt-4 space-y-2">{duplicates.map((item) => <div key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-background p-3"><div><p className="text-sm font-medium">{item.full_name}</p><p className="text-xs text-muted-foreground">Coincidência: {item.reasons.join(", ")}</p></div><Button size="sm" variant="outline" disabled={approve.isPending} onClick={() => approveNow(item.id)}>Vincular e aprovar</Button></div>)}</div></section>}<section className="surface p-5 sm:p-7"><h2 className="text-lg font-semibold">Dados informados</h2><div className="mt-5 grid gap-x-8 gap-y-4 sm:grid-cols-2"><Detail label="Nome" value={request.full_name} /><Detail label="CPF" value={request.cpf} /><Detail label="Nascimento" value={new Date(`${request.birth_date}T12:00:00`).toLocaleDateString("pt-BR")} /><Detail label="E-mail" value={request.email} /><Detail label="Telefone" value={request.phone} /><Detail label="Endereço" value={[request.street, request.address_number, request.neighborhood, request.city, request.state].filter(Boolean).join(", ")} /><Detail label="Motivo da busca" value={request.therapy_reason} wide /><Detail label="Terapia anterior" value={answer(request.previous_therapy, request.previous_therapy_details)} wide /><Detail label="Diagnóstico comunicado" value={answer(request.medical_diagnosis, request.medical_diagnosis_details)} wide /><Detail label="Uso de medicamentos" value={answer(request.medication_use, request.medication_details)} wide /><Detail label="Histórico familiar" value={answer(request.family_mental_health, request.family_mental_health_details)} wide />{request.guardian_name && <Detail label="Responsável" value={`${request.guardian_name}${request.guardian_relationship ? ` · ${request.guardian_relationship}` : ""}`} wide />}</div></section>{pending && <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><Button variant="outline" className="gap-2 text-destructive" onClick={() => setRejectOpen(true)}><XCircle className="size-4" /> Recusar</Button><Button className="gap-2" disabled={approve.isPending} onClick={() => approveNow()}><CheckCircle2 className="size-4" /> Aprovar como novo paciente</Button></div>}</div><Dialog open={rejectOpen} onOpenChange={setRejectOpen}><DialogContent><DialogHeader><DialogTitle>Recusar solicitação</DialogTitle><DialogDescription>O paciente não será adicionado ao cadastro oficial.</DialogDescription></DialogHeader><Input placeholder="Motivo interno da recusa" value={reason} onChange={(e) => setReason(e.target.value)} /><DialogFooter><Button variant="destructive" disabled={!reason.trim() || reject.isPending} onClick={() => reject.mutate({ id, reason }, { onSuccess: () => { toast.success("Solicitação recusada."); setRejectOpen(false); navigate({ to: "/pacientes/pre-cadastros" }); }, onError: (e) => toast.error(e.message) })}>Confirmar recusa</Button></DialogFooter></DialogContent></Dialog></AppShell>;
+export const Route = createFileRoute("/_authenticated/pacientes/pre-cadastros/$id")({
+  head: () => ({
+    meta: [
+      { title: "Revisar pré-cadastro — TeraClini" },
+      {
+        name: "description",
+        content: "Revise e aprove dados protegidos de uma solicitação de pré-cadastro.",
+      },
+      { property: "og:title", content: "Revisar pré-cadastro — TeraClini" },
+      {
+        property: "og:description",
+        content: "Revise e aprove dados protegidos de uma solicitação de pré-cadastro.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: Page,
+});
+function Page() {
+  const { id } = Route.useParams();
+  const navigate = useNavigate();
+  const { data: request, isLoading } = useRegistrationRequest(id);
+  const { data: duplicates } = useRegistrationDuplicates(id);
+  const approve = useApproveRegistration();
+  const reject = useRejectRegistration();
+  const [reason, setReason] = useState("");
+  const [rejectOpen, setRejectOpen] = useState(false);
+  if (isLoading || !request)
+    return (
+      <AppShell title="Revisar pré-cadastro">
+        <p className="text-sm text-muted-foreground">Carregando dados protegidos...</p>
+      </AppShell>
+    );
+  const pending = request.status === "awaiting_approval";
+  const approveNow = (patientId?: string) =>
+    approve.mutate(patientId ? { id, existingPatientId: patientId } : { id }, {
+      onSuccess: (patientId) => {
+        toast.success(
+          patientId ? "Pré-cadastro aprovado e paciente atualizado." : "Pré-cadastro aprovado.",
+        );
+        navigate({ to: "/pacientes" });
+      },
+      onError: (e) => toast.error(e.message),
+    });
+  return (
+    <AppShell
+      title="Revisar pré-cadastro"
+      description="Dados visíveis apenas no seu espaço profissional"
+    >
+      <div className="mx-auto max-w-4xl space-y-5">
+        <div className="surface flex flex-wrap items-center justify-between gap-3 p-5">
+          <div>
+            <h2 className="text-xl font-semibold">{request.full_name}</h2>
+            <p className="text-sm text-muted-foreground">
+              Enviado em {new Date(request.submitted_at).toLocaleString("pt-BR")}
+            </p>
+          </div>
+          <Badge>
+            {request.status === "awaiting_approval"
+              ? "Aguardando aprovação"
+              : request.status === "approved"
+                ? "Aprovado"
+                : "Recusado"}
+          </Badge>
+        </div>
+        {pending && duplicates && duplicates.length > 0 && (
+          <section className="rounded-xl border border-accent/40 bg-accent/10 p-5">
+            <div className="flex gap-3">
+              <AlertTriangle className="mt-0.5 size-5 text-accent" />
+              <div>
+                <h2 className="font-semibold">Possível cadastro existente</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Não haverá mesclagem automática. Revise e escolha se deseja vincular.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 space-y-2">
+              {duplicates.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-background p-3"
+                >
+                  <div>
+                    <p className="text-sm font-medium">{item.full_name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Coincidência: {item.reasons.join(", ")}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={approve.isPending}
+                    onClick={() => approveNow(item.id)}
+                  >
+                    Vincular e aprovar
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+        <section className="surface p-5 sm:p-7">
+          <h2 className="text-lg font-semibold">Dados informados</h2>
+          <div className="mt-5 grid gap-x-8 gap-y-4 sm:grid-cols-2">
+            <Detail label="Nome" value={request.full_name} />
+            <Detail label="CPF" value={request.cpf} />
+            <Detail
+              label="Nascimento"
+              value={new Date(`${request.birth_date}T12:00:00`).toLocaleDateString("pt-BR")}
+            />
+            <Detail label="E-mail" value={request.email} />
+            <Detail label="Telefone" value={request.phone} />
+            <Detail
+              label="Endereço"
+              value={[
+                request.street,
+                request.address_number,
+                request.neighborhood,
+                request.city,
+                request.state,
+              ]
+                .filter(Boolean)
+                .join(", ")}
+            />
+            <Detail label="Motivo da busca" value={request.therapy_reason} wide />
+            <Detail
+              label="Terapia anterior"
+              value={answer(request.previous_therapy, request.previous_therapy_details)}
+              wide
+            />
+            <Detail
+              label="Diagnóstico comunicado"
+              value={answer(request.medical_diagnosis, request.medical_diagnosis_details)}
+              wide
+            />
+            <Detail
+              label="Uso de medicamentos"
+              value={answer(request.medication_use, request.medication_details)}
+              wide
+            />
+            <Detail
+              label="Histórico familiar"
+              value={answer(request.family_mental_health, request.family_mental_health_details)}
+              wide
+            />
+            {request.guardian_name && (
+              <Detail
+                label="Responsável"
+                value={`${request.guardian_name}${request.guardian_relationship ? ` · ${request.guardian_relationship}` : ""}`}
+                wide
+              />
+            )}
+          </div>
+        </section>
+        {pending && (
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <Button
+              variant="outline"
+              className="gap-2 text-destructive"
+              onClick={() => setRejectOpen(true)}
+            >
+              <XCircle className="size-4" /> Recusar
+            </Button>
+            <Button className="gap-2" disabled={approve.isPending} onClick={() => approveNow()}>
+              <CheckCircle2 className="size-4" /> Aprovar como novo paciente
+            </Button>
+          </div>
+        )}
+      </div>
+      <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Recusar solicitação</DialogTitle>
+            <DialogDescription>
+              O paciente não será adicionado ao cadastro oficial.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            placeholder="Motivo interno da recusa"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+          />
+          <DialogFooter>
+            <Button
+              variant="destructive"
+              disabled={!reason.trim() || reject.isPending}
+              onClick={() =>
+                reject.mutate(
+                  { id, reason },
+                  {
+                    onSuccess: () => {
+                      toast.success("Solicitação recusada.");
+                      setRejectOpen(false);
+                      navigate({ to: "/pacientes/pre-cadastros" });
+                    },
+                    onError: (e) => toast.error(e.message),
+                  },
+                )
+              }
+            >
+              Confirmar recusa
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </AppShell>
+  );
 }
-function Detail({ label, value, wide }: { label: string; value: string | null; wide?: boolean }) { return <div className={wide ? "sm:col-span-2" : ""}><p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p><p className="mt-1 whitespace-pre-wrap text-sm">{value || "Não informado"}</p></div>; }
-function answer(value: string, details: string | null) { const labels: Record<string, string> = { sim: "Sim", nao: "Não", nao_sei: "Não sei", prefiro_nao_informar: "Preferiu não informar" }; return `${labels[value] ?? value}${details ? ` — ${details}` : ""}`; }
+function Detail({ label, value, wide }: { label: string; value: string | null; wide?: boolean }) {
+  return (
+    <div className={wide ? "sm:col-span-2" : ""}>
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="mt-1 whitespace-pre-wrap text-sm">{value || "Não informado"}</p>
+    </div>
+  );
+}
+function answer(value: string, details: string | null) {
+  const labels: Record<string, string> = {
+    sim: "Sim",
+    nao: "Não",
+    nao_sei: "Não sei",
+    prefiro_nao_informar: "Preferiu não informar",
+  };
+  return `${labels[value] ?? value}${details ? ` — ${details}` : ""}`;
+}

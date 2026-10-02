@@ -31,6 +31,10 @@ function LocationsPage() {
   const [editing, setEditing] = useState<Location | undefined>();
 
   async function handleDelete(location: Location) {
+    const confirmed = window.confirm(
+      "Excluir este local? Os atendimentos existentes serão preservados, mas deixarão de mostrar este local.",
+    );
+    if (!confirmed) return;
     try {
       await deleteLocation.mutateAsync(location.id);
       toast.success("Local removido.");
