@@ -27,7 +27,9 @@ import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authentic
 import { Route as PreCadastroTokenRouteImport } from './routes/pre-cadastro.$token'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
 import { Route as AdminAdminAssinaturasRouteImport } from './routes/_admin/admin.assinaturas'
+import { Route as AdminAdminConfiguracoesRouteImport } from './routes/_admin/admin.configuracoes'
 import { Route as AdminAdminPagamentosRouteImport } from './routes/_admin/admin.pagamentos'
+import { Route as AdminAdminRelatoriosRouteImport } from './routes/_admin/admin.relatorios'
 import { Route as AdminAdminUsuariosRouteImport } from './routes/_admin/admin.usuarios'
 import { Route as AuthenticatedAtendimentosIdRouteImport } from './routes/_authenticated/atendimentos.$id'
 import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes.index'
@@ -125,9 +127,19 @@ const AdminAdminAssinaturasRoute = AdminAdminAssinaturasRouteImport.update({
   path: '/assinaturas',
   getParentRoute: () => AdminAdminRoute,
 } as any)
+const AdminAdminConfiguracoesRoute = AdminAdminConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
 const AdminAdminPagamentosRoute = AdminAdminPagamentosRouteImport.update({
   id: '/pagamentos',
   path: '/pagamentos',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
+const AdminAdminRelatoriosRoute = AdminAdminRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
   getParentRoute: () => AdminAdminRoute,
 } as any)
 const AdminAdminUsuariosRoute = AdminAdminUsuariosRouteImport.update({
@@ -187,7 +199,9 @@ export interface FileRoutesByFullPath {
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/pre-cadastro/$token': typeof PreCadastroTokenRoute
   '/admin/assinaturas': typeof AdminAdminAssinaturasRoute
+  '/admin/configuracoes': typeof AdminAdminConfiguracoesRoute
   '/admin/pagamentos': typeof AdminAdminPagamentosRoute
+  '/admin/relatorios': typeof AdminAdminRelatoriosRoute
   '/admin/usuarios': typeof AdminAdminUsuariosRoute
   '/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
@@ -212,7 +226,9 @@ export interface FileRoutesByTo {
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/pre-cadastro/$token': typeof PreCadastroTokenRoute
   '/admin/assinaturas': typeof AdminAdminAssinaturasRoute
+  '/admin/configuracoes': typeof AdminAdminConfiguracoesRoute
   '/admin/pagamentos': typeof AdminAdminPagamentosRoute
+  '/admin/relatorios': typeof AdminAdminRelatoriosRoute
   '/admin/usuarios': typeof AdminAdminUsuariosRoute
   '/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
@@ -241,7 +257,9 @@ export interface FileRoutesById {
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/pre-cadastro/$token': typeof PreCadastroTokenRoute
   '/_admin/admin/assinaturas': typeof AdminAdminAssinaturasRoute
+  '/_admin/admin/configuracoes': typeof AdminAdminConfiguracoesRoute
   '/_admin/admin/pagamentos': typeof AdminAdminPagamentosRoute
+  '/_admin/admin/relatorios': typeof AdminAdminRelatoriosRoute
   '/_admin/admin/usuarios': typeof AdminAdminUsuariosRoute
   '/_authenticated/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
   '/_authenticated/pacientes/$id': typeof AuthenticatedPacientesIdRoute
@@ -269,7 +287,9 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/pre-cadastro/$token'
     | '/admin/assinaturas'
+    | '/admin/configuracoes'
     | '/admin/pagamentos'
+    | '/admin/relatorios'
     | '/admin/usuarios'
     | '/atendimentos/$id'
     | '/pacientes/$id'
@@ -294,7 +314,9 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/pre-cadastro/$token'
     | '/admin/assinaturas'
+    | '/admin/configuracoes'
     | '/admin/pagamentos'
+    | '/admin/relatorios'
     | '/admin/usuarios'
     | '/atendimentos/$id'
     | '/pacientes/$id'
@@ -322,7 +344,9 @@ export interface FileRouteTypes {
     | '/_authenticated/relatorios'
     | '/pre-cadastro/$token'
     | '/_admin/admin/assinaturas'
+    | '/_admin/admin/configuracoes'
     | '/_admin/admin/pagamentos'
+    | '/_admin/admin/relatorios'
     | '/_admin/admin/usuarios'
     | '/_authenticated/atendimentos/$id'
     | '/_authenticated/pacientes/$id'
@@ -471,11 +495,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminAssinaturasRouteImport
       parentRoute: typeof AdminAdminRoute
     }
+    '/_admin/admin/configuracoes': {
+      id: '/_admin/admin/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/admin/configuracoes'
+      preLoaderRoute: typeof AdminAdminConfiguracoesRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
     '/_admin/admin/pagamentos': {
       id: '/_admin/admin/pagamentos'
       path: '/pagamentos'
       fullPath: '/admin/pagamentos'
       preLoaderRoute: typeof AdminAdminPagamentosRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
+    '/_admin/admin/relatorios': {
+      id: '/_admin/admin/relatorios'
+      path: '/relatorios'
+      fullPath: '/admin/relatorios'
+      preLoaderRoute: typeof AdminAdminRelatoriosRouteImport
       parentRoute: typeof AdminAdminRoute
     }
     '/_admin/admin/usuarios': {
@@ -532,14 +570,18 @@ declare module '@tanstack/react-router' {
 
 interface AdminAdminRouteChildren {
   AdminAdminAssinaturasRoute: typeof AdminAdminAssinaturasRoute
+  AdminAdminConfiguracoesRoute: typeof AdminAdminConfiguracoesRoute
   AdminAdminPagamentosRoute: typeof AdminAdminPagamentosRoute
+  AdminAdminRelatoriosRoute: typeof AdminAdminRelatoriosRoute
   AdminAdminUsuariosRoute: typeof AdminAdminUsuariosRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
 }
 
 const AdminAdminRouteChildren: AdminAdminRouteChildren = {
   AdminAdminAssinaturasRoute: AdminAdminAssinaturasRoute,
+  AdminAdminConfiguracoesRoute: AdminAdminConfiguracoesRoute,
   AdminAdminPagamentosRoute: AdminAdminPagamentosRoute,
+  AdminAdminRelatoriosRoute: AdminAdminRelatoriosRoute,
   AdminAdminUsuariosRoute: AdminAdminUsuariosRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
 }
