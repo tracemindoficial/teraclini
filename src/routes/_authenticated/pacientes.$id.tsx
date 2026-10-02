@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { CalendarPlus, Pencil, Plus } from "lucide-react";
+import { z } from "zod";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { AppointmentDialog } from "@/components/AppointmentDialog";
@@ -36,9 +37,7 @@ import {
 } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/pacientes/$id")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    schedule: search["schedule"] === true || search["schedule"] === "true" || undefined,
-  }),
+  validateSearch: z.object({ schedule: z.coerce.boolean().optional() }),
   head: () => ({
     meta: [
       { title: "Prontuário do Paciente — TeraClini" },

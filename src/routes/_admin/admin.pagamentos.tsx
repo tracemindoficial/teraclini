@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { AdminShell, AdminState } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
@@ -10,9 +11,7 @@ import { adminKeys, useAdminPayments } from "@/lib/data/admin";
 import { confirmAdminPayment } from "@/lib/platform-admin.functions";
 
 export const Route = createFileRoute("/_admin/admin/pagamentos")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    payment: typeof search["payment"] === "string" ? search["payment"] : undefined,
-  }),
+  validateSearch: z.object({ payment: z.string().uuid().optional() }),
   head: () => ({
     meta: [
       { title: "Pagamentos — Administração TeraClini" },

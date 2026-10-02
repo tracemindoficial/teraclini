@@ -8,11 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 export const Route = createFileRoute("/_admin/admin/assinaturas")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    account: typeof search["account"] === "string" ? search["account"] : undefined,
-  }),
+  validateSearch: z.object({ account: z.string().uuid().optional() }),
   head: () => ({
     meta: [
       { title: "Assinaturas — Administração TeraClini" },

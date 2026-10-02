@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
 import { AdminShell, AdminState } from "@/components/admin/AdminShell";
 import { SupportStatusBadge } from "@/components/support/SupportStatusBadge";
 import { Button } from "@/components/ui/button";
@@ -20,9 +21,7 @@ import {
 import type { SupportStatus } from "@/lib/data/support";
 
 export const Route = createFileRoute("/_admin/admin/suporte")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    ticket: typeof search["ticket"] === "string" ? search["ticket"] : undefined,
-  }),
+  validateSearch: z.object({ ticket: z.string().uuid().optional() }),
   head: () => ({
     meta: [
       { title: "Suporte — Administração TeraClini" },
