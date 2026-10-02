@@ -32,7 +32,9 @@ function AdminSubscriptionsPage() {
     const labels = { change_plan: "trocar o plano", activate: "ativar a licença", restrict: "suspender a licença", extend: "estender o vencimento por 30 dias", cancel: "cancelar a licença", reactivate: "reativar a licença" };
     if (!window.confirm(`Confirma ${labels[action]}?`)) return;
     try {
-      await manage.mutateAsync({ accountId, action, planId: action === "change_plan" ? planByAccount[accountId] : undefined, days: action === "extend" ? 30 : undefined, confirm: true });
+      const planId = action === "change_plan" ? planByAccount[accountId] : undefined;
+      const days = action === "extend" ? 30 : undefined;
+      await manage.mutateAsync({ accountId, action, ...(planId ? { planId } : {}), ...(days ? { days } : {}), confirm: true });
       toast.success("Licença atualizada.");
     } catch (error) { toast.error(error instanceof Error ? error.message : "Não foi possível atualizar a licença."); }
   }
