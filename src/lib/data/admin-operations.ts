@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   getAdminNotifications, getAdminUserHistory, manageAdminSubscription,
   listAdminSubscriptionPlans,
-  markAdminNotificationRead, requireAdminPasswordReset, resendAdminAccessInstructions,
+  markAdminNotificationRead, markAllAdminNotificationsRead, requireAdminPasswordReset, resendAdminAccessInstructions,
   revokeAdminUserSessions, sendAdminPasswordReset, updateAdminUserEmail, updateAdminUserProfile,
 } from "@/lib/admin-operations.functions";
 
@@ -46,4 +46,8 @@ export function useAdminNotifications() {
 export function useMarkAdminNotificationRead() {
   const client = useQueryClient(); const fn = useServerFn(markAdminNotificationRead);
   return useMutation({ mutationFn: (key: string) => fn({ data: { key } }), onSuccess: () => client.invalidateQueries({ queryKey: ["admin", "notifications"] }) });
+}
+export function useMarkAllAdminNotificationsRead() {
+  const client = useQueryClient(); const fn = useServerFn(markAllAdminNotificationsRead);
+  return useMutation({ mutationFn: (keys: string[]) => fn({ data: { keys } }), onSuccess: () => client.invalidateQueries({ queryKey: ["admin", "notifications"] }) });
 }

@@ -677,45 +677,12 @@ export const confirmAdminPayment = createServerFn({ method: "POST" })
   .middleware([requirePlatformAdmin])
   .inputValidator((input) => paymentActionInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { data: payment, error: readError } = await context.supabaseAdmin
-      .from("payments")
-      .select("id, account_id, status, amount_cents")
-      .eq("id", data.paymentId)
-      .single();
-    if (readError || !payment) throw new Error("Pagamento não encontrado.");
-    if (payment.status === "confirmed") return { ok: true, unchanged: true };
-    if (["refunded", "cancelled"].includes(payment.status))
-      throw new Error("Este pagamento não pode ser confirmado.");
-    const now = new Date().toISOString();
-    const { error } = await context.supabaseAdmin
-      .from("payments")
-      .update({
-        status: "confirmed",
-        paid_at: now,
-        confirmed_at: now,
-        confirmed_by: context.userId,
-        confirmation_source: "manual_admin",
-      })
-      .eq("id", payment.id);
-    if (error) throw new Error("Não foi possível confirmar o pagamento.");
-    const { error: eventError } = await context.supabaseAdmin.from("payment_events").insert({
-      payment_id: payment.id,
-      account_id: payment.account_id,
-      actor_user_id: context.userId,
-      event_type: "manual_confirmation",
-      previous_status: payment.status,
-      new_status: "confirmed",
-      amount_cents: payment.amount_cents,
+    if (!["super_admin", "finance_admin"].includes(context.platformAdminRole))
+      throw new Response("Forbidden", { status: 403 });
+    const { data: changed, error } = await context.supabaseAdmin.rpc("admin_confirm_payment", {
+      _actor_user_id: context.userId,
+      _payment_id: data.paymentId,
     });
-    if (eventError) throw new Error("Pagamento confirmado, mas o histórico não foi registrado.");
-    await recordAudit(
-      context.supabaseAdmin,
-      context.userId,
-      "payment.confirm",
-      "payment",
-      payment.id,
-      payment.account_id,
-      ["status", "paid_at", "confirmed_at", "confirmed_by", "confirmation_source"],
-    );
-    return { ok: true, unchanged: false };
+    if (error) throw new Error(error.message || "Não foi possível confirmar o pagamento.");
+    return { ok: true, unchanged: !changed };
   });
