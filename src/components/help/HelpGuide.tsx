@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
 import { BookOpenCheck, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,6 @@ export function startHelpGuide(slug: string, routePath: string | null) {
 export function HelpGuide() {
   const [slug, setSlug] = useState<string | null>(null);
   const [step, setStep] = useState(0);
-  const navigate = useNavigate();
   const completion = useCompleteHelpTutorial();
   const { data: tutorial } = useHelpTutorial(slug ?? "");
 
@@ -29,9 +27,9 @@ export function HelpGuide() {
 
   useEffect(() => {
     if (!tutorial?.route_path) return;
-    navigate({ to: tutorial.route_path });
+    if (window.location.pathname !== tutorial.route_path) window.location.assign(tutorial.route_path);
     recordHelpEvent({ eventType: "guide_started", tutorialId: tutorial.id }).catch(() => undefined);
-  }, [tutorial?.id]);
+  }, [tutorial?.id, tutorial?.route_path]);
 
   const steps = tutorial?.steps ?? [];
   const activeStep = steps[step];

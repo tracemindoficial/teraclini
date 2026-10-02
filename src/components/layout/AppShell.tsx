@@ -265,6 +265,16 @@ export function AppShell({
                 ) : null}
               </div>
               <div className="flex shrink-0 items-center gap-2">
+                {!pathname.startsWith("/ajuda") ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button asChild variant="ghost" size="icon" aria-label="Ajuda desta página">
+                        <Link to="/ajuda"><HelpCircle className="size-4.5" /></Link>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Ajuda desta página</TooltipContent>
+                  </Tooltip>
+                ) : null}
                 <Button
                   variant="outline"
                   size="icon"

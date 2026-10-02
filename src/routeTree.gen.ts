@@ -28,6 +28,7 @@ import { Route as AuthenticatedPacotesRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as PreCadastroTokenRouteImport } from './routes/pre-cadastro.$token'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
+import { Route as AdminAdminAjudaRouteImport } from './routes/_admin/admin.ajuda'
 import { Route as AdminAdminAssinaturasRouteImport } from './routes/_admin/admin.assinaturas'
 import { Route as AdminAdminAuditoriaRouteImport } from './routes/_admin/admin.auditoria'
 import { Route as AdminAdminConfiguracoesRouteImport } from './routes/_admin/admin.configuracoes'
@@ -140,6 +141,11 @@ const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminAdminRoute,
 } as any)
+const AdminAdminAjudaRoute = AdminAdminAjudaRouteImport.update({
+  id: '/ajuda',
+  path: '/ajuda',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
 const AdminAdminAssinaturasRoute = AdminAdminAssinaturasRouteImport.update({
   id: '/assinaturas',
   path: '/assinaturas',
@@ -248,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/pacotes': typeof AuthenticatedPacotesRouteWithChildren
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/pre-cadastro/$token': typeof PreCadastroTokenRoute
+  '/admin/ajuda': typeof AdminAdminAjudaRoute
   '/admin/assinaturas': typeof AdminAdminAssinaturasRoute
   '/admin/auditoria': typeof AdminAdminAuditoriaRoute
   '/admin/configuracoes': typeof AdminAdminConfiguracoesRoute
@@ -282,6 +289,7 @@ export interface FileRoutesByTo {
   '/pacotes': typeof AuthenticatedPacotesRouteWithChildren
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/pre-cadastro/$token': typeof PreCadastroTokenRoute
+  '/admin/ajuda': typeof AdminAdminAjudaRoute
   '/admin/assinaturas': typeof AdminAdminAssinaturasRoute
   '/admin/auditoria': typeof AdminAdminAuditoriaRoute
   '/admin/configuracoes': typeof AdminAdminConfiguracoesRoute
@@ -321,6 +329,7 @@ export interface FileRoutesById {
   '/_authenticated/pacotes': typeof AuthenticatedPacotesRouteWithChildren
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/pre-cadastro/$token': typeof PreCadastroTokenRoute
+  '/_admin/admin/ajuda': typeof AdminAdminAjudaRoute
   '/_admin/admin/assinaturas': typeof AdminAdminAssinaturasRoute
   '/_admin/admin/auditoria': typeof AdminAdminAuditoriaRoute
   '/_admin/admin/configuracoes': typeof AdminAdminConfiguracoesRoute
@@ -359,6 +368,7 @@ export interface FileRouteTypes {
     | '/pacotes'
     | '/relatorios'
     | '/pre-cadastro/$token'
+    | '/admin/ajuda'
     | '/admin/assinaturas'
     | '/admin/auditoria'
     | '/admin/configuracoes'
@@ -393,6 +403,7 @@ export interface FileRouteTypes {
     | '/pacotes'
     | '/relatorios'
     | '/pre-cadastro/$token'
+    | '/admin/ajuda'
     | '/admin/assinaturas'
     | '/admin/auditoria'
     | '/admin/configuracoes'
@@ -431,6 +442,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pacotes'
     | '/_authenticated/relatorios'
     | '/pre-cadastro/$token'
+    | '/_admin/admin/ajuda'
     | '/_admin/admin/assinaturas'
     | '/_admin/admin/auditoria'
     | '/_admin/admin/configuracoes'
@@ -597,6 +609,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminIndexRouteImport
       parentRoute: typeof AdminAdminRoute
     }
+    '/_admin/admin/ajuda': {
+      id: '/_admin/admin/ajuda'
+      path: '/ajuda'
+      fullPath: '/admin/ajuda'
+      preLoaderRoute: typeof AdminAdminAjudaRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
     '/_admin/admin/assinaturas': {
       id: '/_admin/admin/assinaturas'
       path: '/assinaturas'
@@ -731,6 +750,7 @@ const AdminAdminUsuariosRouteWithChildren =
   AdminAdminUsuariosRoute._addFileChildren(AdminAdminUsuariosRouteChildren)
 
 interface AdminAdminRouteChildren {
+  AdminAdminAjudaRoute: typeof AdminAdminAjudaRoute
   AdminAdminAssinaturasRoute: typeof AdminAdminAssinaturasRoute
   AdminAdminAuditoriaRoute: typeof AdminAdminAuditoriaRoute
   AdminAdminConfiguracoesRoute: typeof AdminAdminConfiguracoesRoute
@@ -743,6 +763,7 @@ interface AdminAdminRouteChildren {
 }
 
 const AdminAdminRouteChildren: AdminAdminRouteChildren = {
+  AdminAdminAjudaRoute: AdminAdminAjudaRoute,
   AdminAdminAssinaturasRoute: AdminAdminAssinaturasRoute,
   AdminAdminAuditoriaRoute: AdminAdminAuditoriaRoute,
   AdminAdminConfiguracoesRoute: AdminAdminConfiguracoesRoute,
