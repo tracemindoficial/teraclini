@@ -14,8 +14,10 @@ import { Route as AdminRouteRouteImport } from './routes/_admin/route'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContaIndisponivelRouteImport } from './routes/conta-indisponivel'
+import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AdminAdminRouteImport } from './routes/_admin/admin'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedAjudaRouteImport } from './routes/_authenticated/ajuda'
@@ -74,6 +76,11 @@ const ContaIndisponivelRoute = ContaIndisponivelRouteImport.update({
   path: '/conta-indisponivel',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlanosRoute = PlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacidadeRoute = PrivacidadeRouteImport.update({
   id: '/privacidade',
   path: '/privacidade',
@@ -82,6 +89,11 @@ const PrivacidadeRoute = PrivacidadeRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminAdminRoute = AdminAdminRouteImport.update({
@@ -265,8 +277,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/conta-indisponivel': typeof ContaIndisponivelRoute
+  '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/termos': typeof TermosRoute
   '/admin': typeof AdminAdminRouteWithChildren
   '/agenda': typeof AuthenticatedAgendaRoute
   '/ajuda': typeof AuthenticatedAjudaRouteWithChildren
@@ -306,8 +320,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/conta-indisponivel': typeof ContaIndisponivelRoute
+  '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/termos': typeof TermosRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/documentos': typeof AuthenticatedDocumentosRoute
@@ -348,8 +364,10 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/conta-indisponivel': typeof ContaIndisponivelRoute
+  '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/termos': typeof TermosRoute
   '/_admin/admin': typeof AdminAdminRouteWithChildren
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/ajuda': typeof AuthenticatedAjudaRouteWithChildren
@@ -391,8 +409,10 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/conta-indisponivel'
+    | '/planos'
     | '/privacidade'
     | '/reset-password'
+    | '/termos'
     | '/admin'
     | '/agenda'
     | '/ajuda'
@@ -432,8 +452,10 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/conta-indisponivel'
+    | '/planos'
     | '/privacidade'
     | '/reset-password'
+    | '/termos'
     | '/agenda'
     | '/configuracoes'
     | '/documentos'
@@ -473,8 +495,10 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/conta-indisponivel'
+    | '/planos'
     | '/privacidade'
     | '/reset-password'
+    | '/termos'
     | '/_admin/admin'
     | '/_authenticated/agenda'
     | '/_authenticated/ajuda'
@@ -517,8 +541,10 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ContaIndisponivelRoute: typeof ContaIndisponivelRoute
+  PlanosRoute: typeof PlanosRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  TermosRoute: typeof TermosRoute
   PreCadastroTokenRoute: typeof PreCadastroTokenRoute
 }
 
@@ -559,6 +585,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContaIndisponivelRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/planos': {
+      id: '/planos'
+      path: '/planos'
+      fullPath: '/planos'
+      preLoaderRoute: typeof PlanosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacidade': {
       id: '/privacidade'
       path: '/privacidade'
@@ -571,6 +604,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_admin/admin': {
@@ -956,8 +996,10 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ContaIndisponivelRoute: ContaIndisponivelRoute,
+  PlanosRoute: PlanosRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  TermosRoute: TermosRoute,
   PreCadastroTokenRoute: PreCadastroTokenRoute,
 }
 export const routeTree = rootRouteImport

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 
 import { BrandLogo } from "@/components/brand/BrandLogo";
@@ -35,6 +36,6 @@ export function MarketingFooter() {
   );
 }
 
-function FooterGroup({ title, children }: { title: string; children: React.ReactNode }) {
+function FooterGroup({ title, children }: { title: string; children: ReactNode }) {
   return <div className="flex flex-col items-start gap-3 [&_a]:text-muted-foreground [&_a]:transition-colors [&_a:hover]:text-foreground"><p className="font-semibold text-foreground">{title}</p>{children}</div>;
 }
