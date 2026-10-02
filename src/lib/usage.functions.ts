@@ -39,14 +39,12 @@ export const recordUsageEvent = createServerFn({ method: "POST" })
       .limit(1)
       .maybeSingle();
     if (existing) return { recorded: false as const };
-    const { error } = await supabaseAdmin
-      .from("usage_events")
-      .insert({
-        account_id: accountId,
-        user_id: context.userId,
-        module: data.module,
-        action: data.action,
-      });
+    const { error } = await supabaseAdmin.from("usage_events").insert({
+      account_id: accountId,
+      user_id: context.userId,
+      module: data.module,
+      action: data.action,
+    });
     if (error) throw new Error("Não foi possível registrar a utilização técnica.");
     return { recorded: true as const };
   });

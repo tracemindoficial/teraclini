@@ -355,17 +355,15 @@ export const confirmAdminPayment = createServerFn({ method: "POST" })
       })
       .eq("id", payment.id);
     if (error) throw new Error("Não foi possível confirmar o pagamento.");
-    const { error: eventError } = await context.supabaseAdmin
-      .from("payment_events")
-      .insert({
-        payment_id: payment.id,
-        account_id: payment.account_id,
-        actor_user_id: context.userId,
-        event_type: "manual_confirmation",
-        previous_status: payment.status,
-        new_status: "confirmed",
-        amount_cents: payment.amount_cents,
-      });
+    const { error: eventError } = await context.supabaseAdmin.from("payment_events").insert({
+      payment_id: payment.id,
+      account_id: payment.account_id,
+      actor_user_id: context.userId,
+      event_type: "manual_confirmation",
+      previous_status: payment.status,
+      new_status: "confirmed",
+      amount_cents: payment.amount_cents,
+    });
     if (eventError) throw new Error("Pagamento confirmado, mas o histórico não foi registrado.");
     await recordAudit(
       context.supabaseAdmin,
