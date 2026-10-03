@@ -219,6 +219,17 @@ export const getAdminOverview = createServerFn({ method: "GET" })
 const userListInput = z.object({
   search: z.string().max(120).default(""),
   status: z.enum(["all", "active", "suspended", "closed"]).default("all"),
+  role: z
+    .enum([
+      "all",
+      "professional",
+      "super_admin",
+      "support_admin",
+      "analyst",
+      "finance_admin",
+      "content_admin",
+    ])
+    .default("all"),
   page: z.number().int().positive().default(1),
   pageSize: z.number().int().min(10).max(100).default(20),
   sort: z.enum(["newest", "oldest", "name", "last_activity"]).default("newest"),
@@ -350,7 +361,9 @@ export const listAdminUsers = createServerFn({ method: "POST" })
           row.name.toLocaleLowerCase("pt-BR").includes(search) ||
           row.email.toLocaleLowerCase("pt-BR").includes(search);
         const matchesStatus = data.status === "all" || row.accountStatus === data.status;
-        return matchesSearch && matchesStatus;
+        const matchesRole =
+          data.role === "all" || (row.platformRole ?? "professional") === data.role;
+        return matchesSearch && matchesStatus && matchesRole;
       })
       .sort((a, b) => {
         if (data.sort === "oldest")

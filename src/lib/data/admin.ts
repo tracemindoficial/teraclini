@@ -43,11 +43,7 @@ export function useAdminUsers(
   const fetcher = useServerFn(listAdminUsers);
   return useQuery({
     queryKey: [...adminKeys.users(search, status, sort, page), role],
-    queryFn: () => fetcher({ data: { search, status, sort, page, pageSize: 20 } }),
-    select: (data) => ({
-      ...data,
-      rows: data.rows.filter((row) => role === "all" || (row.platformRole ?? "professional") === role),
-    }),
+    queryFn: () => fetcher({ data: { search, status, role, sort, page, pageSize: 20 } }),
   });
 }
 

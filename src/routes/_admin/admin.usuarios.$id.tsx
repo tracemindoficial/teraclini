@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { ArrowLeft, Ban, CheckCircle2 } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, Ban, CheckCircle2, LockKeyhole, LockKeyholeOpen } from "lucide-react";
 import { toast } from "sonner";
 
 import { AdminMetric, AdminShell, AdminState } from "@/components/admin/AdminShell";
@@ -7,6 +8,7 @@ import { AdminUserOperations } from "@/components/admin/AdminUserOperations";
 import { Button } from "@/components/ui/button";
 import {
   useAdminUserDetail,
+  useSetAdminAccountBlock,
   useSetAdminAccountStatus,
   useSetPlatformAdminRole,
 } from "@/lib/data/admin";
@@ -18,6 +20,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAdminUserHistory } from "@/lib/data/admin-operations";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/_admin/admin/usuarios/$id")({
   head: () => ({
@@ -38,18 +49,40 @@ function AdminUserDetailPage() {
   const { id } = useParams({ from: "/_admin/admin/usuarios/$id" });
   const { data, isLoading, error } = useAdminUserDetail(id);
   const setStatus = useSetAdminAccountStatus(id);
+  const setBlock = useSetAdminAccountBlock(id);
   const setRole = useSetPlatformAdminRole(id);
   const history = useAdminUserHistory(id);
+  const [accessAction, setAccessAction] = useState<
+    "activate" | "deactivate" | "block" | "unblock" | null
+  >(null);
+  const [reason, setReason] = useState("");
 
-  async function changeStatus(status: "active" | "suspended") {
+  async function confirmAccessAction() {
     if (!data?.accountId) return;
-    const label = status === "active" ? "reativar" : "suspender";
-    if (!window.confirm(`Deseja realmente ${label} esta conta?`)) return;
     try {
-      await setStatus.mutateAsync({ accountId: data.accountId, status, confirm: true });
-      toast.success(status === "active" ? "Conta reativada." : "Conta suspensa.");
-    } catch {
-      toast.error("Não foi possível alterar a situação da conta.");
+      if (accessAction === "activate" || accessAction === "deactivate") {
+        await setStatus.mutateAsync({
+          accountId: data.accountId,
+          status: accessAction === "activate" ? "active" : "suspended",
+          reason,
+          confirm: true,
+        });
+        toast.success(accessAction === "activate" ? "Conta ativada." : "Conta desativada.");
+      } else if (accessAction === "block" || accessAction === "unblock") {
+        await setBlock.mutateAsync({
+          accountId: data.accountId,
+          blocked: accessAction === "block",
+          reason,
+          confirm: true,
+        });
+        toast.success(accessAction === "block" ? "Conta bloqueada." : "Conta desbloqueada.");
+      }
+      setAccessAction(null);
+      setReason("");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Não foi possível alterar o acesso da conta.",
+      );
     }
   }
 
@@ -72,26 +105,49 @@ function AdminUserDetailPage() {
       description="Informações cadastrais e indicadores operacionais"
       action={
         data.accountId ? (
-          data.accountStatus === "active" ? (
+          <div className="flex flex-wrap gap-2">
+            {data.accountBlocked ? (
+              <Button
+                variant="outline"
+                className="gap-2"
+                disabled={setBlock.isPending}
+                onClick={() => setAccessAction("unblock")}
+              >
+                <LockKeyholeOpen className="size-4" />
+                Desbloquear
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                className="gap-2"
+                disabled={setBlock.isPending}
+                onClick={() => setAccessAction("block")}
+              >
+                <LockKeyhole className="size-4" />
+                Bloquear
+              </Button>
+            )}
+            {data.accountStatus === "active" ? (
             <Button
               variant="destructive"
               className="gap-2"
               disabled={setStatus.isPending}
-              onClick={() => changeStatus("suspended")}
+              onClick={() => setAccessAction("deactivate")}
             >
               <Ban className="size-4" />
-              Suspender
+              Desativar
             </Button>
           ) : (
             <Button
               className="gap-2"
               disabled={setStatus.isPending}
-              onClick={() => changeStatus("active")}
+              onClick={() => setAccessAction("activate")}
             >
               <CheckCircle2 className="size-4" />
-              Reativar
+              Ativar
             </Button>
-          )
+            )}
+          </div>
         ) : undefined
       }
     >
@@ -113,6 +169,16 @@ function AdminUserDetailPage() {
           <DetailRow label="E-mail" value={data.email} />
           <DetailRow label="Profissão" value={data.profession ?? "—"} />
           <DetailRow label="Situação" value={statusLabel(data.accountStatus)} />
+          <DetailRow label="Bloqueio" value={data.accountBlocked ? "Bloqueada" : "Sem bloqueio"} />
+          {data.blockReason ? <DetailRow label="Justificativa" value={data.blockReason} /> : null}
+          <DetailRow
+            label="Última alteração de acesso"
+            value={
+              data.accessStateChangedAt
+                ? new Date(data.accessStateChangedAt).toLocaleString("pt-BR")
+                : "—"
+            }
+          />
           <DetailRow label="Perfil" value={data.platformRole ? "Administrador" : "Profissional"} />
           <DetailRow
             label="Cadastro"
@@ -192,6 +258,47 @@ function AdminUserDetailPage() {
           </ol>
         )}
       </section>
+      <Dialog
+        open={Boolean(accessAction)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setAccessAction(null);
+            setReason("");
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{accessActionTitle(accessAction)}</DialogTitle>
+            <DialogDescription>
+              Esta ação será aplicada a {data.name}, preservará todos os dados e ficará registrada.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            aria-label="Justificativa administrativa"
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            placeholder="Justificativa administrativa"
+            maxLength={500}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAccessAction(null)}>
+              Cancelar
+            </Button>
+            <Button
+              variant={accessAction === "deactivate" || accessAction === "block" ? "destructive" : "default"}
+              disabled={
+                setStatus.isPending ||
+                setBlock.isPending ||
+                ((accessAction === "deactivate" || accessAction === "block") && reason.trim().length < 3)
+              }
+              onClick={confirmAccessAction}
+            >
+              Confirmar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <section className="mt-6 grid gap-5 lg:grid-cols-2">
         <div className="surface p-5">
           <h2 className="font-semibold">Permissão administrativa</h2>
@@ -296,7 +403,14 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 
 function statusLabel(status: string) {
   if (status === "active") return "Ativa";
-  if (status === "suspended") return "Suspensa";
+  if (status === "suspended") return "Desativada";
   if (status === "closed") return "Encerrada";
   return "Sem conta vinculada";
+}
+
+function accessActionTitle(action: "activate" | "deactivate" | "block" | "unblock" | null) {
+  if (action === "activate") return "Ativar conta";
+  if (action === "deactivate") return "Desativar conta";
+  if (action === "block") return "Bloquear conta";
+  return "Desbloquear conta";
 }
