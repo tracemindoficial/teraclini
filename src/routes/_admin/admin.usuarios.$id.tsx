@@ -19,7 +19,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAdminUserDeletionPreview, useAdminUserHistory, useDeleteEmptyAdminUser } from "@/lib/data/admin-operations";
+import {
+  useAdminUserDeletionPreview,
+  useAdminUserHistory,
+  useDeleteEmptyAdminUser,
+} from "@/lib/data/admin-operations";
 import {
   Dialog,
   DialogContent,
@@ -380,8 +384,38 @@ function AdminUserDetailPage() {
       </section>
       <section className="surface mt-6 p-5">
         <h2 className="font-semibold">Pagamentos</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Registros administrativos locais. A confirmação em tempo real depende de um gateway integrado.</p>
-        {data.payments.length ? <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[680px] text-left text-sm"><thead className="border-b text-xs text-muted-foreground"><tr><th className="py-2">Situação</th><th>Valor</th><th>Vencimento</th><th>Transação</th><th>Atualização</th></tr></thead><tbody>{data.payments.map((payment) => <tr key={payment.id} className="border-b last:border-0"><td className="py-3">{payment.status}</td><td>{brlFromCents(payment.amount_cents)}</td><td>{new Date(`${payment.due_on}T00:00:00`).toLocaleDateString("pt-BR")}</td><td>{payment.transaction_id ?? payment.charge_id ?? "Sem identificador"}</td><td>{new Date(payment.updated_at).toLocaleString("pt-BR")}</td></tr>)}</tbody></table></div> : <p className="mt-4 text-sm text-muted-foreground">Sem registro de pagamento.</p>}
+        <p className="mt-1 text-sm text-muted-foreground">
+          Registros administrativos locais. A confirmação em tempo real depende de um gateway
+          integrado.
+        </p>
+        {data.payments.length ? (
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full min-w-[680px] text-left text-sm">
+              <thead className="border-b text-xs text-muted-foreground">
+                <tr>
+                  <th className="py-2">Situação</th>
+                  <th>Valor</th>
+                  <th>Vencimento</th>
+                  <th>Transação</th>
+                  <th>Atualização</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.payments.map((payment) => (
+                  <tr key={payment.id} className="border-b last:border-0">
+                    <td className="py-3">{payment.status}</td>
+                    <td>{brlFromCents(payment.amount_cents)}</td>
+                    <td>{new Date(`${payment.due_on}T00:00:00`).toLocaleDateString("pt-BR")}</td>
+                    <td>{payment.transaction_id ?? payment.charge_id ?? "Sem identificador"}</td>
+                    <td>{new Date(payment.updated_at).toLocaleString("pt-BR")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-muted-foreground">Sem registro de pagamento.</p>
+        )}
       </section>
       <section className="surface mt-6 p-5">
         <h2 className="font-semibold">Chamados recentes</h2>
@@ -406,14 +440,79 @@ function AdminUserDetailPage() {
       </section>
       <section className="surface mt-6 border-destructive/30 p-5">
         <h2 className="font-semibold">Excluir conta</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Disponível somente para contas vazias, sem dados clínicos, financeiros, suporte ou permissão administrativa.</p>
-        <Button variant="destructive" className="mt-4 gap-2" onClick={() => setDeleteOpen(true)}><Trash2 className="size-4" />Verificar exclusão</Button>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Disponível somente para contas vazias, sem dados clínicos, financeiros, suporte ou
+          permissão administrativa.
+        </p>
+        <Button variant="destructive" className="mt-4 gap-2" onClick={() => setDeleteOpen(true)}>
+          <Trash2 className="size-4" />
+          Verificar exclusão
+        </Button>
       </section>
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Excluir conta</DialogTitle><DialogDescription>A identidade e a conta vazia serão removidas. Dados vinculados bloqueiam esta ação.</DialogDescription></DialogHeader>
-          {deletionPreview.isLoading ? <p className="text-sm text-muted-foreground">Verificando dependências...</p> : deletionPreview.error ? <p className="text-sm text-destructive">Não foi possível verificar a conta.</p> : deletionPreview.data ? <div className="space-y-4"><div className="grid grid-cols-2 gap-2 text-sm"><span>Pacientes: {deletionPreview.data.counts.patients}</span><span>Atendimentos: {deletionPreview.data.counts.appointments}</span><span>Documentos: {deletionPreview.data.counts.documents}</span><span>Pagamentos: {deletionPreview.data.counts.payments}</span><span>Assinaturas: {deletionPreview.data.counts.subscriptions}</span><span>Suporte: {deletionPreview.data.counts.support}</span></div>{deletionPreview.data.canDelete ? <Input aria-label="Confirme o e-mail" placeholder="Digite o e-mail da conta" value={deleteConfirmation} onChange={(event) => setDeleteConfirmation(event.target.value)} /> : <p className="text-sm text-destructive">{deletionPreview.data.reason}</p>}</div> : null}
-          <DialogFooter><Button variant="outline" onClick={() => setDeleteOpen(false)}>Cancelar</Button><Button variant="destructive" disabled={!deletionPreview.data?.canDelete || deleteConfirmation.toLowerCase() !== data.email.toLowerCase() || deleteUser.isPending} onClick={async () => { try { await deleteUser.mutateAsync({ userId: id, confirmation: deleteConfirmation, confirm: true }); toast.success("Conta vazia excluída."); window.location.href = "/admin/usuarios"; } catch (error) { toast.error(error instanceof Error ? error.message : "Não foi possível excluir a conta."); } }}>Excluir definitivamente</Button></DialogFooter>
+          <DialogHeader>
+            <DialogTitle>Excluir conta</DialogTitle>
+            <DialogDescription>
+              A identidade e a conta vazia serão removidas. Dados vinculados bloqueiam esta ação.
+            </DialogDescription>
+          </DialogHeader>
+          {deletionPreview.isLoading ? (
+            <p className="text-sm text-muted-foreground">Verificando dependências...</p>
+          ) : deletionPreview.error ? (
+            <p className="text-sm text-destructive">Não foi possível verificar a conta.</p>
+          ) : deletionPreview.data ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <span>Pacientes: {deletionPreview.data.counts.patients}</span>
+                <span>Atendimentos: {deletionPreview.data.counts.appointments}</span>
+                <span>Documentos: {deletionPreview.data.counts.documents}</span>
+                <span>Pagamentos: {deletionPreview.data.counts.payments}</span>
+                <span>Assinaturas: {deletionPreview.data.counts.subscriptions}</span>
+                <span>Suporte: {deletionPreview.data.counts.support}</span>
+              </div>
+              {deletionPreview.data.canDelete ? (
+                <Input
+                  aria-label="Confirme o e-mail"
+                  placeholder="Digite o e-mail da conta"
+                  value={deleteConfirmation}
+                  onChange={(event) => setDeleteConfirmation(event.target.value)}
+                />
+              ) : (
+                <p className="text-sm text-destructive">{deletionPreview.data.reason}</p>
+              )}
+            </div>
+          ) : null}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={
+                !deletionPreview.data?.canDelete ||
+                deleteConfirmation.toLowerCase() !== data.email.toLowerCase() ||
+                deleteUser.isPending
+              }
+              onClick={async () => {
+                try {
+                  await deleteUser.mutateAsync({
+                    userId: id,
+                    confirmation: deleteConfirmation,
+                    confirm: true,
+                  });
+                  toast.success("Conta vazia excluída.");
+                  window.location.href = "/admin/usuarios";
+                } catch (error) {
+                  toast.error(
+                    error instanceof Error ? error.message : "Não foi possível excluir a conta.",
+                  );
+                }
+              }}
+            >
+              Excluir definitivamente
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </AdminShell>

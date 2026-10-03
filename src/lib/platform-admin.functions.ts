@@ -325,7 +325,8 @@ export const listAdminUsers = createServerFn({ method: "POST" })
     }
     const paymentStates = new Map<string, string>();
     for (const payment of paymentStatesResult.data ?? []) {
-      if (!paymentStates.has(payment.account_id)) paymentStates.set(payment.account_id, payment.status);
+      if (!paymentStates.has(payment.account_id))
+        paymentStates.set(payment.account_id, payment.status);
     }
     const admins = new Map(
       (adminsResult.data ?? [])

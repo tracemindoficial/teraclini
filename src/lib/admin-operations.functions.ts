@@ -176,13 +176,34 @@ async function deletionPreview(client: SupabaseClient<Database>, userId: string)
   const accountId = profile.account_id;
   const [patients, appointments, documents, packages, payments, subscriptions, support, admin] =
     await Promise.all([
-      client.from("patients").select("id", { count: "exact", head: true }).eq("account_id", accountId),
-      client.from("appointments").select("id", { count: "exact", head: true }).eq("account_id", accountId),
-      client.from("documents").select("id", { count: "exact", head: true }).eq("account_id", accountId),
-      client.from("care_packages").select("id", { count: "exact", head: true }).eq("account_id", accountId),
-      client.from("payments").select("id", { count: "exact", head: true }).eq("account_id", accountId),
-      client.from("account_subscriptions").select("id", { count: "exact", head: true }).eq("account_id", accountId),
-      client.from("support_tickets").select("id", { count: "exact", head: true }).eq("account_id", accountId),
+      client
+        .from("patients")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      client
+        .from("appointments")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      client
+        .from("documents")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      client
+        .from("care_packages")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      client
+        .from("payments")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      client
+        .from("account_subscriptions")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      client
+        .from("support_tickets")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
       client.from("platform_admins").select("role, revoked_at").eq("user_id", userId).maybeSingle(),
     ]);
   const results = [patients, appointments, documents, packages, payments, subscriptions, support];
@@ -248,7 +269,9 @@ export const deleteEmptyAdminUser = createServerFn({ method: "POST" })
       .eq("id", preview.accountId);
     if (accountError) {
       console.error("Empty user account cleanup failed after identity deletion");
-      throw new Error("A identidade foi removida, mas a limpeza da conta exige revisão administrativa.");
+      throw new Error(
+        "A identidade foi removida, mas a limpeza da conta exige revisão administrativa.",
+      );
     }
     await audit(
       context.supabaseAdmin,
