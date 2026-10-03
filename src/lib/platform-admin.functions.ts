@@ -413,6 +413,7 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
       subscription,
       support,
       platformAdmin,
+      payments,
     ] = await Promise.all([
       context.supabaseAdmin
         .from("patients")
@@ -454,6 +455,14 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
         .select("role, revoked_at")
         .eq("user_id", data.userId)
         .maybeSingle(),
+      context.supabaseAdmin
+        .from("payments")
+        .select(
+          "id, amount_cents, currency, due_on, paid_at, method, status, transaction_id, charge_id, confirmation_source, confirmed_at, updated_at",
+        )
+        .eq("account_id", accountId)
+        .order("created_at", { ascending: false })
+        .limit(10),
     ]);
     const firstError = [
       patients,
@@ -464,6 +473,7 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
       subscription,
       support,
       platformAdmin,
+      payments,
     ].find((result) => result.error)?.error;
     if (firstError) throw new Error("Não foi possível carregar os indicadores da conta.");
     return {
@@ -496,6 +506,7 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
       support: support.data ?? [],
       platformRole:
         platformAdmin.data && !platformAdmin.data.revoked_at ? platformAdmin.data.role : null,
+      payments: payments.data ?? [],
     };
   });
 
@@ -713,9 +724,9 @@ export const setPlatformAdminRole = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     if (context.platformAdminRole !== "super_admin")
       throw new Response("Forbidden", { status: 403 });
-    const { data: changed, error } = await context.supabaseAdmin.rpc("admin_set_platform_role", {
+    const { data: changed, error } = await context.supabaseAdmin.rpc("admin_set_platform_role_v2", {
       _actor_user_id: context.userId,
-      _role: data.role as Database["public"]["Enums"]["platform_admin_role"],
+      _role: data.role,
       _target_user_id: data.userId,
     });
     if (error) throw new Error(error.message || "Não foi possível alterar a permissão.");

@@ -86,15 +86,180 @@ export const updateAdminUserProfile = createServerFn({ method: "POST" })
       _actor_user_id: context.userId,
       _target_user_id: data.userId,
       _full_name: data.fullName,
-      _profession: data.profession as string,
-      _professional_registry: data.professionalRegistry as string,
-      _city: data.city as string,
-      _state: data.state as string,
+      _profession: data.profession ?? "",
+      _professional_registry: data.professionalRegistry ?? "",
+      _city: data.city ?? "",
+      _state: data.state ?? "",
       _care_mode: data.careMode as Database["public"]["Enums"]["care_mode"],
-      _phone: data.phone as string,
+      _phone: data.phone ?? "",
     });
     if (error) throw new Error(error.message || "Não foi possível atualizar os dados do usuário.");
     return { ok: true as const, unchanged: !changed };
+  });
+
+const inviteUserInput = z.object({
+  fullName: z.string().trim().min(2).max(160),
+  email: z.string().trim().email().max(254),
+  phone: z.string().trim().max(30).nullable(),
+  role: z
+    .enum(["professional", "support_admin", "analyst", "finance_admin", "content_admin"])
+    .default("professional"),
+  confirm: z.literal(true),
+});
+
+export const inviteAdminUser = createServerFn({ method: "POST" })
+  .middleware([requireOperationalAdmin])
+  .inputValidator((input) => inviteUserInput.parse(input))
+  .handler(async ({ data, context }) => {
+    if (context.platformAdminRole !== "super_admin")
+      throw new Response("Forbidden", { status: 403 });
+
+    const request = getRequest();
+    const origin = request ? new URL(request.url).origin : "";
+    const invited = await context.supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
+      data: { full_name: data.fullName },
+      redirectTo: `${origin}/reset-password`,
+    });
+    if (invited.error || !invited.data.user) {
+      const message = invited.error?.message.toLowerCase() ?? "";
+      if (message.includes("already") || message.includes("registered"))
+        throw new Error("Já existe uma conta com este e-mail.");
+      throw new Error("Não foi possível enviar o convite.");
+    }
+
+    const invitedUserId = invited.data.user.id;
+    try {
+      const { data: profile, error: profileError } = await context.supabaseAdmin
+        .from("profiles")
+        .update({ full_name: data.fullName, phone: data.phone })
+        .eq("id", invitedUserId)
+        .select("account_id")
+        .single();
+      if (profileError || !profile) throw new Error("O perfil do convite não foi criado.");
+
+      if (data.role !== "professional") {
+        const { error: roleError } = await context.supabaseAdmin.rpc("admin_set_platform_role_v2", {
+          _actor_user_id: context.userId,
+          _target_user_id: invitedUserId,
+          _role: data.role,
+        });
+        if (roleError) throw new Error(roleError.message);
+      }
+
+      await audit(
+        context.supabaseAdmin,
+        context.userId,
+        "user.invite",
+        "user",
+        invitedUserId,
+        profile.account_id,
+        ["email", "full_name", "phone", "role"],
+      );
+      return { ok: true as const, userId: invitedUserId };
+    } catch (error) {
+      await context.supabaseAdmin.auth.admin.deleteUser(invitedUserId);
+      throw error;
+    }
+  });
+
+const deletionInput = z.object({ userId: z.string().uuid() });
+
+async function deletionPreview(client: SupabaseClient<Database>, userId: string) {
+  const userResult = await client.auth.admin.getUserById(userId);
+  if (userResult.error || !userResult.data.user) throw new Error("Usuário não encontrado.");
+  const { data: profile, error: profileError } = await client
+    .from("profiles")
+    .select("account_id, full_name")
+    .eq("id", userId)
+    .maybeSingle();
+  if (profileError || !profile) throw new Error("Perfil não encontrado.");
+  const accountId = profile.account_id;
+  const [patients, appointments, documents, packages, payments, subscriptions, support, admin] =
+    await Promise.all([
+      client.from("patients").select("id", { count: "exact", head: true }).eq("account_id", accountId),
+      client.from("appointments").select("id", { count: "exact", head: true }).eq("account_id", accountId),
+      client.from("documents").select("id", { count: "exact", head: true }).eq("account_id", accountId),
+      client.from("care_packages").select("id", { count: "exact", head: true }).eq("account_id", accountId),
+      client.from("payments").select("id", { count: "exact", head: true }).eq("account_id", accountId),
+      client.from("account_subscriptions").select("id", { count: "exact", head: true }).eq("account_id", accountId),
+      client.from("support_tickets").select("id", { count: "exact", head: true }).eq("account_id", accountId),
+      client.from("platform_admins").select("role, revoked_at").eq("user_id", userId).maybeSingle(),
+    ]);
+  const results = [patients, appointments, documents, packages, payments, subscriptions, support];
+  if (results.some((result) => result.error) || admin.error)
+    throw new Error("Não foi possível verificar as dependências da conta.");
+  const counts = {
+    patients: patients.count ?? 0,
+    appointments: appointments.count ?? 0,
+    documents: documents.count ?? 0,
+    packages: packages.count ?? 0,
+    payments: payments.count ?? 0,
+    subscriptions: subscriptions.count ?? 0,
+    support: support.count ?? 0,
+  };
+  const hasDependencies = Object.values(counts).some((count) => count > 0);
+  const isAdmin = Boolean(admin.data && !admin.data.revoked_at);
+  return {
+    userId,
+    accountId,
+    name: profile.full_name,
+    email: userResult.data.user.email ?? "E-mail indisponível",
+    counts,
+    isAdmin,
+    canDelete: !hasDependencies && !isAdmin,
+    reason: isAdmin
+      ? "Contas administrativas devem ser preservadas."
+      : hasDependencies
+        ? "A conta possui dados que exigem preservação. Use a desativação."
+        : null,
+  };
+}
+
+export const getAdminUserDeletionPreview = createServerFn({ method: "POST" })
+  .middleware([requireOperationalAdmin])
+  .inputValidator((input) => deletionInput.parse(input))
+  .handler(async ({ data, context }) => {
+    if (context.platformAdminRole !== "super_admin")
+      throw new Response("Forbidden", { status: 403 });
+    return deletionPreview(context.supabaseAdmin, data.userId);
+  });
+
+export const deleteEmptyAdminUser = createServerFn({ method: "POST" })
+  .middleware([requireOperationalAdmin])
+  .inputValidator((input) =>
+    deletionInput
+      .extend({ confirmation: z.string().trim().min(1).max(254), confirm: z.literal(true) })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    if (context.platformAdminRole !== "super_admin")
+      throw new Response("Forbidden", { status: 403 });
+    if (data.userId === context.userId) throw new Error("Você não pode excluir sua própria conta.");
+    const preview = await deletionPreview(context.supabaseAdmin, data.userId);
+    if (!preview.canDelete) throw new Error(preview.reason ?? "Esta conta não pode ser excluída.");
+    if (data.confirmation.toLowerCase() !== preview.email.toLowerCase())
+      throw new Error("A confirmação não corresponde ao e-mail da conta.");
+
+    const deleted = await context.supabaseAdmin.auth.admin.deleteUser(data.userId);
+    if (deleted.error) throw new Error("Não foi possível excluir a identidade de acesso.");
+    const { error: accountError } = await context.supabaseAdmin
+      .from("accounts")
+      .delete()
+      .eq("id", preview.accountId);
+    if (accountError) {
+      console.error("Empty user account cleanup failed after identity deletion");
+      throw new Error("A identidade foi removida, mas a limpeza da conta exige revisão administrativa.");
+    }
+    await audit(
+      context.supabaseAdmin,
+      context.userId,
+      "user.delete_empty",
+      "user",
+      data.userId,
+      null,
+      ["auth_identity", "empty_account"],
+    );
+    return { ok: true as const };
   });
 
 const emailInput = z.object({
