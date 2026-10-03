@@ -50,7 +50,11 @@ function ResetPasswordPage() {
       if (!active) return;
       let forced = false;
       if (data.session?.user) {
-        const profile = await supabase.from("profiles").select("force_password_reset").eq("id", data.session.user.id).maybeSingle();
+        const profile = await supabase
+          .from("profiles")
+          .select("force_password_reset")
+          .eq("id", data.session.user.id)
+          .maybeSingle();
         forced = Boolean(profile.data?.force_password_reset);
       }
       setRecoveryReady(Boolean(data.session && (hashAllowsPassword || forced)));
