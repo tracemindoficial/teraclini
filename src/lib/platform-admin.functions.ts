@@ -18,10 +18,11 @@ const requirePlatformAdmin = createMiddleware({ type: "function" })
     if (error || !data || data.revoked_at) throw new Response("Forbidden", { status: 403 });
     const { data: account } = await supabaseAdmin
       .from("accounts")
-      .select("status")
+      .select("status, blocked_at")
       .eq("owner_user_id", context.userId)
       .maybeSingle();
-    if (!account || account.status !== "active") throw new Response("Forbidden", { status: 403 });
+    if (!account || account.status !== "active" || account.blocked_at)
+      throw new Response("Forbidden", { status: 403 });
     return next({
       context: {
         ...context,
@@ -513,11 +514,12 @@ export const setAdminAccountStatus = createServerFn({ method: "POST" })
       throw new Response("Forbidden", { status: 403 });
     const target = await context.supabaseAdmin
       .from("accounts")
-      .select("owner_user_id")
+      .select("owner_user_id, status, blocked_at")
       .eq("id", data.accountId)
       .single();
     if (target.error) throw new Error("Conta não encontrada.");
-    const shouldBan = data.status === "suspended";
+    const wasBanned = target.data.status !== "active" || Boolean(target.data.blocked_at);
+    const shouldBan = data.status === "suspended" || Boolean(target.data.blocked_at);
     const authResult = await context.supabaseAdmin.auth.admin.updateUserById(
       target.data.owner_user_id,
       { ban_duration: shouldBan ? "876000h" : "none" },
@@ -531,7 +533,7 @@ export const setAdminAccountStatus = createServerFn({ method: "POST" })
     });
     if (error) {
       await context.supabaseAdmin.auth.admin.updateUserById(target.data.owner_user_id, {
-        ban_duration: shouldBan ? "none" : "876000h",
+        ban_duration: wasBanned ? "876000h" : "none",
       });
       throw new Error(error.message || "Não foi possível alterar a situação da conta.");
     }
@@ -553,13 +555,15 @@ export const setAdminAccountBlock = createServerFn({ method: "POST" })
       throw new Response("Forbidden", { status: 403 });
     const target = await context.supabaseAdmin
       .from("accounts")
-      .select("owner_user_id")
+      .select("owner_user_id, status, blocked_at")
       .eq("id", data.accountId)
       .single();
     if (target.error) throw new Error("Conta não encontrada.");
+    const wasBanned = target.data.status !== "active" || Boolean(target.data.blocked_at);
+    const shouldBan = data.blocked || target.data.status !== "active";
     const authResult = await context.supabaseAdmin.auth.admin.updateUserById(
       target.data.owner_user_id,
-      { ban_duration: data.blocked ? "876000h" : "none" },
+      { ban_duration: shouldBan ? "876000h" : "none" },
     );
     if (authResult.error) throw new Error("Não foi possível atualizar o acesso de autenticação.");
     const { data: changed, error } = await context.supabaseAdmin.rpc(
@@ -573,7 +577,7 @@ export const setAdminAccountBlock = createServerFn({ method: "POST" })
     );
     if (error) {
       await context.supabaseAdmin.auth.admin.updateUserById(target.data.owner_user_id, {
-        ban_duration: data.blocked ? "none" : "876000h",
+        ban_duration: wasBanned ? "876000h" : "none",
       });
       throw new Error(error.message || "Não foi possível alterar o bloqueio da conta.");
     }
@@ -711,7 +715,7 @@ export const setPlatformAdminRole = createServerFn({ method: "POST" })
       throw new Response("Forbidden", { status: 403 });
     const { data: changed, error } = await context.supabaseAdmin.rpc("admin_set_platform_role", {
       _actor_user_id: context.userId,
-      _role: data.role ?? undefined,
+      _role: data.role as Database["public"]["Enums"]["platform_admin_role"],
       _target_user_id: data.userId,
     });
     if (error) throw new Error(error.message || "Não foi possível alterar a permissão.");

@@ -286,11 +286,16 @@ function AdminUserDetailPage() {
               Cancelar
             </Button>
             <Button
-              variant={accessAction === "deactivate" || accessAction === "block" ? "destructive" : "default"}
+              variant={
+                accessAction === "deactivate" || accessAction === "block"
+                  ? "destructive"
+                  : "default"
+              }
               disabled={
                 setStatus.isPending ||
                 setBlock.isPending ||
-                ((accessAction === "deactivate" || accessAction === "block") && reason.trim().length < 3)
+                ((accessAction === "deactivate" || accessAction === "block") &&
+                  reason.trim().length < 3)
               }
               onClick={confirmAccessAction}
             >

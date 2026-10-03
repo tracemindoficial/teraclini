@@ -21,10 +21,11 @@ const requireOperationalAdmin = createMiddleware({ type: "function" })
     if (error || !admin || admin.revoked_at) throw new Response("Forbidden", { status: 403 });
     const { data: account } = await supabaseAdmin
       .from("accounts")
-      .select("status")
+      .select("status, blocked_at")
       .eq("owner_user_id", context.userId)
       .maybeSingle();
-    if (!account || account.status !== "active") throw new Response("Forbidden", { status: 403 });
+    if (!account || account.status !== "active" || account.blocked_at)
+      throw new Response("Forbidden", { status: 403 });
     return next({ context: { ...context, supabaseAdmin, platformAdminRole: admin.role } });
   });
 
@@ -85,12 +86,12 @@ export const updateAdminUserProfile = createServerFn({ method: "POST" })
       _actor_user_id: context.userId,
       _target_user_id: data.userId,
       _full_name: data.fullName,
-      _profession: data.profession ?? undefined,
-      _professional_registry: data.professionalRegistry ?? undefined,
-      _city: data.city ?? undefined,
-      _state: data.state ?? undefined,
-      _care_mode: data.careMode ?? undefined,
-      _phone: data.phone ?? undefined,
+      _profession: data.profession as string,
+      _professional_registry: data.professionalRegistry as string,
+      _city: data.city as string,
+      _state: data.state as string,
+      _care_mode: data.careMode as Database["public"]["Enums"]["care_mode"],
+      _phone: data.phone as string,
     });
     if (error) throw new Error(error.message || "Não foi possível atualizar os dados do usuário.");
     return { ok: true as const, unchanged: !changed };
@@ -129,16 +130,20 @@ export const updateAdminUserEmail = createServerFn({ method: "POST" })
       event_type: "email_changed",
       details: { previous_email_domain: current.data.user.email?.split("@")[1] ?? null },
     });
-    if (accessEventError) throw new Error("E-mail alterado, mas o histórico não foi registrado.");
-    await audit(
-      context.supabaseAdmin,
-      context.userId,
-      "user.email_change",
-      "user",
-      data.userId,
-      account.id,
-      ["email"],
-    );
+    if (accessEventError) console.error("Admin email access history write failed");
+    try {
+      await audit(
+        context.supabaseAdmin,
+        context.userId,
+        "user.email_change",
+        "user",
+        data.userId,
+        account.id,
+        ["email"],
+      );
+    } catch {
+      console.error("Admin email audit write failed");
+    }
     return { ok: true as const, unchanged: false };
   });
 
