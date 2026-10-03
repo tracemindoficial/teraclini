@@ -284,14 +284,18 @@ export const getAdminUserHistory = createServerFn({ method: "POST" })
     ]);
     if (auditRows.error || accessRows.error || subscriptionRows.error)
       throw new Error("Não foi possível carregar o histórico.");
+    const auditReason = (details: Database["public"]["Tables"]["platform_audit_events"]["Row"]["details"]) => {
+      if (!details || Array.isArray(details) || typeof details !== "object") return null;
+      const reason = details["reason"];
+      return typeof reason === "string" ? reason : null;
+    };
     return [
       ...(auditRows.data ?? []).map((item) => ({
         id: `audit-${item.id}`,
         type: item.action,
-        detail:
-          typeof item.details?.["reason"] === "string"
-            ? `${item.changed_fields.join(", ")} — ${item.details["reason"]}`
-            : item.changed_fields.join(", "),
+        detail: auditReason(item.details)
+          ? `${item.changed_fields.join(", ")} — ${auditReason(item.details)}`
+          : item.changed_fields.join(", "),
         createdAt: item.created_at,
       })),
       ...(accessRows.data ?? []).map((item) => ({
