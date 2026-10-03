@@ -245,7 +245,7 @@ export const getAdminUserDeletionPreview = createServerFn({ method: "POST" })
     return deletionPreview(context.supabaseAdmin, data.userId);
   });
 
-export const deleteEmptyAdminUser = createServerFn({ method: "POST" })
+export const closeAdminUserAccount = createServerFn({ method: "POST" })
   .middleware([requireOperationalAdmin])
   .inputValidator((input) =>
     deletionInput
@@ -257,30 +257,37 @@ export const deleteEmptyAdminUser = createServerFn({ method: "POST" })
       throw new Response("Forbidden", { status: 403 });
     if (data.userId === context.userId) throw new Error("Você não pode excluir sua própria conta.");
     const preview = await deletionPreview(context.supabaseAdmin, data.userId);
-    if (!preview.canDelete) throw new Error(preview.reason ?? "Esta conta não pode ser excluída.");
+    if (!preview.canDelete) throw new Error(preview.reason ?? "Esta conta não pode ser encerrada.");
     if (data.confirmation.toLowerCase() !== preview.email.toLowerCase())
       throw new Error("A confirmação não corresponde ao e-mail da conta.");
 
-    const deleted = await context.supabaseAdmin.auth.admin.deleteUser(data.userId);
-    if (deleted.error) throw new Error("Não foi possível excluir a identidade de acesso.");
+    const blocked = await context.supabaseAdmin.auth.admin.updateUserById(data.userId, {
+      ban_duration: "876000h",
+    });
+    if (blocked.error) throw new Error("Não foi possível encerrar o acesso de autenticação.");
     const { error: accountError } = await context.supabaseAdmin
       .from("accounts")
-      .delete()
-      .eq("id", preview.accountId);
+      .update({
+        status: "closed",
+        blocked_at: new Date().toISOString(),
+        block_reason: "Conta vazia encerrada pelo administrador master",
+        access_state_changed_at: new Date().toISOString(),
+        access_state_changed_by: context.userId,
+      })
+      .eq("id", preview.accountId)
+      .eq("status", "active");
     if (accountError) {
-      console.error("Empty user account cleanup failed after identity deletion");
-      throw new Error(
-        "A identidade foi removida, mas a limpeza da conta exige revisão administrativa.",
-      );
+      await context.supabaseAdmin.auth.admin.updateUserById(data.userId, { ban_duration: "none" });
+      throw new Error("Não foi possível encerrar a conta.");
     }
     await audit(
       context.supabaseAdmin,
       context.userId,
-      "user.delete_empty",
+      "user.close_empty",
       "user",
       data.userId,
       null,
-      ["auth_identity", "empty_account"],
+      ["status", "blocked_at"],
     );
     return { ok: true as const };
   });

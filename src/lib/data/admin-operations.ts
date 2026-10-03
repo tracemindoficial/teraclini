@@ -14,7 +14,7 @@ import {
   updateAdminUserEmail,
   updateAdminUserProfile,
   inviteAdminUser,
-  deleteEmptyAdminUser,
+  closeAdminUserAccount,
 } from "@/lib/admin-operations.functions";
 
 const refreshUser = (client: ReturnType<typeof useQueryClient>, userId: string) => {
@@ -85,9 +85,9 @@ export function useAdminUserDeletionPreview(userId: string, enabled: boolean) {
     enabled,
   });
 }
-export function useDeleteEmptyAdminUser() {
+export function useCloseAdminUserAccount() {
   const client = useQueryClient();
-  const fn = useServerFn(deleteEmptyAdminUser);
+  const fn = useServerFn(closeAdminUserAccount);
   return useMutation({
     mutationFn: (data: { userId: string; confirmation: string; confirm: true }) => fn({ data }),
     onSuccess: () => client.invalidateQueries({ queryKey: ["admin", "users"] }),

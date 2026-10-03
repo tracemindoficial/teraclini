@@ -22,7 +22,7 @@ import {
 import {
   useAdminUserDeletionPreview,
   useAdminUserHistory,
-  useDeleteEmptyAdminUser,
+  useCloseAdminUserAccount,
 } from "@/lib/data/admin-operations";
 import {
   Dialog,
@@ -65,7 +65,7 @@ function AdminUserDetailPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const deletionPreview = useAdminUserDeletionPreview(id, deleteOpen);
-  const deleteUser = useDeleteEmptyAdminUser();
+  const closeUser = useCloseAdminUserAccount();
 
   async function confirmAccessAction() {
     if (!data?.accountId) return;
@@ -439,22 +439,23 @@ function AdminUserDetailPage() {
         )}
       </section>
       <section className="surface mt-6 border-destructive/30 p-5">
-        <h2 className="font-semibold">Excluir conta</h2>
+        <h2 className="font-semibold">Encerrar conta vazia</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Disponível somente para contas vazias, sem dados clínicos, financeiros, suporte ou
-          permissão administrativa.
+          Preserva o registro administrativo e encerra o acesso somente quando não há dados
+          vinculados.
         </p>
         <Button variant="destructive" className="mt-4 gap-2" onClick={() => setDeleteOpen(true)}>
           <Trash2 className="size-4" />
-          Verificar exclusão
+          Verificar encerramento
         </Button>
       </section>
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Excluir conta</DialogTitle>
+            <DialogTitle>Encerrar conta vazia</DialogTitle>
             <DialogDescription>
-              A identidade e a conta vazia serão removidas. Dados vinculados bloqueiam esta ação.
+              O acesso será encerrado e o registro mínimo preservado. Dados vinculados bloqueiam
+              esta ação.
             </DialogDescription>
           </DialogHeader>
           {deletionPreview.isLoading ? (
@@ -492,25 +493,25 @@ function AdminUserDetailPage() {
               disabled={
                 !deletionPreview.data?.canDelete ||
                 deleteConfirmation.toLowerCase() !== data.email.toLowerCase() ||
-                deleteUser.isPending
+                closeUser.isPending
               }
               onClick={async () => {
                 try {
-                  await deleteUser.mutateAsync({
+                  await closeUser.mutateAsync({
                     userId: id,
                     confirmation: deleteConfirmation,
                     confirm: true,
                   });
-                  toast.success("Conta vazia excluída.");
+                  toast.success("Conta vazia encerrada.");
                   window.location.href = "/admin/usuarios";
                 } catch (error) {
                   toast.error(
-                    error instanceof Error ? error.message : "Não foi possível excluir a conta.",
+                    error instanceof Error ? error.message : "Não foi possível encerrar a conta.",
                   );
                 }
               }}
             >
-              Excluir definitivamente
+              Encerrar acesso
             </Button>
           </DialogFooter>
         </DialogContent>
