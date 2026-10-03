@@ -29,3 +29,4 @@
 - Keep support conversations account-scoped and explicitly non-clinical; administrative actions may record metadata but never copy message text into audit logs.
 - Keep the public commercial layer data-driven: expose only active plans and anonymous allowlisted events, and never imply checkout or license activation before a real payment provider exists.
 - Keep administrative operations server-authorized by role, explicitly confirmed, and recorded in append-only non-clinical histories because support and billing actions are security-sensitive.
+- Keep operational account status, administrative security blocking, and subscription state separate; enforce each independently because they have different causes and recovery flows.

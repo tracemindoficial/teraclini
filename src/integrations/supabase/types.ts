@@ -158,6 +158,11 @@ export type Database = {
       }
       accounts: {
         Row: {
+          access_state_changed_at: string
+          access_state_changed_by: string | null
+          block_reason: string | null
+          blocked_at: string | null
+          blocked_by: string | null
           created_at: string
           id: string
           name: string
@@ -166,6 +171,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          access_state_changed_at?: string
+          access_state_changed_by?: string | null
+          block_reason?: string | null
+          blocked_at?: string | null
+          blocked_by?: string | null
           created_at?: string
           id?: string
           name?: string
@@ -174,6 +184,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          access_state_changed_at?: string
+          access_state_changed_by?: string | null
+          block_reason?: string | null
+          blocked_at?: string | null
+          blocked_by?: string | null
           created_at?: string
           id?: string
           name?: string
@@ -1857,6 +1872,7 @@ export type Database = {
           actor_user_id: string | null
           changed_fields: string[]
           created_at: string
+          details: Json
           entity_id: string | null
           entity_type: string
           id: string
@@ -1868,6 +1884,7 @@ export type Database = {
           actor_user_id?: string | null
           changed_fields?: string[]
           created_at?: string
+          details?: Json
           entity_id?: string | null
           entity_type: string
           id?: string
@@ -1879,6 +1896,7 @@ export type Database = {
           actor_user_id?: string | null
           changed_fields?: string[]
           created_at?: string
+          details?: Json
           entity_id?: string | null
           entity_type?: string
           id?: string
@@ -2340,6 +2358,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_change_account_status: {
+        Args: {
+          _account_id: string
+          _actor_user_id: string
+          _reason: string
+          _status: string
+        }
+        Returns: boolean
+      }
       admin_confirm_payment: {
         Args: { _actor_user_id: string; _payment_id: string }
         Returns: boolean
@@ -2354,8 +2381,25 @@ export type Database = {
         }
         Returns: string
       }
+      admin_set_account_block: {
+        Args: {
+          _account_id: string
+          _actor_user_id: string
+          _blocked: boolean
+          _reason: string
+        }
+        Returns: boolean
+      }
       admin_set_account_status: {
         Args: { _account_id: string; _actor_user_id: string; _status: string }
+        Returns: boolean
+      }
+      admin_set_platform_role: {
+        Args: {
+          _actor_user_id: string
+          _role: Database["public"]["Enums"]["platform_admin_role"]
+          _target_user_id: string
+        }
         Returns: boolean
       }
       admin_update_user_profile: {

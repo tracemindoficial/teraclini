@@ -18,10 +18,11 @@ const requirePlatformAdmin = createMiddleware({ type: "function" })
     if (error || !data || data.revoked_at) throw new Response("Forbidden", { status: 403 });
     const { data: account } = await supabaseAdmin
       .from("accounts")
-      .select("status")
+      .select("status, blocked_at")
       .eq("owner_user_id", context.userId)
       .maybeSingle();
-    if (!account || account.status !== "active") throw new Response("Forbidden", { status: 403 });
+    if (!account || account.status !== "active" || account.blocked_at)
+      throw new Response("Forbidden", { status: 403 });
     return next({
       context: {
         ...context,
@@ -219,6 +220,17 @@ export const getAdminOverview = createServerFn({ method: "GET" })
 const userListInput = z.object({
   search: z.string().max(120).default(""),
   status: z.enum(["all", "active", "suspended", "closed"]).default("all"),
+  role: z
+    .enum([
+      "all",
+      "professional",
+      "super_admin",
+      "support_admin",
+      "analyst",
+      "finance_admin",
+      "content_admin",
+    ])
+    .default("all"),
   page: z.number().int().positive().default(1),
   pageSize: z.number().int().min(10).max(100).default(20),
   sort: z.enum(["newest", "oldest", "name", "last_activity"]).default("newest"),
@@ -260,7 +272,11 @@ export const listAdminUsers = createServerFn({ method: "POST" })
       context.supabaseAdmin
         .from("profiles")
         .select("id, account_id, full_name, profession, onboarding_completed"),
-      context.supabaseAdmin.from("accounts").select("id, owner_user_id, status, created_at"),
+      context.supabaseAdmin
+        .from("accounts")
+        .select(
+          "id, owner_user_id, status, blocked_at, block_reason, access_state_changed_at, created_at",
+        ),
       context.supabaseAdmin
         .from("account_subscriptions")
         .select(
@@ -326,6 +342,9 @@ export const listAdminUsers = createServerFn({ method: "POST" })
           lastSignInAt: user.last_sign_in_at ?? null,
           onboardingCompleted: profile?.onboarding_completed ?? false,
           accountStatus: account?.status ?? "active",
+          accountBlocked: Boolean(account?.blocked_at),
+          blockReason: account?.block_reason ?? null,
+          accessStateChangedAt: account?.access_state_changed_at ?? account?.created_at ?? null,
           subscriptionStatus: subscription?.status ?? null,
           planName: subscription ? (plans.get(subscription.plan_id) ?? "Plano indisponível") : null,
           monthlyCents: subscription?.contracted_price_cents ?? null,
@@ -343,7 +362,9 @@ export const listAdminUsers = createServerFn({ method: "POST" })
           row.name.toLocaleLowerCase("pt-BR").includes(search) ||
           row.email.toLocaleLowerCase("pt-BR").includes(search);
         const matchesStatus = data.status === "all" || row.accountStatus === data.status;
-        return matchesSearch && matchesStatus;
+        const matchesRole =
+          data.role === "all" || (row.platformRole ?? "professional") === data.role;
+        return matchesSearch && matchesStatus && matchesRole;
       })
       .sort((a, b) => {
         if (data.sort === "oldest")
@@ -377,7 +398,7 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
     const { data: profile, error: profileError } = await context.supabaseAdmin
       .from("profiles")
       .select(
-        "account_id, full_name, profession, professional_registry, city, state, phone, care_mode, onboarding_completed, force_password_reset, created_at, account:accounts(id, status)",
+        "account_id, full_name, profession, professional_registry, city, state, phone, care_mode, onboarding_completed, force_password_reset, created_at, account:accounts(id, status, blocked_at, block_reason, access_state_changed_at)",
       )
       .eq("id", data.userId)
       .maybeSingle();
@@ -458,6 +479,9 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
       careMode: profile.care_mode,
       forcePasswordReset: profile.force_password_reset,
       accountStatus: profile.account?.status ?? "unknown",
+      accountBlocked: Boolean(profile.account?.blocked_at),
+      blockReason: profile.account?.block_reason ?? null,
+      accessStateChangedAt: profile.account?.access_state_changed_at ?? null,
       onboardingCompleted: profile.onboarding_completed,
       createdAt: profile.created_at,
       lastSignInAt: user.last_sign_in_at ?? null,
@@ -478,6 +502,7 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
 const accountStatusInput = z.object({
   accountId: z.string().uuid(),
   status: z.enum(["active", "suspended"]),
+  reason: z.string().trim().max(500),
   confirm: z.literal(true),
 });
 
@@ -487,12 +512,75 @@ export const setAdminAccountStatus = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     if (!["super_admin", "support_admin"].includes(context.platformAdminRole))
       throw new Response("Forbidden", { status: 403 });
-    const { data: changed, error } = await context.supabaseAdmin.rpc("admin_set_account_status", {
+    const target = await context.supabaseAdmin
+      .from("accounts")
+      .select("owner_user_id, status, blocked_at")
+      .eq("id", data.accountId)
+      .single();
+    if (target.error) throw new Error("Conta não encontrada.");
+    const wasBanned = target.data.status !== "active" || Boolean(target.data.blocked_at);
+    const shouldBan = data.status === "suspended" || Boolean(target.data.blocked_at);
+    const authResult = await context.supabaseAdmin.auth.admin.updateUserById(
+      target.data.owner_user_id,
+      { ban_duration: shouldBan ? "876000h" : "none" },
+    );
+    if (authResult.error) throw new Error("Não foi possível atualizar o acesso de autenticação.");
+    const { data: changed, error } = await context.supabaseAdmin.rpc(
+      "admin_change_account_status",
+      {
+        _actor_user_id: context.userId,
+        _account_id: data.accountId,
+        _reason: data.reason,
+        _status: data.status,
+      },
+    );
+    if (error) {
+      await context.supabaseAdmin.auth.admin.updateUserById(target.data.owner_user_id, {
+        ban_duration: wasBanned ? "876000h" : "none",
+      });
+      throw new Error(error.message || "Não foi possível alterar a situação da conta.");
+    }
+    return { ok: true, unchanged: !changed };
+  });
+
+const accountBlockInput = z.object({
+  accountId: z.string().uuid(),
+  blocked: z.boolean(),
+  reason: z.string().trim().max(500),
+  confirm: z.literal(true),
+});
+
+export const setAdminAccountBlock = createServerFn({ method: "POST" })
+  .middleware([requirePlatformAdmin])
+  .inputValidator((input) => accountBlockInput.parse(input))
+  .handler(async ({ data, context }) => {
+    if (!["super_admin", "support_admin"].includes(context.platformAdminRole))
+      throw new Response("Forbidden", { status: 403 });
+    const target = await context.supabaseAdmin
+      .from("accounts")
+      .select("owner_user_id, status, blocked_at")
+      .eq("id", data.accountId)
+      .single();
+    if (target.error) throw new Error("Conta não encontrada.");
+    const wasBanned = target.data.status !== "active" || Boolean(target.data.blocked_at);
+    const shouldBan = data.blocked || target.data.status !== "active";
+    const authResult = await context.supabaseAdmin.auth.admin.updateUserById(
+      target.data.owner_user_id,
+      { ban_duration: shouldBan ? "876000h" : "none" },
+    );
+    if (authResult.error) throw new Error("Não foi possível atualizar o acesso de autenticação.");
+    const { data: changed, error } = await context.supabaseAdmin.rpc("admin_set_account_block", {
       _actor_user_id: context.userId,
       _account_id: data.accountId,
-      _status: data.status,
+      _blocked: data.blocked,
+      _reason: data.reason,
     });
-    if (error) throw new Error(error.message || "Não foi possível alterar a situação da conta.");
+    if (error) {
+      await context.supabaseAdmin.auth.admin.updateUserById(target.data.owner_user_id, {
+        ban_duration: wasBanned ? "876000h" : "none",
+      });
+      throw new Error(error.message || "Não foi possível alterar o bloqueio da conta.");
+    }
     return { ok: true, unchanged: !changed };
   });
 
@@ -625,38 +713,13 @@ export const setPlatformAdminRole = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     if (context.platformAdminRole !== "super_admin")
       throw new Response("Forbidden", { status: 403 });
-    if (data.role) {
-      const { error } = await context.supabaseAdmin
-        .from("platform_admins")
-        .upsert(
-          { user_id: data.userId, role: data.role, granted_by: context.userId, revoked_at: null },
-          { onConflict: "user_id" },
-        );
-      if (error) throw new Error("Não foi possível conceder a permissão.");
-    } else {
-      const { count } = await context.supabaseAdmin
-        .from("platform_admins")
-        .select("id", { count: "exact", head: true })
-        .is("revoked_at", null);
-      if ((count ?? 0) <= 1) throw new Error("O último administrador não pode ser removido.");
-      if (data.userId === context.userId)
-        throw new Error("Transfira a administração antes de remover seu próprio acesso.");
-      const { error } = await context.supabaseAdmin
-        .from("platform_admins")
-        .update({ revoked_at: new Date().toISOString() })
-        .eq("user_id", data.userId);
-      if (error) throw new Error("Não foi possível remover a permissão.");
-    }
-    await recordAudit(
-      context.supabaseAdmin,
-      context.userId,
-      data.role ? "admin.grant" : "admin.revoke",
-      "platform_admin",
-      data.userId,
-      null,
-      ["role", "revoked_at"],
-    );
-    return { ok: true as const };
+    const { data: changed, error } = await context.supabaseAdmin.rpc("admin_set_platform_role", {
+      _actor_user_id: context.userId,
+      _role: data.role as Database["public"]["Enums"]["platform_admin_role"],
+      _target_user_id: data.userId,
+    });
+    if (error) throw new Error(error.message || "Não foi possível alterar a permissão.");
+    return { ok: true as const, unchanged: !changed };
   });
 
 const paymentActionInput = z.object({ paymentId: z.string().uuid(), confirm: z.literal(true) });

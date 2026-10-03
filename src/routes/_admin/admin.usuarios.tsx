@@ -37,12 +37,13 @@ function formatDate(value: string | null) {
 function AdminUsersPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | "active" | "suspended" | "closed">("all");
+  const [role, setRole] = useState("all");
   const [sort, setSort] = useState<"newest" | "oldest" | "name" | "last_activity">("newest");
   const [page, setPage] = useState(1);
-  const { data, isLoading, error } = useAdminUsers(search, status, sort, page);
+  const { data, isLoading, error } = useAdminUsers(search, status, role, sort, page);
   return (
     <AdminShell title="Usuários" description="Contas, acesso, assinatura e atividade">
-      <div className="surface mb-5 grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_14rem_14rem]">
+      <div className="surface mb-5 grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_13rem_13rem_13rem]">
         <label className="relative">
           <Search className="absolute left-3 top-3 size-4 text-muted-foreground" />
           <Input
@@ -70,6 +71,26 @@ function AdminUsersPage() {
             <SelectItem value="active">Ativas</SelectItem>
             <SelectItem value="suspended">Suspensas</SelectItem>
             <SelectItem value="closed">Encerradas</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select
+          value={role}
+          onValueChange={(value) => {
+            setRole(value);
+            setPage(1);
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Papel de acesso" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os papéis</SelectItem>
+            <SelectItem value="professional">Profissional</SelectItem>
+            <SelectItem value="super_admin">Administrador master</SelectItem>
+            <SelectItem value="support_admin">Suporte</SelectItem>
+            <SelectItem value="analyst">Analista</SelectItem>
+            <SelectItem value="finance_admin">Financeiro</SelectItem>
+            <SelectItem value="content_admin">Conteúdo</SelectItem>
           </SelectContent>
         </Select>
         <Select
@@ -123,7 +144,12 @@ function AdminUsersPage() {
                       <p className="text-xs text-muted-foreground">{row.email}</p>
                     </td>
                     <td className="px-4 py-3">{formatDate(row.createdAt)}</td>
-                    <td className="px-4 py-3 capitalize">{row.accountStatus}</td>
+                    <td className="px-4 py-3">
+                      <p>{accountStatusLabel(row.accountStatus)}</p>
+                      {row.accountBlocked ? (
+                        <p className="text-xs font-medium text-destructive">Bloqueada</p>
+                      ) : null}
+                    </td>
                     <td className="px-4 py-3">
                       {row.platformRole ? "Administrador" : "Profissional"}
                     </td>
@@ -172,4 +198,11 @@ function AdminUsersPage() {
       )}
     </AdminShell>
   );
+}
+
+function accountStatusLabel(status: string) {
+  if (status === "active") return "Ativa";
+  if (status === "suspended") return "Desativada";
+  if (status === "closed") return "Encerrada";
+  return "Indisponível";
 }

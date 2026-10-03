@@ -9,7 +9,8 @@ export const Route = createFileRoute("/_authenticated")({
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/auth" });
     const access = await getSessionAccess();
-    if (access.accountStatus !== "active") throw redirect({ to: "/conta-indisponivel" });
+    if (access.accountStatus !== "active" || access.accountBlocked)
+      throw redirect({ to: "/conta-indisponivel" });
     const profile = await getOnboardingProfile(data.user.id);
     if (profile?.force_password_reset) throw redirect({ to: "/reset-password" });
     if ((!profile || !profile.onboarding_completed) && location.pathname !== "/onboarding") {

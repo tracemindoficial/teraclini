@@ -46,12 +46,26 @@ export function AdminUserOperations({ user }: { user: AdminUserEditableData }) {
   });
   const [email, setEmail] = useState(user.email);
   useEffect(() => setEmail(user.email), [user.email]);
+  useEffect(() => {
+    if (!profileOpen) return;
+    setProfile({
+      fullName: user.name,
+      profession: user.profession ?? "",
+      professionalRegistry: user.professionalRegistry ?? "",
+      city: user.city ?? "",
+      state: user.state ?? "",
+      phone: user.phone ?? "",
+      careMode: user.careMode ?? "",
+    });
+  }, [profileOpen, user]);
   const run = async (action: () => Promise<unknown>, success: string) => {
     try {
       await action();
       toast.success(success);
+      return true;
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "A operação não pôde ser concluída.");
+      return false;
     }
   };
   return (
@@ -189,8 +203,8 @@ export function AdminUserOperations({ user }: { user: AdminUserEditableData }) {
             </Button>
             <Button
               disabled={operations.updateProfile.isPending || profile.fullName.trim().length < 2}
-              onClick={() =>
-                run(
+              onClick={async () => {
+                const saved = await run(
                   () =>
                     operations.updateProfile.mutateAsync({
                       userId: user.id,
@@ -205,8 +219,9 @@ export function AdminUserOperations({ user }: { user: AdminUserEditableData }) {
                       confirm: true,
                     }),
                   "Cadastro atualizado.",
-                ).then(() => setProfileOpen(false))
-              }
+                );
+                if (saved) setProfileOpen(false);
+              }}
             >
               Salvar
             </Button>
@@ -218,7 +233,7 @@ export function AdminUserOperations({ user }: { user: AdminUserEditableData }) {
           <DialogHeader>
             <DialogTitle>Alterar e-mail</DialogTitle>
             <DialogDescription>
-              O titular deverá confirmar o novo endereço antes de usá-lo no acesso.
+              A alteração é aplicada imediatamente à identidade de acesso e fica registrada.
             </DialogDescription>
           </DialogHeader>
           <Input
@@ -233,15 +248,16 @@ export function AdminUserOperations({ user }: { user: AdminUserEditableData }) {
             </Button>
             <Button
               disabled={operations.updateEmail.isPending || !email.includes("@")}
-              onClick={() =>
-                run(
+              onClick={async () => {
+                const saved = await run(
                   () =>
                     operations.updateEmail.mutateAsync({ userId: user.id, email, confirm: true }),
-                  "Alteração enviada para confirmação.",
-                ).then(() => setEmailOpen(false))
-              }
+                  "E-mail de acesso atualizado.",
+                );
+                if (saved) setEmailOpen(false);
+              }}
             >
-              Enviar confirmação
+              Alterar e-mail
             </Button>
           </DialogFooter>
         </DialogContent>
