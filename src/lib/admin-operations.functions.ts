@@ -284,7 +284,9 @@ export const getAdminUserHistory = createServerFn({ method: "POST" })
     ]);
     if (auditRows.error || accessRows.error || subscriptionRows.error)
       throw new Error("Não foi possível carregar o histórico.");
-    const auditReason = (details: Database["public"]["Tables"]["platform_audit_events"]["Row"]["details"]) => {
+    const auditReason = (
+      details: Database["public"]["Tables"]["platform_audit_events"]["Row"]["details"],
+    ) => {
       if (!details || Array.isArray(details) || typeof details !== "object") return null;
       const reason = details["reason"];
       return typeof reason === "string" ? reason : null;
