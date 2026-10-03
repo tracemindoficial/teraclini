@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, Ban, CheckCircle2, LockKeyhole, LockKeyholeOpen } from "lucide-react";
+import { ArrowLeft, Ban, CheckCircle2, LockKeyhole, LockKeyholeOpen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { AdminMetric, AdminShell, AdminState } from "@/components/admin/AdminShell";
@@ -19,7 +19,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAdminUserHistory } from "@/lib/data/admin-operations";
+import {
+  useAdminUserDeletionPreview,
+  useAdminUserHistory,
+  useCloseAdminUserAccount,
+} from "@/lib/data/admin-operations";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +33,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { brlFromCents } from "@/lib/admin-metrics";
 
 export const Route = createFileRoute("/_admin/admin/usuarios/$id")({
   head: () => ({
@@ -56,6 +62,10 @@ function AdminUserDetailPage() {
     "activate" | "deactivate" | "block" | "unblock" | null
   >(null);
   const [reason, setReason] = useState("");
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const deletionPreview = useAdminUserDeletionPreview(id, deleteOpen);
+  const closeUser = useCloseAdminUserAccount();
 
   async function confirmAccessAction() {
     if (!data?.accountId) return;
@@ -373,6 +383,41 @@ function AdminUserDetailPage() {
         </div>
       </section>
       <section className="surface mt-6 p-5">
+        <h2 className="font-semibold">Pagamentos</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Registros administrativos locais. A confirmação em tempo real depende de um gateway
+          integrado.
+        </p>
+        {data.payments.length ? (
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full min-w-[680px] text-left text-sm">
+              <thead className="border-b text-xs text-muted-foreground">
+                <tr>
+                  <th className="py-2">Situação</th>
+                  <th>Valor</th>
+                  <th>Vencimento</th>
+                  <th>Transação</th>
+                  <th>Atualização</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.payments.map((payment) => (
+                  <tr key={payment.id} className="border-b last:border-0">
+                    <td className="py-3">{payment.status}</td>
+                    <td>{brlFromCents(payment.amount_cents)}</td>
+                    <td>{new Date(`${payment.due_on}T00:00:00`).toLocaleDateString("pt-BR")}</td>
+                    <td>{payment.transaction_id ?? payment.charge_id ?? "Sem identificador"}</td>
+                    <td>{new Date(payment.updated_at).toLocaleString("pt-BR")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-muted-foreground">Sem registro de pagamento.</p>
+        )}
+      </section>
+      <section className="surface mt-6 p-5">
         <h2 className="font-semibold">Chamados recentes</h2>
         {data.support.length ? (
           <ul className="mt-3 divide-y text-sm">
@@ -393,6 +438,84 @@ function AdminUserDetailPage() {
           <p className="mt-3 text-sm text-muted-foreground">Nenhum chamado registrado.</p>
         )}
       </section>
+      <section className="surface mt-6 border-destructive/30 p-5">
+        <h2 className="font-semibold">Encerrar conta vazia</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Preserva o registro administrativo e encerra o acesso somente quando não há dados
+          vinculados.
+        </p>
+        <Button variant="destructive" className="mt-4 gap-2" onClick={() => setDeleteOpen(true)}>
+          <Trash2 className="size-4" />
+          Verificar encerramento
+        </Button>
+      </section>
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Encerrar conta vazia</DialogTitle>
+            <DialogDescription>
+              O acesso será encerrado e o registro mínimo preservado. Dados vinculados bloqueiam
+              esta ação.
+            </DialogDescription>
+          </DialogHeader>
+          {deletionPreview.isLoading ? (
+            <p className="text-sm text-muted-foreground">Verificando dependências...</p>
+          ) : deletionPreview.error ? (
+            <p className="text-sm text-destructive">Não foi possível verificar a conta.</p>
+          ) : deletionPreview.data ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <span>Pacientes: {deletionPreview.data.counts.patients}</span>
+                <span>Atendimentos: {deletionPreview.data.counts.appointments}</span>
+                <span>Documentos: {deletionPreview.data.counts.documents}</span>
+                <span>Pagamentos: {deletionPreview.data.counts.payments}</span>
+                <span>Assinaturas: {deletionPreview.data.counts.subscriptions}</span>
+                <span>Suporte: {deletionPreview.data.counts.support}</span>
+              </div>
+              {deletionPreview.data.canDelete ? (
+                <Input
+                  aria-label="Confirme o e-mail"
+                  placeholder="Digite o e-mail da conta"
+                  value={deleteConfirmation}
+                  onChange={(event) => setDeleteConfirmation(event.target.value)}
+                />
+              ) : (
+                <p className="text-sm text-destructive">{deletionPreview.data.reason}</p>
+              )}
+            </div>
+          ) : null}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={
+                !deletionPreview.data?.canDelete ||
+                deleteConfirmation.toLowerCase() !== data.email.toLowerCase() ||
+                closeUser.isPending
+              }
+              onClick={async () => {
+                try {
+                  await closeUser.mutateAsync({
+                    userId: id,
+                    confirmation: deleteConfirmation,
+                    confirm: true,
+                  });
+                  toast.success("Conta vazia encerrada.");
+                  window.location.href = "/admin/usuarios";
+                } catch (error) {
+                  toast.error(
+                    error instanceof Error ? error.message : "Não foi possível encerrar a conta.",
+                  );
+                }
+              }}
+            >
+              Encerrar acesso
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminShell>
   );
 }

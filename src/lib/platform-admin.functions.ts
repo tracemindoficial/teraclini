@@ -219,7 +219,8 @@ export const getAdminOverview = createServerFn({ method: "GET" })
 
 const userListInput = z.object({
   search: z.string().max(120).default(""),
-  status: z.enum(["all", "active", "suspended", "closed"]).default("all"),
+  status: z.enum(["all", "active", "suspended", "closed", "blocked"]).default("all"),
+  payment: z.enum(["all", "confirmed", "pending", "overdue", "none"]).default("all"),
   role: z
     .enum([
       "all",
@@ -266,6 +267,7 @@ export const listAdminUsers = createServerFn({ method: "POST" })
       subscriptionsResult,
       plansResult,
       paymentsResult,
+      paymentStatesResult,
       adminsResult,
       usageResult,
     ] = await Promise.all([
@@ -288,6 +290,10 @@ export const listAdminUsers = createServerFn({ method: "POST" })
         .select("account_id, status, confirmed_at")
         .eq("status", "confirmed")
         .order("confirmed_at", { ascending: false }),
+      context.supabaseAdmin
+        .from("payments")
+        .select("account_id, status, updated_at")
+        .order("updated_at", { ascending: false }),
       context.supabaseAdmin.from("platform_admins").select("user_id, role, revoked_at"),
       context.supabaseAdmin
         .from("usage_events")
@@ -300,6 +306,7 @@ export const listAdminUsers = createServerFn({ method: "POST" })
       subscriptionsResult,
       plansResult,
       paymentsResult,
+      paymentStatesResult,
       adminsResult,
       usageResult,
     ].find((result) => result.error)?.error;
@@ -315,6 +322,11 @@ export const listAdminUsers = createServerFn({ method: "POST" })
     for (const payment of paymentsResult.data ?? []) {
       if (payment.confirmed_at && !lastPayments.has(payment.account_id))
         lastPayments.set(payment.account_id, payment.confirmed_at);
+    }
+    const paymentStates = new Map<string, string>();
+    for (const payment of paymentStatesResult.data ?? []) {
+      if (!paymentStates.has(payment.account_id))
+        paymentStates.set(payment.account_id, payment.status);
     }
     const admins = new Map(
       (adminsResult.data ?? [])
@@ -352,6 +364,7 @@ export const listAdminUsers = createServerFn({ method: "POST" })
           nextDueOn: subscription?.next_due_on ?? null,
           cancelledAt: subscription?.cancelled_at ?? null,
           lastPaymentAt: account ? (lastPayments.get(account.id) ?? null) : null,
+          paymentStatus: account ? (paymentStates.get(account.id) ?? null) : null,
           lastActivityAt: account ? (lastActivity.get(account.id) ?? null) : null,
           platformRole: admins.get(user.id) ?? null,
         };
@@ -361,10 +374,19 @@ export const listAdminUsers = createServerFn({ method: "POST" })
           !search ||
           row.name.toLocaleLowerCase("pt-BR").includes(search) ||
           row.email.toLocaleLowerCase("pt-BR").includes(search);
-        const matchesStatus = data.status === "all" || row.accountStatus === data.status;
+        const matchesStatus =
+          data.status === "all" ||
+          (data.status === "blocked" ? row.accountBlocked : row.accountStatus === data.status);
+        const matchesPayment =
+          data.payment === "all" ||
+          (data.payment === "none"
+            ? row.paymentStatus === null
+            : data.payment === "pending"
+              ? ["pending", "under_review"].includes(row.paymentStatus ?? "")
+              : row.paymentStatus === data.payment);
         const matchesRole =
           data.role === "all" || (row.platformRole ?? "professional") === data.role;
-        return matchesSearch && matchesStatus && matchesRole;
+        return matchesSearch && matchesStatus && matchesPayment && matchesRole;
       })
       .sort((a, b) => {
         if (data.sort === "oldest")
@@ -413,6 +435,7 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
       subscription,
       support,
       platformAdmin,
+      payments,
     ] = await Promise.all([
       context.supabaseAdmin
         .from("patients")
@@ -454,6 +477,14 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
         .select("role, revoked_at")
         .eq("user_id", data.userId)
         .maybeSingle(),
+      context.supabaseAdmin
+        .from("payments")
+        .select(
+          "id, amount_cents, currency, due_on, paid_at, method, status, transaction_id, charge_id, confirmation_source, confirmed_at, updated_at",
+        )
+        .eq("account_id", accountId)
+        .order("created_at", { ascending: false })
+        .limit(10),
     ]);
     const firstError = [
       patients,
@@ -464,6 +495,7 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
       subscription,
       support,
       platformAdmin,
+      payments,
     ].find((result) => result.error)?.error;
     if (firstError) throw new Error("Não foi possível carregar os indicadores da conta.");
     return {
@@ -496,6 +528,7 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
       support: support.data ?? [],
       platformRole:
         platformAdmin.data && !platformAdmin.data.revoked_at ? platformAdmin.data.role : null,
+      payments: payments.data ?? [],
     };
   });
 
@@ -713,9 +746,9 @@ export const setPlatformAdminRole = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     if (context.platformAdminRole !== "super_admin")
       throw new Response("Forbidden", { status: 403 });
-    const { data: changed, error } = await context.supabaseAdmin.rpc("admin_set_platform_role", {
+    const { data: changed, error } = await context.supabaseAdmin.rpc("admin_set_platform_role_v2", {
       _actor_user_id: context.userId,
-      _role: data.role as Database["public"]["Enums"]["platform_admin_role"],
+      _role: data.role as string,
       _target_user_id: data.userId,
     });
     if (error) throw new Error(error.message || "Não foi possível alterar a permissão.");

@@ -2402,6 +2402,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      admin_set_platform_role_v2: {
+        Args: { _actor_user_id: string; _role: string; _target_user_id: string }
+        Returns: boolean
+      }
       admin_update_user_profile: {
         Args: {
           _actor_user_id: string

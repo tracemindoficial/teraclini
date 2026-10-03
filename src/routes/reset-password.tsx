@@ -37,8 +37,8 @@ function ResetPasswordPage() {
 
   useEffect(() => {
     let active = true;
-    const hashIsRecovery =
-      new URLSearchParams(window.location.hash.slice(1)).get("type") === "recovery";
+    const linkType = new URLSearchParams(window.location.hash.slice(1)).get("type");
+    const hashAllowsPassword = linkType === "recovery" || linkType === "invite";
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       if (active && event === "PASSWORD_RECOVERY" && session) {
         setRecoveryReady(true);
@@ -50,10 +50,14 @@ function ResetPasswordPage() {
       if (!active) return;
       let forced = false;
       if (data.session?.user) {
-        const profile = await supabase.from("profiles").select("force_password_reset").eq("id", data.session.user.id).maybeSingle();
+        const profile = await supabase
+          .from("profiles")
+          .select("force_password_reset")
+          .eq("id", data.session.user.id)
+          .maybeSingle();
         forced = Boolean(profile.data?.force_password_reset);
       }
-      setRecoveryReady(Boolean(data.session && (hashIsRecovery || forced)));
+      setRecoveryReady(Boolean(data.session && (hashAllowsPassword || forced)));
       setChecking(false);
     });
 

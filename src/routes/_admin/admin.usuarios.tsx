@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search } from "lucide-react";
+import { Search, UserPlus } from "lucide-react";
 import { useState } from "react";
 
 import { AdminShell, AdminState } from "@/components/admin/AdminShell";
@@ -14,6 +14,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { brlFromCents } from "@/lib/admin-metrics";
 import { useAdminUsers } from "@/lib/data/admin";
+import { useInviteAdminUser } from "@/lib/data/admin-operations";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/usuarios")({
   head: () => ({
@@ -36,14 +46,36 @@ function formatDate(value: string | null) {
 
 function AdminUsersPage() {
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<"all" | "active" | "suspended" | "closed">("all");
+  const [status, setStatus] = useState<"all" | "active" | "suspended" | "closed" | "blocked">(
+    "all",
+  );
+  const [payment, setPayment] = useState<"all" | "confirmed" | "pending" | "overdue" | "none">(
+    "all",
+  );
   const [role, setRole] = useState("all");
   const [sort, setSort] = useState<"newest" | "oldest" | "name" | "last_activity">("newest");
   const [page, setPage] = useState(1);
-  const { data, isLoading, error } = useAdminUsers(search, status, role, sort, page);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [invite, setInvite] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    role: "professional",
+  });
+  const inviteUser = useInviteAdminUser();
+  const { data, isLoading, error } = useAdminUsers(search, status, payment, role, sort, page);
   return (
-    <AdminShell title="Usuários" description="Contas, acesso, assinatura e atividade">
-      <div className="surface mb-5 grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_13rem_13rem_13rem]">
+    <AdminShell
+      title="Usuários"
+      description="Contas, acesso, assinatura e atividade"
+      action={
+        <Button className="gap-2" onClick={() => setInviteOpen(true)}>
+          <UserPlus className="size-4" />
+          Adicionar usuário
+        </Button>
+      }
+    >
+      <div className="surface mb-5 grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_12rem_12rem_12rem_12rem]">
         <label className="relative">
           <Search className="absolute left-3 top-3 size-4 text-muted-foreground" />
           <Input
@@ -71,6 +103,25 @@ function AdminUsersPage() {
             <SelectItem value="active">Ativas</SelectItem>
             <SelectItem value="suspended">Suspensas</SelectItem>
             <SelectItem value="closed">Encerradas</SelectItem>
+            <SelectItem value="blocked">Bloqueadas</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select
+          value={payment}
+          onValueChange={(value) => {
+            setPayment(value as typeof payment);
+            setPage(1);
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Pagamento" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os pagamentos</SelectItem>
+            <SelectItem value="confirmed">Pagos</SelectItem>
+            <SelectItem value="pending">Pendentes</SelectItem>
+            <SelectItem value="overdue">Atrasados</SelectItem>
+            <SelectItem value="none">Sem registro</SelectItem>
           </SelectContent>
         </Select>
         <Select
@@ -196,6 +247,89 @@ function AdminUsersPage() {
           </div>
         </>
       )}
+      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adicionar usuário</DialogTitle>
+            <DialogDescription>
+              Um convite seguro será enviado para a pessoa definir o próprio acesso.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3">
+            <Input
+              aria-label="Nome completo"
+              placeholder="Nome completo"
+              value={invite.fullName}
+              onChange={(event) => setInvite({ ...invite, fullName: event.target.value })}
+            />
+            <Input
+              aria-label="E-mail"
+              type="email"
+              placeholder="E-mail"
+              value={invite.email}
+              onChange={(event) => setInvite({ ...invite, email: event.target.value })}
+            />
+            <Input
+              aria-label="Telefone"
+              placeholder="Telefone (opcional)"
+              value={invite.phone}
+              onChange={(event) => setInvite({ ...invite, phone: event.target.value })}
+            />
+            <Select
+              value={invite.role}
+              onValueChange={(value) => setInvite({ ...invite, role: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="professional">Profissional</SelectItem>
+                <SelectItem value="support_admin">Suporte</SelectItem>
+                <SelectItem value="analyst">Analista</SelectItem>
+                <SelectItem value="finance_admin">Financeiro</SelectItem>
+                <SelectItem value="content_admin">Conteúdo</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setInviteOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              disabled={
+                inviteUser.isPending ||
+                invite.fullName.trim().length < 2 ||
+                !invite.email.includes("@")
+              }
+              onClick={async () => {
+                try {
+                  await inviteUser.mutateAsync({
+                    fullName: invite.fullName,
+                    email: invite.email,
+                    phone: invite.phone || null,
+                    role: invite.role as
+                      | "professional"
+                      | "support_admin"
+                      | "analyst"
+                      | "finance_admin"
+                      | "content_admin",
+                    confirm: true,
+                  });
+                  toast.success("Convite enviado.");
+                  setInviteOpen(false);
+                  setInvite({ fullName: "", email: "", phone: "", role: "professional" });
+                } catch (error) {
+                  toast.error(
+                    error instanceof Error ? error.message : "Não foi possível enviar o convite.",
+                  );
+                }
+              }}
+            >
+              Enviar convite
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminShell>
   );
 }
