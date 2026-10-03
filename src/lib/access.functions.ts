@@ -14,7 +14,7 @@ export const getSessionAccess = createServerFn({ method: "GET" })
         .maybeSingle(),
       supabaseAdmin
         .from("profiles")
-        .select("onboarding_completed, account:accounts(status)")
+        .select("onboarding_completed, account:accounts(status, blocked_at, block_reason)")
         .eq("id", context.userId)
         .maybeSingle(),
     ]);
@@ -27,6 +27,8 @@ export const getSessionAccess = createServerFn({ method: "GET" })
     return {
       isPlatformAdmin: Boolean(adminResult.data?.role && !adminResult.data.revoked_at),
       accountStatus: account?.status ?? null,
+      accountBlocked: Boolean(account?.blocked_at),
+      accountBlockReason: account?.block_reason ?? null,
       onboardingCompleted: profileResult.data?.onboarding_completed ?? false,
     };
   });

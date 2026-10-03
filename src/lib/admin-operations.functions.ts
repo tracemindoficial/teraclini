@@ -56,12 +56,12 @@ async function audit(
 
 async function accountForUser(client: SupabaseClient<Database>, userId: string) {
   const { data, error } = await client
-    .from("accounts")
-    .select("id, status")
-    .eq("owner_user_id", userId)
+    .from("profiles")
+    .select("account:accounts(id, status)")
+    .eq("id", userId)
     .maybeSingle();
-  if (error || !data) throw new Error("Conta não encontrada.");
-  return data;
+  if (error || !data?.account) throw new Error("Conta não encontrada.");
+  return data.account;
 }
 
 const profileInput = z.object({
@@ -85,12 +85,12 @@ export const updateAdminUserProfile = createServerFn({ method: "POST" })
       _actor_user_id: context.userId,
       _target_user_id: data.userId,
       _full_name: data.fullName,
-      _profession: data.profession ?? "",
-      _professional_registry: data.professionalRegistry ?? "",
-      _city: data.city ?? "",
-      _state: data.state ?? "",
-      _care_mode: data.careMode ?? "presencial",
-      _phone: data.phone ?? "",
+      _profession: data.profession ?? undefined,
+      _professional_registry: data.professionalRegistry ?? undefined,
+      _city: data.city ?? undefined,
+      _state: data.state ?? undefined,
+      _care_mode: data.careMode ?? undefined,
+      _phone: data.phone ?? undefined,
     });
     if (error) throw new Error(error.message || "Não foi possível atualizar os dados do usuário.");
     return { ok: true as const, unchanged: !changed };
@@ -111,31 +111,25 @@ export const updateAdminUserEmail = createServerFn({ method: "POST" })
     if (current.error || !current.data.user) throw new Error("Usuário não encontrado.");
     if (current.data.user.email?.toLowerCase() === data.email.toLowerCase())
       return { ok: true as const, unchanged: true };
-    for (let page = 1; page <= 100; page += 1) {
-      const users = await context.supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 });
-      if (users.error) throw new Error("Não foi possível validar o novo e-mail.");
-      if (
-        users.data.users.some(
-          (user) =>
-            user.id !== data.userId && user.email?.toLowerCase() === data.email.toLowerCase(),
-        )
-      ) {
-        throw new Error("Este e-mail já está em uso.");
-      }
-      if (users.data.users.length < 1000) break;
-    }
     const updated = await context.supabaseAdmin.auth.admin.updateUserById(data.userId, {
       email: data.email,
-      email_confirm: false,
+      email_confirm: true,
     });
-    if (updated.error) throw new Error("Não foi possível alterar o e-mail.");
-    await context.supabaseAdmin.from("account_access_events").insert({
+    if (updated.error) {
+      if (updated.error.message.toLowerCase().includes("already"))
+        throw new Error("Este e-mail já está em uso.");
+      throw new Error("Não foi possível alterar o e-mail.");
+    }
+    const { error: accessEventError } = await context.supabaseAdmin
+      .from("account_access_events")
+      .insert({
       account_id: account.id,
       user_id: data.userId,
       actor_user_id: context.userId,
       event_type: "email_changed",
       details: { previous_email_domain: current.data.user.email?.split("@")[1] ?? null },
     });
+    if (accessEventError) throw new Error("E-mail alterado, mas o histórico não foi registrado.");
     await audit(
       context.supabaseAdmin,
       context.userId,
@@ -266,7 +260,7 @@ export const getAdminUserHistory = createServerFn({ method: "POST" })
     const [auditRows, accessRows, subscriptionRows] = await Promise.all([
       context.supabaseAdmin
         .from("platform_audit_events")
-        .select("id, action, changed_fields, result, created_at")
+        .select("id, action, changed_fields, result, details, created_at")
         .or(`entity_id.eq.${data.userId},account_id.eq.${account.id}`)
         .order("created_at", { ascending: false })
         .limit(50),
@@ -289,7 +283,10 @@ export const getAdminUserHistory = createServerFn({ method: "POST" })
       ...(auditRows.data ?? []).map((item) => ({
         id: `audit-${item.id}`,
         type: item.action,
-        detail: item.changed_fields.join(", "),
+        detail:
+          typeof item.details?.["reason"] === "string"
+            ? `${item.changed_fields.join(", ")} — ${item.details["reason"]}`
+            : item.changed_fields.join(", "),
         createdAt: item.created_at,
       })),
       ...(accessRows.data ?? []).map((item) => ({
