@@ -525,12 +525,15 @@ export const setAdminAccountStatus = createServerFn({ method: "POST" })
       { ban_duration: shouldBan ? "876000h" : "none" },
     );
     if (authResult.error) throw new Error("Não foi possível atualizar o acesso de autenticação.");
-    const { data: changed, error } = await context.supabaseAdmin.rpc("admin_change_account_status", {
-      _actor_user_id: context.userId,
-      _account_id: data.accountId,
-      _reason: data.reason,
-      _status: data.status,
-    });
+    const { data: changed, error } = await context.supabaseAdmin.rpc(
+      "admin_change_account_status",
+      {
+        _actor_user_id: context.userId,
+        _account_id: data.accountId,
+        _reason: data.reason,
+        _status: data.status,
+      },
+    );
     if (error) {
       await context.supabaseAdmin.auth.admin.updateUserById(target.data.owner_user_id, {
         ban_duration: wasBanned ? "876000h" : "none",
@@ -566,15 +569,12 @@ export const setAdminAccountBlock = createServerFn({ method: "POST" })
       { ban_duration: shouldBan ? "876000h" : "none" },
     );
     if (authResult.error) throw new Error("Não foi possível atualizar o acesso de autenticação.");
-    const { data: changed, error } = await context.supabaseAdmin.rpc(
-      "admin_set_account_block",
-      {
-        _actor_user_id: context.userId,
-        _account_id: data.accountId,
-        _blocked: data.blocked,
-        _reason: data.reason,
-      },
-    );
+    const { data: changed, error } = await context.supabaseAdmin.rpc("admin_set_account_block", {
+      _actor_user_id: context.userId,
+      _account_id: data.accountId,
+      _blocked: data.blocked,
+      _reason: data.reason,
+    });
     if (error) {
       await context.supabaseAdmin.auth.admin.updateUserById(target.data.owner_user_id, {
         ban_duration: wasBanned ? "876000h" : "none",

@@ -92,8 +92,7 @@ export function useSetAdminAccountStatus(userId: string) {
       status: "active" | "suspended";
       reason: string;
       confirm: true;
-    }) =>
-      mutation({ data }),
+    }) => mutation({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.userDetail(userId) });
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
@@ -107,12 +106,8 @@ export function useSetAdminAccountBlock(userId: string) {
   const queryClient = useQueryClient();
   const mutation = useServerFn(setAdminAccountBlock);
   return useMutation({
-    mutationFn: (data: {
-      accountId: string;
-      blocked: boolean;
-      reason: string;
-      confirm: true;
-    }) => mutation({ data }),
+    mutationFn: (data: { accountId: string; blocked: boolean; reason: string; confirm: true }) =>
+      mutation({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.userDetail(userId) });
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });

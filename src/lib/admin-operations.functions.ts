@@ -124,12 +124,12 @@ export const updateAdminUserEmail = createServerFn({ method: "POST" })
     const { error: accessEventError } = await context.supabaseAdmin
       .from("account_access_events")
       .insert({
-      account_id: account.id,
-      user_id: data.userId,
-      actor_user_id: context.userId,
-      event_type: "email_changed",
-      details: { previous_email_domain: current.data.user.email?.split("@")[1] ?? null },
-    });
+        account_id: account.id,
+        user_id: data.userId,
+        actor_user_id: context.userId,
+        event_type: "email_changed",
+        details: { previous_email_domain: current.data.user.email?.split("@")[1] ?? null },
+      });
     if (accessEventError) console.error("Admin email access history write failed");
     try {
       await audit(

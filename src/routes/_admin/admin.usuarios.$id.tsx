@@ -128,24 +128,24 @@ function AdminUserDetailPage() {
               </Button>
             )}
             {data.accountStatus === "active" ? (
-            <Button
-              variant="destructive"
-              className="gap-2"
-              disabled={setStatus.isPending}
-              onClick={() => setAccessAction("deactivate")}
-            >
-              <Ban className="size-4" />
-              Desativar
-            </Button>
-          ) : (
-            <Button
-              className="gap-2"
-              disabled={setStatus.isPending}
-              onClick={() => setAccessAction("activate")}
-            >
-              <CheckCircle2 className="size-4" />
-              Ativar
-            </Button>
+              <Button
+                variant="destructive"
+                className="gap-2"
+                disabled={setStatus.isPending}
+                onClick={() => setAccessAction("deactivate")}
+              >
+                <Ban className="size-4" />
+                Desativar
+              </Button>
+            ) : (
+              <Button
+                className="gap-2"
+                disabled={setStatus.isPending}
+                onClick={() => setAccessAction("activate")}
+              >
+                <CheckCircle2 className="size-4" />
+                Ativar
+              </Button>
             )}
           </div>
         ) : undefined
