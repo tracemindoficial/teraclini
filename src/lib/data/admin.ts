@@ -35,15 +35,16 @@ export function useAdminOverview() {
 
 export function useAdminUsers(
   search: string,
-  status: "all" | "active" | "suspended" | "closed",
+  status: "all" | "active" | "suspended" | "closed" | "blocked",
+  payment: "all" | "confirmed" | "pending" | "overdue" | "none",
   role: string,
   sort: "newest" | "oldest" | "name" | "last_activity",
   page: number,
 ) {
   const fetcher = useServerFn(listAdminUsers);
   return useQuery({
-    queryKey: [...adminKeys.users(search, status, sort, page), role],
-    queryFn: () => fetcher({ data: { search, status, role, sort, page, pageSize: 20 } }),
+    queryKey: [...adminKeys.users(search, status, sort, page), role, payment],
+    queryFn: () => fetcher({ data: { search, status, payment, role, sort, page, pageSize: 20 } }),
   });
 }
 
