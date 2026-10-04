@@ -29,7 +29,23 @@ export function useRevokeRegistrationLink() {
 }
 export function useApproveRegistration() {
   const qc = useQueryClient();
-  return useMutation({ mutationFn: async ({ id, existingPatientId }: { id: string; existingPatientId?: string }) => { const args = existingPatientId ? { _request_id: id, _existing_patient_id: existingPatientId } : { _request_id: id }; const { data, error } = await supabase.rpc("approve_patient_registration", args); if (error) throw new Error(error.message); return data; }, onSuccess: () => { qc.invalidateQueries({ queryKey: queryKeys.registrationRequests }); qc.invalidateQueries({ queryKey: queryKeys.patients }); qc.invalidateQueries({ queryKey: queryKeys.onboardingTasks }); } });
+  return useMutation({
+    mutationFn: async ({ id, existingPatientId }: { id: string; existingPatientId?: string }) => {
+      const args = existingPatientId
+        ? { _request_id: id, _existing_patient_id: existingPatientId }
+        : { _request_id: id };
+      const { data, error } = await supabase.rpc("approve_patient_registration", args);
+      if (error) throw new Error(error.message);
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: queryKeys.registrationRequests });
+      qc.invalidateQueries({ queryKey: queryKeys.registrationRequest(variables.id) });
+      qc.invalidateQueries({ queryKey: queryKeys.registrationDuplicates(variables.id) });
+      qc.invalidateQueries({ queryKey: queryKeys.patients });
+      qc.invalidateQueries({ queryKey: queryKeys.onboardingTasks });
+    },
+  });
 }
 export function useRejectRegistration() {
   const qc = useQueryClient();
