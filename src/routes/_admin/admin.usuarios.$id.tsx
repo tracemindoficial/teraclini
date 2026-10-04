@@ -53,7 +53,7 @@ export const Route = createFileRoute("/_admin/admin/usuarios/$id")({
 
 function AdminUserDetailPage() {
   const { id } = useParams({ from: "/_admin/admin/usuarios/$id" });
-  const { data, isLoading, error } = useAdminUserDetail(id);
+  const { data, isLoading, error, refetch, isFetching } = useAdminUserDetail(id);
   const setStatus = useSetAdminAccountStatus(id);
   const setBlock = useSetAdminAccountBlock(id);
   const setRole = useSetPlatformAdminRole(id);
@@ -105,9 +105,20 @@ function AdminUserDetailPage() {
   if (error || !data)
     return (
       <AdminShell title="Conta">
-        <AdminState kind="error">
-          Não foi possível carregar este cadastro. Verifique sua permissão e tente novamente.
-        </AdminState>
+        <div className="surface p-8 text-center">
+          <p className="text-sm text-destructive">
+            Não foi possível carregar este cadastro. Verifique sua permissão e tente novamente.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-4"
+            disabled={isFetching}
+            onClick={() => void refetch()}
+          >
+            {isFetching ? "Tentando novamente..." : "Tentar novamente"}
+          </Button>
+        </div>
       </AdminShell>
     );
 
