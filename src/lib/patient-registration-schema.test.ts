@@ -40,9 +40,7 @@ describe("patient preregistration validation", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(
-        result.error.issues.some((issue) => issue.path[0] === "guardian_name"),
-      ).toBe(true);
+      expect(result.error.issues.some((issue) => issue.path[0] === "guardian_name")).toBe(true);
     }
   });
 
