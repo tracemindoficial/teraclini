@@ -174,8 +174,22 @@ async function deletionPreview(client: SupabaseClient<Database>, userId: string)
     .maybeSingle();
   if (profileError || !profile) throw new Error("Perfil não encontrado.");
   const accountId = profile.account_id;
-  const [patients, appointments, documents, packages, payments, subscriptions, support, admin] =
-    await Promise.all([
+  const [
+    patients,
+    appointments,
+    documents,
+    packages,
+    payments,
+    subscriptions,
+    support,
+    accessEvents,
+    activity,
+    adminNotes,
+    paymentEvents,
+    subscriptionEvents,
+    usageEvents,
+    admin,
+  ] = await Promise.all([
       client
         .from("patients")
         .select("id", { count: "exact", head: true })
@@ -204,9 +218,47 @@ async function deletionPreview(client: SupabaseClient<Database>, userId: string)
         .from("support_tickets")
         .select("id", { count: "exact", head: true })
         .eq("account_id", accountId),
+      client
+        .from("account_access_events")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      client
+        .from("activity_log")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      client
+        .from("admin_notes")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      client
+        .from("payment_events")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      client
+        .from("subscription_events")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
+      client
+        .from("usage_events")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", accountId),
       client.from("platform_admins").select("role, revoked_at").eq("user_id", userId).maybeSingle(),
     ]);
-  const results = [patients, appointments, documents, packages, payments, subscriptions, support];
+  const results = [
+    patients,
+    appointments,
+    documents,
+    packages,
+    payments,
+    subscriptions,
+    support,
+    accessEvents,
+    activity,
+    adminNotes,
+    paymentEvents,
+    subscriptionEvents,
+    usageEvents,
+  ];
   if (results.some((result) => result.error) || admin.error)
     throw new Error("Não foi possível verificar as dependências da conta.");
   const counts = {
@@ -217,9 +269,17 @@ async function deletionPreview(client: SupabaseClient<Database>, userId: string)
     payments: payments.count ?? 0,
     subscriptions: subscriptions.count ?? 0,
     support: support.count ?? 0,
+    accessEvents: accessEvents.count ?? 0,
+    activity: activity.count ?? 0,
+    adminNotes: adminNotes.count ?? 0,
+    paymentEvents: paymentEvents.count ?? 0,
+    subscriptionEvents: subscriptionEvents.count ?? 0,
+    usageEvents: usageEvents.count ?? 0,
   };
   const hasDependencies = Object.values(counts).some((count) => count > 0);
   const isAdmin = Boolean(admin.data && !admin.data.revoked_at);
+  const isProtectedAccount =
+    userResult.data.user.email?.toLocaleLowerCase("pt-BR") === "eduardocomplex@gmail.com";
   return {
     userId,
     accountId,
@@ -227,8 +287,10 @@ async function deletionPreview(client: SupabaseClient<Database>, userId: string)
     email: userResult.data.user.email ?? "E-mail indisponível",
     counts,
     isAdmin,
-    canDelete: !hasDependencies && !isAdmin,
-    reason: isAdmin
+    canDelete: !hasDependencies && !isAdmin && !isProtectedAccount,
+    reason: isProtectedAccount
+      ? "Esta conta prioritária está protegida contra encerramento."
+      : isAdmin
       ? "Contas administrativas devem ser preservadas."
       : hasDependencies
         ? "A conta possui dados que exigem preservação. Use a desativação."
