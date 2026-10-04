@@ -372,6 +372,8 @@ export const listAdminUsers = createServerFn({ method: "POST" })
       .filter((row) => {
         const matchesSearch =
           !search ||
+          row.id.toLocaleLowerCase("pt-BR").includes(search) ||
+          (row.accountId?.toLocaleLowerCase("pt-BR").includes(search) ?? false) ||
           row.name.toLocaleLowerCase("pt-BR").includes(search) ||
           row.email.toLocaleLowerCase("pt-BR").includes(search);
         const matchesStatus =
@@ -420,12 +422,51 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
     const { data: profile, error: profileError } = await context.supabaseAdmin
       .from("profiles")
       .select(
-        "account_id, full_name, profession, professional_registry, city, state, phone, care_mode, onboarding_completed, force_password_reset, created_at, account:accounts(id, status, blocked_at, block_reason, access_state_changed_at)",
+        "account_id, full_name, profession, professional_registry, city, state, phone, care_mode, onboarding_completed, force_password_reset, created_at",
       )
       .eq("id", data.userId)
       .maybeSingle();
-    if (profileError || !profile) throw new Response("Not found", { status: 404 });
-    const accountId = profile.account_id;
+    if (profileError) throw new Error("Não foi possível carregar o perfil cadastral.");
+    const { data: account, error: accountError } = await context.supabaseAdmin
+      .from("accounts")
+      .select("id, status, blocked_at, block_reason, access_state_changed_at")
+      .eq("owner_user_id", data.userId)
+      .maybeSingle();
+    if (accountError) throw new Error("Não foi possível carregar a conta profissional.");
+    const accountId = profile?.account_id ?? account?.id ?? null;
+
+    if (!accountId) {
+      return {
+        id: user.id,
+        accountId: null,
+        profileExists: false,
+        name:
+          (typeof user.user_metadata?.["full_name"] === "string"
+            ? user.user_metadata["full_name"]
+            : null) || "Cadastro incompleto",
+        email: user.email ?? "E-mail indisponível",
+        profession: null,
+        professionalRegistry: null,
+        city: null,
+        state: null,
+        phone: null,
+        careMode: null,
+        forcePasswordReset: false,
+        accountStatus: "missing",
+        accountBlocked: false,
+        blockReason: null,
+        accessStateChangedAt: null,
+        onboardingCompleted: false,
+        createdAt: user.created_at,
+        lastSignInAt: user.last_sign_in_at ?? null,
+        counts: { patients: 0, appointments: 0, documents: 0, packages: 0 },
+        activity: [],
+        subscription: null,
+        support: [],
+        platformRole: null,
+        payments: [],
+      };
+    }
     const [
       patients,
       appointments,
@@ -501,21 +542,22 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
     return {
       id: user.id,
       accountId,
-      name: profile.full_name || "Cadastro incompleto",
+      profileExists: Boolean(profile),
+      name: profile?.full_name || "Cadastro incompleto",
       email: user.email ?? "E-mail indisponível",
-      profession: profile.profession,
-      professionalRegistry: profile.professional_registry,
-      city: profile.city,
-      state: profile.state,
-      phone: profile.phone,
-      careMode: profile.care_mode,
-      forcePasswordReset: profile.force_password_reset,
-      accountStatus: profile.account?.status ?? "unknown",
-      accountBlocked: Boolean(profile.account?.blocked_at),
-      blockReason: profile.account?.block_reason ?? null,
-      accessStateChangedAt: profile.account?.access_state_changed_at ?? null,
-      onboardingCompleted: profile.onboarding_completed,
-      createdAt: profile.created_at,
+      profession: profile?.profession ?? null,
+      professionalRegistry: profile?.professional_registry ?? null,
+      city: profile?.city ?? null,
+      state: profile?.state ?? null,
+      phone: profile?.phone ?? null,
+      careMode: profile?.care_mode ?? null,
+      forcePasswordReset: profile?.force_password_reset ?? false,
+      accountStatus: account?.status ?? "unknown",
+      accountBlocked: Boolean(account?.blocked_at),
+      blockReason: account?.block_reason ?? null,
+      accessStateChangedAt: account?.access_state_changed_at ?? null,
+      onboardingCompleted: profile?.onboarding_completed ?? false,
+      createdAt: profile?.created_at ?? user.created_at,
       lastSignInAt: user.last_sign_in_at ?? null,
       counts: {
         patients: patients.count ?? 0,

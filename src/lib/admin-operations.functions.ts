@@ -174,39 +174,91 @@ async function deletionPreview(client: SupabaseClient<Database>, userId: string)
     .maybeSingle();
   if (profileError || !profile) throw new Error("Perfil não encontrado.");
   const accountId = profile.account_id;
-  const [patients, appointments, documents, packages, payments, subscriptions, support, admin] =
-    await Promise.all([
-      client
-        .from("patients")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("appointments")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("documents")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("care_packages")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("payments")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("account_subscriptions")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("support_tickets")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client.from("platform_admins").select("role, revoked_at").eq("user_id", userId).maybeSingle(),
-    ]);
-  const results = [patients, appointments, documents, packages, payments, subscriptions, support];
+  const [
+    patients,
+    appointments,
+    documents,
+    packages,
+    payments,
+    subscriptions,
+    support,
+    accessEvents,
+    activity,
+    adminNotes,
+    paymentEvents,
+    subscriptionEvents,
+    usageEvents,
+    admin,
+  ] = await Promise.all([
+    client
+      .from("patients")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("documents")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("care_packages")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("payments")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("account_subscriptions")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("support_tickets")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("account_access_events")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("activity_log")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("admin_notes")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("payment_events")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("subscription_events")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("usage_events")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client.from("platform_admins").select("role, revoked_at").eq("user_id", userId).maybeSingle(),
+  ]);
+  const results = [
+    patients,
+    appointments,
+    documents,
+    packages,
+    payments,
+    subscriptions,
+    support,
+    accessEvents,
+    activity,
+    adminNotes,
+    paymentEvents,
+    subscriptionEvents,
+    usageEvents,
+  ];
   if (results.some((result) => result.error) || admin.error)
     throw new Error("Não foi possível verificar as dependências da conta.");
   const counts = {
@@ -217,9 +269,17 @@ async function deletionPreview(client: SupabaseClient<Database>, userId: string)
     payments: payments.count ?? 0,
     subscriptions: subscriptions.count ?? 0,
     support: support.count ?? 0,
+    accessEvents: accessEvents.count ?? 0,
+    activity: activity.count ?? 0,
+    adminNotes: adminNotes.count ?? 0,
+    paymentEvents: paymentEvents.count ?? 0,
+    subscriptionEvents: subscriptionEvents.count ?? 0,
+    usageEvents: usageEvents.count ?? 0,
   };
   const hasDependencies = Object.values(counts).some((count) => count > 0);
   const isAdmin = Boolean(admin.data && !admin.data.revoked_at);
+  const isProtectedAccount =
+    userResult.data.user.email?.toLocaleLowerCase("pt-BR") === "eduardocomplex@gmail.com";
   return {
     userId,
     accountId,
@@ -227,12 +287,14 @@ async function deletionPreview(client: SupabaseClient<Database>, userId: string)
     email: userResult.data.user.email ?? "E-mail indisponível",
     counts,
     isAdmin,
-    canDelete: !hasDependencies && !isAdmin,
-    reason: isAdmin
-      ? "Contas administrativas devem ser preservadas."
-      : hasDependencies
-        ? "A conta possui dados que exigem preservação. Use a desativação."
-        : null,
+    canDelete: !hasDependencies && !isAdmin && !isProtectedAccount,
+    reason: isProtectedAccount
+      ? "Esta conta prioritária está protegida contra encerramento."
+      : isAdmin
+        ? "Contas administrativas devem ser preservadas."
+        : hasDependencies
+          ? "A conta possui dados que exigem preservação. Use a desativação."
+          : null,
   };
 }
 
@@ -561,7 +623,7 @@ export const getAdminNotifications = createServerFn({ method: "GET" })
     const [accounts, tickets, subscriptions, payments, reads] = await Promise.all([
       context.supabaseAdmin
         .from("accounts")
-        .select("id, name, status, created_at")
+        .select("id, owner_user_id, name, status, created_at")
         .order("created_at", { ascending: false })
         .limit(20),
       context.supabaseAdmin
@@ -600,7 +662,7 @@ export const getAdminNotifications = createServerFn({ method: "GET" })
           title: "Novo cadastro",
           detail: a.name,
           date: a.created_at,
-          to: `/admin/usuarios/${a.id}`,
+          to: `/admin/usuarios/${a.owner_user_id}`,
         })),
       ...(accounts.data ?? [])
         .filter((a) => a.status === "suspended")
@@ -610,7 +672,7 @@ export const getAdminNotifications = createServerFn({ method: "GET" })
           title: "Conta suspensa",
           detail: a.name,
           date: a.created_at,
-          to: `/admin/usuarios/${a.id}`,
+          to: `/admin/usuarios/${a.owner_user_id}`,
         })),
       ...(tickets.data ?? []).map((t) => ({
         key: `ticket:${t.id}:${t.last_message_at}`,
