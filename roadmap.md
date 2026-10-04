@@ -138,6 +138,8 @@
 
 - [x] Corrigir edição administrativa de usuário com persistência e histórico
 - [x] Separar ativação, bloqueio administrativo e licença, com proteção do administrador principal
+- [x] Listar identidades independentemente de perfil, pagamento ou assinatura e permitir busca por identificador
+- [x] Abrir cadastros incompletos em modo diagnóstico sem criar perfis ou dados financeiros artificiais
 - [ ] Validar edição, ativação e bloqueio ponta a ponta com uma sessão administrativa autorizada
 - [ ] Corrigir e validar pré-cadastro, aprovação e continuidade para agendamento
 - [ ] Auditar controles, formulários, modais, filtros, notificações e rotas sem ações mortas

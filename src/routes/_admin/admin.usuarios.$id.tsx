@@ -105,7 +105,9 @@ function AdminUserDetailPage() {
   if (error || !data)
     return (
       <AdminShell title="Conta">
-        <AdminState kind="error">Conta não encontrada.</AdminState>
+        <AdminState kind="error">
+          Não foi possível carregar este cadastro. Verifique sua permissão e tente novamente.
+        </AdminState>
       </AdminShell>
     );
 
@@ -174,6 +176,16 @@ function AdminUserDetailPage() {
         <AdminMetric label="Documentos" value={data.counts.documents} />
         <AdminMetric label="Pacotes" value={data.counts.packages} />
       </section>
+      {!data.profileExists ? (
+        <div className="surface mt-6 border-destructive/30 p-5">
+          <h2 className="font-semibold">Cadastro incompleto</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            A identidade existe, mas o perfil cadastral ou a conta profissional não foi encontrado.
+            Os dados disponíveis permanecem visíveis para diagnóstico; ações que dependem desses
+            registros ficam indisponíveis.
+          </p>
+        </div>
+      ) : null}
       <section className="mt-6 grid gap-5 lg:grid-cols-2">
         <dl className="surface divide-y p-5">
           <DetailRow label="E-mail" value={data.email} />
@@ -223,19 +235,21 @@ function AdminUserDetailPage() {
           )}
         </div>
       </section>
-      <AdminUserOperations
-        user={{
-          id: data.id,
-          email: data.email,
-          name: data.name,
-          profession: data.profession,
-          professionalRegistry: data.professionalRegistry,
-          city: data.city,
-          state: data.state,
-          phone: data.phone,
-          careMode: data.careMode,
-        }}
-      />
+      {data.profileExists ? (
+        <AdminUserOperations
+          user={{
+            id: data.id,
+            email: data.email,
+            name: data.name,
+            profession: data.profession,
+            professionalRegistry: data.professionalRegistry,
+            city: data.city,
+            state: data.state,
+            phone: data.phone,
+            careMode: data.careMode,
+          }}
+        />
+      ) : null}
       <section className="surface mt-6 p-5">
         <h2 className="font-semibold">Linha do tempo operacional</h2>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -438,7 +452,7 @@ function AdminUserDetailPage() {
           <p className="mt-3 text-sm text-muted-foreground">Nenhum chamado registrado.</p>
         )}
       </section>
-      <section className="surface mt-6 border-destructive/30 p-5">
+      {data.profileExists ? <section className="surface mt-6 border-destructive/30 p-5">
         <h2 className="font-semibold">Encerrar conta vazia</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Preserva o registro administrativo e encerra o acesso somente quando não há dados
@@ -448,8 +462,8 @@ function AdminUserDetailPage() {
           <Trash2 className="size-4" />
           Verificar encerramento
         </Button>
-      </section>
-      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+      </section> : null}
+      {data.profileExists ? <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Encerrar conta vazia</DialogTitle>
@@ -515,7 +529,7 @@ function AdminUserDetailPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> : null}
     </AdminShell>
   );
 }
