@@ -452,84 +452,88 @@ function AdminUserDetailPage() {
           <p className="mt-3 text-sm text-muted-foreground">Nenhum chamado registrado.</p>
         )}
       </section>
-      {data.profileExists ? <section className="surface mt-6 border-destructive/30 p-5">
-        <h2 className="font-semibold">Encerrar conta vazia</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Preserva o registro administrativo e encerra o acesso somente quando não há dados
-          vinculados.
-        </p>
-        <Button variant="destructive" className="mt-4 gap-2" onClick={() => setDeleteOpen(true)}>
-          <Trash2 className="size-4" />
-          Verificar encerramento
-        </Button>
-      </section> : null}
-      {data.profileExists ? <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Encerrar conta vazia</DialogTitle>
-            <DialogDescription>
-              O acesso será encerrado e o registro mínimo preservado. Dados vinculados bloqueiam
-              esta ação.
-            </DialogDescription>
-          </DialogHeader>
-          {deletionPreview.isLoading ? (
-            <p className="text-sm text-muted-foreground">Verificando dependências...</p>
-          ) : deletionPreview.error ? (
-            <p className="text-sm text-destructive">Não foi possível verificar a conta.</p>
-          ) : deletionPreview.data ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <span>Pacientes: {deletionPreview.data.counts.patients}</span>
-                <span>Atendimentos: {deletionPreview.data.counts.appointments}</span>
-                <span>Documentos: {deletionPreview.data.counts.documents}</span>
-                <span>Pagamentos: {deletionPreview.data.counts.payments}</span>
-                <span>Assinaturas: {deletionPreview.data.counts.subscriptions}</span>
-                <span>Suporte: {deletionPreview.data.counts.support}</span>
+      {data.profileExists ? (
+        <section className="surface mt-6 border-destructive/30 p-5">
+          <h2 className="font-semibold">Encerrar conta vazia</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Preserva o registro administrativo e encerra o acesso somente quando não há dados
+            vinculados.
+          </p>
+          <Button variant="destructive" className="mt-4 gap-2" onClick={() => setDeleteOpen(true)}>
+            <Trash2 className="size-4" />
+            Verificar encerramento
+          </Button>
+        </section>
+      ) : null}
+      {data.profileExists ? (
+        <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Encerrar conta vazia</DialogTitle>
+              <DialogDescription>
+                O acesso será encerrado e o registro mínimo preservado. Dados vinculados bloqueiam
+                esta ação.
+              </DialogDescription>
+            </DialogHeader>
+            {deletionPreview.isLoading ? (
+              <p className="text-sm text-muted-foreground">Verificando dependências...</p>
+            ) : deletionPreview.error ? (
+              <p className="text-sm text-destructive">Não foi possível verificar a conta.</p>
+            ) : deletionPreview.data ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <span>Pacientes: {deletionPreview.data.counts.patients}</span>
+                  <span>Atendimentos: {deletionPreview.data.counts.appointments}</span>
+                  <span>Documentos: {deletionPreview.data.counts.documents}</span>
+                  <span>Pagamentos: {deletionPreview.data.counts.payments}</span>
+                  <span>Assinaturas: {deletionPreview.data.counts.subscriptions}</span>
+                  <span>Suporte: {deletionPreview.data.counts.support}</span>
+                </div>
+                {deletionPreview.data.canDelete ? (
+                  <Input
+                    aria-label="Confirme o e-mail"
+                    placeholder="Digite o e-mail da conta"
+                    value={deleteConfirmation}
+                    onChange={(event) => setDeleteConfirmation(event.target.value)}
+                  />
+                ) : (
+                  <p className="text-sm text-destructive">{deletionPreview.data.reason}</p>
+                )}
               </div>
-              {deletionPreview.data.canDelete ? (
-                <Input
-                  aria-label="Confirme o e-mail"
-                  placeholder="Digite o e-mail da conta"
-                  value={deleteConfirmation}
-                  onChange={(event) => setDeleteConfirmation(event.target.value)}
-                />
-              ) : (
-                <p className="text-sm text-destructive">{deletionPreview.data.reason}</p>
-              )}
-            </div>
-          ) : null}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteOpen(false)}>
-              Cancelar
-            </Button>
-            <Button
-              variant="destructive"
-              disabled={
-                !deletionPreview.data?.canDelete ||
-                deleteConfirmation.toLowerCase() !== data.email.toLowerCase() ||
-                closeUser.isPending
-              }
-              onClick={async () => {
-                try {
-                  await closeUser.mutateAsync({
-                    userId: id,
-                    confirmation: deleteConfirmation,
-                    confirm: true,
-                  });
-                  toast.success("Conta vazia encerrada.");
-                  window.location.href = "/admin/usuarios";
-                } catch (error) {
-                  toast.error(
-                    error instanceof Error ? error.message : "Não foi possível encerrar a conta.",
-                  );
+            ) : null}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+                Cancelar
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={
+                  !deletionPreview.data?.canDelete ||
+                  deleteConfirmation.toLowerCase() !== data.email.toLowerCase() ||
+                  closeUser.isPending
                 }
-              }}
-            >
-              Encerrar acesso
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog> : null}
+                onClick={async () => {
+                  try {
+                    await closeUser.mutateAsync({
+                      userId: id,
+                      confirmation: deleteConfirmation,
+                      confirm: true,
+                    });
+                    toast.success("Conta vazia encerrada.");
+                    window.location.href = "/admin/usuarios";
+                  } catch (error) {
+                    toast.error(
+                      error instanceof Error ? error.message : "Não foi possível encerrar a conta.",
+                    );
+                  }
+                }}
+              >
+                Encerrar acesso
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ) : null}
     </AdminShell>
   );
 }
