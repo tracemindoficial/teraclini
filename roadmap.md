@@ -140,6 +140,8 @@
 - [x] Separar ativação, bloqueio administrativo e licença, com proteção do administrador principal
 - [x] Listar identidades independentemente de perfil, pagamento ou assinatura e permitir busca por identificador
 - [x] Abrir cadastros incompletos em modo diagnóstico sem criar perfis ou dados financeiros artificiais
+- [x] Corrigir alertas administrativos para abrir o cadastro pelo identificador do usuário
+- [x] Remover seis contas de teste vazias e preservar a conta incerta com paciente vinculado
 - [ ] Validar edição, ativação e bloqueio ponta a ponta com uma sessão administrativa autorizada
 - [ ] Corrigir e validar pré-cadastro, aprovação e continuidade para agendamento
 - [ ] Auditar controles, formulários, modais, filtros, notificações e rotas sem ações mortas

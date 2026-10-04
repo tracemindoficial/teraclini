@@ -623,7 +623,7 @@ export const getAdminNotifications = createServerFn({ method: "GET" })
     const [accounts, tickets, subscriptions, payments, reads] = await Promise.all([
       context.supabaseAdmin
         .from("accounts")
-        .select("id, name, status, created_at")
+        .select("id, owner_user_id, name, status, created_at")
         .order("created_at", { ascending: false })
         .limit(20),
       context.supabaseAdmin
@@ -662,7 +662,7 @@ export const getAdminNotifications = createServerFn({ method: "GET" })
           title: "Novo cadastro",
           detail: a.name,
           date: a.created_at,
-          to: `/admin/usuarios/${a.id}`,
+          to: `/admin/usuarios/${a.owner_user_id}`,
         })),
       ...(accounts.data ?? [])
         .filter((a) => a.status === "suspended")
@@ -672,7 +672,7 @@ export const getAdminNotifications = createServerFn({ method: "GET" })
           title: "Conta suspensa",
           detail: a.name,
           date: a.created_at,
-          to: `/admin/usuarios/${a.id}`,
+          to: `/admin/usuarios/${a.owner_user_id}`,
         })),
       ...(tickets.data ?? []).map((t) => ({
         key: `ticket:${t.id}:${t.last_message_at}`,
