@@ -30,6 +30,7 @@ import {
   useRejectRegistration,
   useSaveRegistrationRequest,
 } from "@/lib/data/patient-registration";
+import { isValidCpf } from "@/lib/patient-registration-schema";
 
 export const Route = createFileRoute("/_authenticated/pacientes/pre-cadastros/$id")({
   head: () => ({
@@ -396,7 +397,7 @@ function RegistrationRequestEditor({
   const valid =
     values.full_name.trim().length >= 2 &&
     values.email.includes("@") &&
-    values.cpf.trim().length >= 11 &&
+    isValidCpf(values.cpf) &&
     Boolean(values.birth_date) &&
     values.postal_code.replace(/\D/g, "").length === 8 &&
     values.city.trim().length >= 2 &&

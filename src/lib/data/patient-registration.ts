@@ -112,6 +112,7 @@ export function useApproveRegistration() {
         : { _request_id: id };
       const { data, error } = await supabase.rpc("approve_patient_registration", args);
       if (error) throw new Error(error.message);
+      if (!data) throw new Error("A aprovação não retornou o paciente criado ou vinculado.");
       return data;
     },
     onSuccess: (_, variables) => {
@@ -133,6 +134,10 @@ export function useRejectRegistration() {
       });
       if (error) throw new Error(error.message);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.registrationRequests }),
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: queryKeys.registrationRequests });
+      qc.invalidateQueries({ queryKey: queryKeys.registrationRequest(variables.id) });
+      qc.invalidateQueries({ queryKey: queryKeys.registrationDuplicates(variables.id) });
+    },
   });
 }
