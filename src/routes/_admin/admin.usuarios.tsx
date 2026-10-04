@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, UserPlus } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { LoaderCircle, Search, UserPlus } from "lucide-react";
 import { useState } from "react";
 
 import { AdminShell, AdminState } from "@/components/admin/AdminShell";
@@ -45,6 +45,7 @@ function formatDate(value: string | null) {
 }
 
 function AdminUsersPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | "active" | "suspended" | "closed" | "blocked">(
     "all",
@@ -56,6 +57,7 @@ function AdminUsersPage() {
   const [sort, setSort] = useState<"newest" | "oldest" | "name" | "last_activity">("newest");
   const [page, setPage] = useState(1);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [openingUserId, setOpeningUserId] = useState<string | null>(null);
   const [invite, setInvite] = useState({
     fullName: "",
     email: "",
@@ -64,6 +66,19 @@ function AdminUsersPage() {
   });
   const inviteUser = useInviteAdminUser();
   const { data, isLoading, error } = useAdminUsers(search, status, payment, role, sort, page);
+
+  async function openUserDetails(userId: string) {
+    if (openingUserId) return;
+    setOpeningUserId(userId);
+    try {
+      await navigate({ to: "/admin/usuarios/$id", params: { id: userId } });
+    } catch (navigationError) {
+      console.error("Falha ao abrir o cadastro administrativo", navigationError);
+      toast.error("Não foi possível abrir este cadastro. Tente novamente.");
+      setOpeningUserId(null);
+    }
+  }
+
   return (
     <AdminShell
       title="Usuários"
@@ -213,10 +228,17 @@ function AdminUsersPage() {
                     <td className="px-4 py-3">{formatDate(row.lastSignInAt)}</td>
                     <td className="px-4 py-3">{formatDate(row.lastActivityAt)}</td>
                     <td className="px-4 py-3">
-                      <Button variant="outline" size="sm" asChild>
-                        <Link to="/admin/usuarios/$id" params={{ id: row.id }}>
-                          Ver detalhes
-                        </Link>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={openingUserId !== null}
+                        onClick={() => void openUserDetails(row.id)}
+                      >
+                        {openingUserId === row.id ? (
+                          <LoaderCircle className="animate-spin" aria-hidden="true" />
+                        ) : null}
+                        {openingUserId === row.id ? "Abrindo..." : "Ver detalhes"}
                       </Button>
                     </td>
                   </tr>
