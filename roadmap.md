@@ -144,6 +144,7 @@
 - [x] Remover seis contas de teste vazias e preservar a conta incerta com paciente vinculado
 - [ ] Validar edição, ativação e bloqueio ponta a ponta com uma sessão administrativa autorizada
 - [x] Restaurar aprovação atômica do pré-cadastro sem enfraquecer o isolamento por conta
+- [x] Validar contrato de retorno, CPF na revisão e atualização dos caches de pré-cadastro
 - [ ] Validar aprovação do pré-cadastro e continuidade para agendamento com sessão profissional autorizada
 - [ ] Auditar controles, formulários, modais, filtros, notificações e rotas sem ações mortas
 - [ ] Validar persistência, erros, permissões e isolamento com identidades fictícias
