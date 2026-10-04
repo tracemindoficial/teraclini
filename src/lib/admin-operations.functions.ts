@@ -190,60 +190,60 @@ async function deletionPreview(client: SupabaseClient<Database>, userId: string)
     usageEvents,
     admin,
   ] = await Promise.all([
-      client
-        .from("patients")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("appointments")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("documents")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("care_packages")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("payments")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("account_subscriptions")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("support_tickets")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("account_access_events")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("activity_log")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("admin_notes")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("payment_events")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("subscription_events")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client
-        .from("usage_events")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", accountId),
-      client.from("platform_admins").select("role, revoked_at").eq("user_id", userId).maybeSingle(),
-    ]);
+    client
+      .from("patients")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("documents")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("care_packages")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("payments")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("account_subscriptions")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("support_tickets")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("account_access_events")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("activity_log")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("admin_notes")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("payment_events")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("subscription_events")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client
+      .from("usage_events")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", accountId),
+    client.from("platform_admins").select("role, revoked_at").eq("user_id", userId).maybeSingle(),
+  ]);
   const results = [
     patients,
     appointments,
@@ -291,10 +291,10 @@ async function deletionPreview(client: SupabaseClient<Database>, userId: string)
     reason: isProtectedAccount
       ? "Esta conta prioritária está protegida contra encerramento."
       : isAdmin
-      ? "Contas administrativas devem ser preservadas."
-      : hasDependencies
-        ? "A conta possui dados que exigem preservação. Use a desativação."
-        : null,
+        ? "Contas administrativas devem ser preservadas."
+        : hasDependencies
+          ? "A conta possui dados que exigem preservação. Use a desativação."
+          : null,
   };
 }
 

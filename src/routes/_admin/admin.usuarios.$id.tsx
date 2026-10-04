@@ -488,12 +488,12 @@ function AdminUserDetailPage() {
                   <span>Pagamentos: {deletionPreview.data.counts.payments}</span>
                   <span>Assinaturas: {deletionPreview.data.counts.subscriptions}</span>
                   <span>Suporte: {deletionPreview.data.counts.support}</span>
-                <span>Atividade: {deletionPreview.data.counts.activity}</span>
-                <span>Eventos de acesso: {deletionPreview.data.counts.accessEvents}</span>
-                <span>Notas administrativas: {deletionPreview.data.counts.adminNotes}</span>
-                <span>Eventos financeiros: {deletionPreview.data.counts.paymentEvents}</span>
-                <span>Eventos de licença: {deletionPreview.data.counts.subscriptionEvents}</span>
-                <span>Eventos de uso: {deletionPreview.data.counts.usageEvents}</span>
+                  <span>Atividade: {deletionPreview.data.counts.activity}</span>
+                  <span>Eventos de acesso: {deletionPreview.data.counts.accessEvents}</span>
+                  <span>Notas administrativas: {deletionPreview.data.counts.adminNotes}</span>
+                  <span>Eventos financeiros: {deletionPreview.data.counts.paymentEvents}</span>
+                  <span>Eventos de licença: {deletionPreview.data.counts.subscriptionEvents}</span>
+                  <span>Eventos de uso: {deletionPreview.data.counts.usageEvents}</span>
                 </div>
                 {deletionPreview.data.canDelete ? (
                   <Input
