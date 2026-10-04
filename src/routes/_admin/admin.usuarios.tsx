@@ -215,11 +215,7 @@ function AdminUsersPage() {
                     <td className="px-4 py-3">{formatDate(row.lastActivityAt)}</td>
                     <td className="px-4 py-3">
                       <Button asChild type="button" variant="outline" size="sm">
-                        <Link
-                          to="/admin/usuarios/$id"
-                          params={{ id: row.id }}
-                          preload="intent"
-                        >
+                        <Link to="/admin/usuarios/$id" params={{ id: row.id }} preload="intent">
                           Ver detalhes
                         </Link>
                       </Button>
