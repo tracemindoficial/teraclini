@@ -53,7 +53,13 @@ export const Route = createFileRoute("/_authenticated/pacientes/pre-cadastros/$i
 function Page() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const { data: request, isLoading } = useRegistrationRequest(id);
+  const {
+    data: request,
+    isLoading,
+    error: requestError,
+    refetch: refetchRequest,
+    isFetching: isFetchingRequest,
+  } = useRegistrationRequest(id);
   const { data: duplicates } = useRegistrationDuplicates(id);
   const approve = useApproveRegistration();
   const reject = useRejectRegistration();
@@ -61,10 +67,29 @@ function Page() {
   const [reason, setReason] = useState("");
   const [rejectOpen, setRejectOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  if (isLoading || !request)
+  if (isLoading)
     return (
       <AppShell title="Revisar pré-cadastro">
         <p className="text-sm text-muted-foreground">Carregando dados protegidos...</p>
+      </AppShell>
+    );
+  if (requestError || !request)
+    return (
+      <AppShell title="Revisar pré-cadastro">
+        <div className="surface mx-auto max-w-xl p-6 text-center">
+          <p className="font-medium">Não foi possível carregar este pré-cadastro.</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Verifique sua permissão e tente novamente.
+          </p>
+          <Button
+            className="mt-4"
+            variant="outline"
+            disabled={isFetchingRequest}
+            onClick={() => void refetchRequest()}
+          >
+            {isFetchingRequest ? "Tentando novamente..." : "Tentar novamente"}
+          </Button>
+        </div>
       </AppShell>
     );
   const pending = request.status === "awaiting_approval";
@@ -216,7 +241,8 @@ function Page() {
               <XCircle className="size-4" /> Recusar
             </Button>
             <Button className="gap-2" disabled={approve.isPending} onClick={() => approveNow()}>
-              <CheckCircle2 className="size-4" /> Aprovar como novo paciente
+              <CheckCircle2 className="size-4" />
+              {approve.isPending ? "Aprovando..." : "Aprovar como novo paciente"}
             </Button>
           </div>
         )}

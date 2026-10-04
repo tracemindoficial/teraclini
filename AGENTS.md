@@ -30,3 +30,4 @@
 - Keep the public commercial layer data-driven: expose only active plans and anonymous allowlisted events, and never imply checkout or license activation before a real payment provider exists.
 - Keep administrative operations server-authorized by role, explicitly confirmed, and recorded in append-only non-clinical histories because support and billing actions are security-sensitive.
 - Keep operational account status, administrative security blocking, and subscription state separate; enforce each independently because they have different causes and recovery flows.
+- Keep patient preregistration review RPCs transactional and security-definer, with explicit account-membership checks and restricted execute grants, so approval cannot partially persist across clinical tables.
