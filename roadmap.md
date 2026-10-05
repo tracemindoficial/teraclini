@@ -156,6 +156,8 @@
 - [x] Centralizar modelo, validação e campos completos do paciente
 - [x] Usar o cadastro completo compartilhado nos fluxos manual e público
 - [x] Tornar o salvamento manual e a aprovação transacionais e sem perda de dados
+- [x] Reutilizar o formulário canônico também na revisão profissional
+- [x] Adicionar máscaras, opções de sexo e preenchimento editável por CEP
 - [ ] Validar cadastro manual, pré-cadastro, aprovação, persistência, duplicidade e isolamento — bloqueado: não há sessão profissional disponível para o teste autenticado
 
 ## Auditoria forense de execução
