@@ -22,7 +22,7 @@ export function PackageCard({
         <div className="min-w-0">
           <h3 className="truncate font-semibold">{item.patient.full_name}</h3>
           <p className="text-sm text-muted-foreground">
-            {item.appointment_type?.name ?? "Sem serviço definido"}
+            {item.service_name_snapshot ?? item.appointment_type?.name ?? "Sem serviço definido"}
           </p>
         </div>
         <PackageStatusBadge item={item} />

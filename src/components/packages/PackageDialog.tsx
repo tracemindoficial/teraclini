@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useAppointmentTypes, usePatients, useSavePackage, type CarePackageWithRefs } from "@/lib/data";
+import { useAppointmentTypes, usePatients, useSavePackage, useServicePrices, type CarePackageWithRefs } from "@/lib/data";
+import { centsToReais } from "@/lib/basic-registrations";
 import { toDateInput } from "@/lib/domain";
 
 const PERIODICITIES = [
@@ -37,6 +38,7 @@ export function PackageDialog({
   const { data: types } = useAppointmentTypes();
   const save = useSavePackage();
   const [values, setValues] = useState(defaultValues());
+  const { data: prices } = useServicePrices(true, values.typeId === "none" ? undefined : values.typeId);
 
   useEffect(() => {
     if (!open) return;
@@ -48,6 +50,7 @@ export function PackageDialog({
             typeId: source.appointment_type_id ?? "none",
             quantity: String(source.quantity),
             totalValue: source.total_value === null ? "" : String(source.total_value),
+            priceId: source.service_price_id ?? "none",
             startDate: item ? source.start_date : toDateInput(new Date()),
             endDate: item ? (source.end_date ?? "") : "",
             periodicity: source.periodicity,
@@ -80,6 +83,7 @@ export function PackageDialog({
         ...(item ? { id: item.id } : {}),
         patient_id: values.patientId,
         appointment_type_id: values.typeId === "none" ? null : values.typeId,
+        service_price_id: values.priceId === "none" ? null : values.priceId,
         quantity,
         total_value: totalValue,
         value_per_session: totalValue === null ? null : Number((totalValue / quantity).toFixed(2)),
@@ -106,6 +110,7 @@ export function PackageDialog({
         <form onSubmit={submit} className="space-y-4">
           <Field label="Paciente"><Select value={values.patientId} onValueChange={(patientId) => setValues({ ...values, patientId })} disabled={Boolean(item || renewFrom)}><SelectTrigger><SelectValue placeholder="Selecionar paciente" /></SelectTrigger><SelectContent>{(patients ?? []).map((patient) => <SelectItem key={patient.id} value={patient.id}>{patient.full_name}</SelectItem>)}</SelectContent></Select></Field>
           <Field label="Serviço/atendimento"><Select value={values.typeId} onValueChange={(typeId) => setValues({ ...values, typeId })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="none">Sem serviço definido</SelectItem>{(types ?? []).map((type) => <SelectItem key={type.id} value={type.id}>{type.name}</SelectItem>)}</SelectContent></Select></Field>
+          {values.typeId !== "none" ? <Field label="Valor de pacote cadastrado (opcional)"><Select value={values.priceId} onValueChange={(priceId) => { const price = prices?.find((item) => item.id === priceId); setValues({ ...values, priceId, ...(price ? { quantity: String(price.package_quantity), totalValue: String(price.price_cents / 100) } : {}) }); }}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="none">Informar neste pacote</SelectItem>{(prices ?? []).filter((price) => price.billing_type === "pacote").map((price) => <SelectItem key={price.id} value={price.id}>{price.package_quantity} sessões · {centsToReais(price.price_cents)}</SelectItem>)}</SelectContent></Select></Field> : null}
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Quantidade de sessões"><Input type="number" min={1} step={1} required value={values.quantity} onChange={(event) => setValues({ ...values, quantity: event.target.value })} /></Field>
             <Field label="Valor total (opcional)"><Input inputMode="decimal" placeholder="Valor a definir" value={values.totalValue} onChange={(event) => setValues({ ...values, totalValue: event.target.value })} /></Field>
@@ -123,7 +128,7 @@ export function PackageDialog({
 }
 
 function defaultValues() {
-  return { patientId: "", typeId: "none", quantity: "4", totalValue: "", startDate: toDateInput(new Date()), endDate: "", periodicity: "sem_periodicidade" as "sem_periodicidade" | "semanal" | "quinzenal" | "mensal" | "personalizada", threshold: "2", notes: "" };
+  return { patientId: "", typeId: "none", priceId: "none", quantity: "4", totalValue: "", startDate: toDateInput(new Date()), endDate: "", periodicity: "sem_periodicidade" as "sem_periodicidade" | "semanal" | "quinzenal" | "mensal" | "personalizada", threshold: "2", notes: "" };
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {

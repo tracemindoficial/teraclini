@@ -32,4 +32,7 @@ export const queryKeys = {
   helpProgress: ["help-progress"] as const,
   supportTickets: ["support-tickets"] as const,
   supportTicket: (id: string) => ["support-ticket", id] as const,
+  specialties: ["specialties"] as const,
+  profileSpecialties: ["profile-specialties"] as const,
+  servicePrices: ["service-prices"] as const,
 } as const;

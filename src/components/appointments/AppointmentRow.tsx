@@ -33,7 +33,7 @@ export function AppointmentRow({
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium">{appointment.patient?.full_name ?? "Sem paciente"}</p>
           <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:truncate">
-            {labelOf(APPOINTMENT_TYPES, appointment.type)}
+            {appointment.service_name_snapshot ?? appointment.appointment_type?.name ?? labelOf(APPOINTMENT_TYPES, appointment.type)}
             {appointment.location ? ` · ${appointment.location.name}` : ""}
           </p>
         </div>

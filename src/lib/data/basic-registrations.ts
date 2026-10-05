@@ -1,0 +1,24 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+import { queryKeys } from "@/lib/query-keys";
+import { unwrap } from "./shared";
+export type Specialty = Database["public"]["Tables"]["specialties"]["Row"];
+export type Service = Database["public"]["Tables"]["appointment_types"]["Row"];
+export type ServicePrice = Database["public"]["Tables"]["service_prices"]["Row"] & { appointment_type: Pick<Service, "id" | "name"> };
+function invalidate(qc: ReturnType<typeof useQueryClient>) { [queryKeys.specialties, queryKeys.profileSpecialties, queryKeys.appointmentTypes, queryKeys.servicePrices, queryKeys.profile].forEach((queryKey) => qc.invalidateQueries({ queryKey })); }
+export function useSpecialties(activeOnly = false) { return useQuery({ queryKey: [...queryKeys.specialties, activeOnly], queryFn: async () => { let query = supabase.from("specialties").select("*").order("name"); if (activeOnly) query = query.eq("is_active", true); return unwrap(await query) as Specialty[]; } }); }
+export function useSaveSpecialty() { const qc = useQueryClient(); return useMutation({ mutationFn: async (values: Database["public"]["Tables"]["specialties"]["Insert"] & { id?: string }) => unwrap(await supabase.from("specialties").upsert(values).select().single()) as Specialty, onSuccess: () => invalidate(qc) }); }
+export function useProfileSpecialties() { return useQuery({ queryKey: queryKeys.profileSpecialties, queryFn: async () => unwrap(await supabase.from("profile_specialties").select("*, specialty:specialties(*)").order("is_primary", { ascending: false })) }); }
+export function useSetProfileSpecialties() { const qc = useQueryClient(); return useMutation({ mutationFn: async ({ profileId, specialtyIds, primaryId }: { profileId: string; specialtyIds: string[]; primaryId: string }) => unwrap(await supabase.rpc("set_profile_specialties", { _profile_id: profileId, _specialty_ids: specialtyIds, _primary_specialty_id: primaryId })), onSuccess: () => invalidate(qc) }); }
+export function useAllAppointmentTypes() { return useQuery({ queryKey: [...queryKeys.appointmentTypes, "all"], queryFn: async () => unwrap(await supabase.from("appointment_types").select("*").order("name")) as Service[] }); }
+export function useSaveService() { const qc = useQueryClient(); return useMutation({ mutationFn: async (values: Database["public"]["Tables"]["appointment_types"]["Insert"] & { id?: string }) => unwrap(await supabase.from("appointment_types").upsert(values).select().single()) as Service, onSuccess: () => invalidate(qc) }); }
+export function useServicePrices(activeOnly = false, serviceId?: string) { return useQuery({ queryKey: [...queryKeys.servicePrices, activeOnly, serviceId ?? "all"], queryFn: async () => { let query = supabase.from("service_prices").select("*, appointment_type:appointment_types(id, name)").order("created_at", { ascending: false }); if (activeOnly) query = query.eq("is_active", true); if (serviceId) query = query.eq("appointment_type_id", serviceId); return unwrap(await query) as unknown as ServicePrice[]; } }); }
+export function useSaveServicePrice() { const qc = useQueryClient(); return useMutation({ mutationFn: async (values: { id?: string; appointmentTypeId: string; priceCents: number; durationMinutes: number; modality: string; billingType: string; packageQuantity: number | null; isActive: boolean }) => {
+  if (!values.id) {
+    const result = await supabase.from("service_prices").insert({ appointment_type_id: values.appointmentTypeId, price_cents: values.priceCents, duration_minutes: values.durationMinutes, modality: values.modality, billing_type: values.billingType, package_quantity: values.packageQuantity, is_active: values.isActive }).select("id").single();
+    if (result.error || !result.data) throw new Error(result.error?.message ?? "Não foi possível salvar o valor.");
+    return result.data.id;
+  }
+  return unwrap(await supabase.rpc("save_service_price", { _price_id: values.id, _appointment_type_id: values.appointmentTypeId, _price_cents: values.priceCents, _duration_minutes: values.durationMinutes, _modality: values.modality, _billing_type: values.billingType, _package_quantity: values.packageQuantity ?? 0, _is_active: values.isActive }));
+}, onSuccess: () => invalidate(qc) }); }

@@ -6,6 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardList,
+  BookOpenCheck,
   FileText,
   Home,
   HelpCircle,
@@ -45,6 +46,7 @@ const NAV = [
   { to: "/documentos", label: "Documentos", icon: FileText },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/configuracoes", label: "Configurações", icon: Settings },
+  { to: "/configuracoes/cadastros-basicos", label: "Cadastros Básicos", icon: BookOpenCheck },
   { to: "/ajuda", label: "Ajuda", icon: HelpCircle },
   { to: "/suporte", label: "Suporte", icon: Headphones },
 ] as const;
