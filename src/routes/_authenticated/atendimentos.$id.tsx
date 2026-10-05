@@ -72,6 +72,11 @@ function AppointmentPage() {
         starts_at: appointment.starts_at,
         ends_at: appointment.ends_at,
         type: appointment.type,
+        appointment_type_id: appointment.appointment_type_id,
+        service_price_id: appointment.service_price_id,
+        service_name_snapshot: appointment.service_name_snapshot,
+        price_cents_snapshot: appointment.price_cents_snapshot,
+        duration_minutes_snapshot: appointment.duration_minutes_snapshot,
         modality: appointment.modality,
         status: "realizado",
         notes: appointment.notes,
@@ -136,7 +141,8 @@ function AppointmentPage() {
         <div className="surface p-5 lg:col-span-1">
           <h2 className="text-sm font-semibold">Registro administrativo</h2>
           <dl className="mt-3 space-y-1.5 text-sm">
-            <DetailRow label="Tipo" value={labelOf(APPOINTMENT_TYPES, appointment.type)} />
+            <DetailRow label="Serviço" value={appointment.service_name_snapshot ?? appointment.appointment_type?.name ?? labelOf(APPOINTMENT_TYPES, appointment.type)} />
+            {appointment.price_cents_snapshot !== null ? <DetailRow label="Valor contratado" value={(appointment.price_cents_snapshot / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} /> : null}
             <DetailRow
               label="Modalidade"
               value={labelOf(APPOINTMENT_MODALITIES, appointment.modality)}

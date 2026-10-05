@@ -29,8 +29,11 @@ import {
   usePatients,
   useSaveAppointment,
   usePackages,
+  useAppointmentTypes,
+  useServicePrices,
   type AppointmentWithRefs,
 } from "@/lib/data";
+import { centsToReais, modalityMatches } from "@/lib/basic-registrations";
 
 export function AppointmentDialog({
   open,
@@ -49,6 +52,7 @@ export function AppointmentDialog({
   const { data: locations } = useLocations();
   const saveAppointment = useSaveAppointment();
   const [patientDialogOpen, setPatientDialogOpen] = useState(false);
+  const { data: services } = useAppointmentTypes();
 
   const [values, setValues] = useState({
     patient_id: "",
@@ -57,11 +61,14 @@ export function AppointmentDialog({
     start: "09:00",
     end: "10:00",
     type: "atendimento_clinico" as AppointmentType,
+    appointment_type_id: "",
+    service_price_id: "none",
     modality: "presencial" as AppointmentModality,
     status: "agendado" as AppointmentStatus,
     notes: "",
     package_id: "none",
   });
+  const { data: servicePrices } = useServicePrices(true, values.appointment_type_id || undefined);
   const { data: patientPackages } = usePackages(values.patient_id || undefined);
   const completedAppointment = appointment?.status === "realizado";
 
@@ -77,6 +84,8 @@ export function AppointmentDialog({
         start: toTimeInput(start),
         end: toTimeInput(end),
         type: appointment.type,
+        appointment_type_id: appointment.appointment_type_id ?? "",
+        service_price_id: appointment.service_price_id ?? "none",
         modality: appointment.modality,
         status: appointment.status,
         notes: appointment.notes ?? "",
@@ -93,12 +102,29 @@ export function AppointmentDialog({
       start: "09:00",
       end: "10:00",
       type: "atendimento_clinico",
+      appointment_type_id: services?.[0]?.id ?? "",
+      service_price_id: "none",
       modality: "presencial",
       status: "agendado",
       notes: "",
       package_id: "none",
     }));
-  }, [open, appointment, defaultDate, defaultPatientId]);
+  }, [open, appointment, defaultDate, defaultPatientId, services]);
+
+  function selectService(serviceId: string) {
+    const service = services?.find((item) => item.id === serviceId);
+    const start = new Date(`${values.date}T${values.start}`);
+    const end = new Date(start.getTime() + (service?.default_duration_minutes ?? 60) * 60_000);
+    setValues({ ...values, appointment_type_id: serviceId, service_price_id: "none", end: toTimeInput(end) });
+  }
+
+  function selectPrice(priceId: string) {
+    const price = servicePrices?.find((item) => item.id === priceId);
+    if (!price) return setValues({ ...values, service_price_id: priceId });
+    const start = new Date(`${values.date}T${values.start}`);
+    const end = new Date(start.getTime() + price.duration_minutes * 60_000);
+    setValues({ ...values, service_price_id: priceId, end: toTimeInput(end) });
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -116,6 +142,8 @@ export function AppointmentDialog({
         starts_at: startsAt.toISOString(),
         ends_at: endsAt.toISOString(),
         type: values.type,
+        appointment_type_id: values.appointment_type_id || null,
+        service_price_id: values.service_price_id === "none" ? null : values.service_price_id,
         modality: values.modality,
         status: values.status,
         notes: values.notes || null,
@@ -216,20 +244,18 @@ export function AppointmentDialog({
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label>Tipo de atendimento</Label>
+                <Label>Serviço / atendimento</Label>
                 <Select
-                  value={values.type}
-                  onValueChange={(value) =>
-                    setValues({ ...values, type: value as AppointmentType })
-                  }
+                  value={values.appointment_type_id}
+                  onValueChange={selectService}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Selecionar serviço" />
                   </SelectTrigger>
                   <SelectContent>
-                    {APPOINTMENT_TYPES.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
+                    {(services ?? []).map((service) => (
+                      <SelectItem key={service.id} value={service.id}>
+                        {service.name} · {service.default_duration_minutes} min
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -256,6 +282,8 @@ export function AppointmentDialog({
                 </Select>
               </div>
             </div>
+
+            {values.appointment_type_id ? <div className="space-y-1.5"><Label>Valor sugerido (opcional)</Label><Select value={values.service_price_id} onValueChange={selectPrice}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="none">Sem valor vinculado</SelectItem>{(servicePrices ?? []).filter((price) => price.billing_type === "avulso" && modalityMatches(price.modality, values.modality)).map((price) => <SelectItem key={price.id} value={price.id}>{price.duration_minutes} min · {price.modality === "todas" ? "Todas as modalidades" : price.modality} · {centsToReais(price.price_cents)}</SelectItem>)}</SelectContent></Select></div> : null}
 
             {values.patient_id ? (
               <div className="space-y-1.5">

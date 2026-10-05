@@ -21,6 +21,7 @@ import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AdminAdminRouteImport } from './routes/_admin/admin'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedAjudaRouteImport } from './routes/_authenticated/ajuda'
+import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedDocumentosRouteImport } from './routes/_authenticated/documentos'
 import { Route as AuthenticatedLocaisRouteImport } from './routes/_authenticated/locais'
 import { Route as AuthenticatedMeuDiaRouteImport } from './routes/_authenticated/meu-dia'
@@ -113,6 +114,12 @@ const AuthenticatedAjudaRoute = AuthenticatedAjudaRouteImport.update({
   path: '/ajuda',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedConfiguracoesRoute =
+  AuthenticatedConfiguracoesRouteImport.update({
+    id: '/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDocumentosRoute = AuthenticatedDocumentosRouteImport.update({
   id: '/documentos',
   path: '/documentos',
@@ -241,15 +248,15 @@ const AuthenticatedAtendimentosIdRoute =
   } as any)
 const AuthenticatedConfiguracoesIndexRoute =
   AuthenticatedConfiguracoesIndexRouteImport.update({
-    id: '/configuracoes/',
-    path: '/configuracoes/',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedConfiguracoesRoute,
   } as any)
 const AuthenticatedConfiguracoesCadastrosBasicosRoute =
   AuthenticatedConfiguracoesCadastrosBasicosRouteImport.update({
-    id: '/configuracoes/cadastros-basicos',
-    path: '/configuracoes/cadastros-basicos',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/cadastros-basicos',
+    path: '/cadastros-basicos',
+    getParentRoute: () => AuthenticatedConfiguracoesRoute,
   } as any)
 const AuthenticatedPacientesIndexRoute =
   AuthenticatedPacientesIndexRouteImport.update({
@@ -297,6 +304,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminAdminRouteWithChildren
   '/agenda': typeof AuthenticatedAgendaRoute
   '/ajuda': typeof AuthenticatedAjudaRouteWithChildren
+  '/configuracoes': typeof AuthenticatedConfiguracoesRouteWithChildren
   '/documentos': typeof AuthenticatedDocumentosRoute
   '/locais': typeof AuthenticatedLocaisRoute
   '/meu-dia': typeof AuthenticatedMeuDiaRoute
@@ -388,6 +396,7 @@ export interface FileRoutesById {
   '/_admin/admin': typeof AdminAdminRouteWithChildren
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/ajuda': typeof AuthenticatedAjudaRouteWithChildren
+  '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRouteWithChildren
   '/_authenticated/documentos': typeof AuthenticatedDocumentosRoute
   '/_authenticated/locais': typeof AuthenticatedLocaisRoute
   '/_authenticated/meu-dia': typeof AuthenticatedMeuDiaRoute
@@ -435,6 +444,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/agenda'
     | '/ajuda'
+    | '/configuracoes'
     | '/documentos'
     | '/locais'
     | '/meu-dia'
@@ -525,6 +535,7 @@ export interface FileRouteTypes {
     | '/_admin/admin'
     | '/_authenticated/agenda'
     | '/_authenticated/ajuda'
+    | '/_authenticated/configuracoes'
     | '/_authenticated/documentos'
     | '/_authenticated/locais'
     | '/_authenticated/meu-dia'
@@ -657,6 +668,13 @@ declare module '@tanstack/react-router' {
       path: '/ajuda'
       fullPath: '/ajuda'
       preLoaderRoute: typeof AuthenticatedAjudaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/configuracoes': {
+      id: '/_authenticated/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/documentos': {
@@ -836,17 +854,17 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/configuracoes/': {
       id: '/_authenticated/configuracoes/'
-      path: '/configuracoes'
+      path: '/'
       fullPath: '/configuracoes/'
       preLoaderRoute: typeof AuthenticatedConfiguracoesIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedConfiguracoesRoute
     }
     '/_authenticated/configuracoes/cadastros-basicos': {
       id: '/_authenticated/configuracoes/cadastros-basicos'
-      path: '/configuracoes/cadastros-basicos'
+      path: '/cadastros-basicos'
       fullPath: '/configuracoes/cadastros-basicos'
       preLoaderRoute: typeof AuthenticatedConfiguracoesCadastrosBasicosRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedConfiguracoesRoute
     }
     '/_authenticated/pacientes/': {
       id: '/_authenticated/pacientes/'
@@ -967,6 +985,23 @@ const AuthenticatedAjudaRouteChildren: AuthenticatedAjudaRouteChildren = {
 const AuthenticatedAjudaRouteWithChildren =
   AuthenticatedAjudaRoute._addFileChildren(AuthenticatedAjudaRouteChildren)
 
+interface AuthenticatedConfiguracoesRouteChildren {
+  AuthenticatedConfiguracoesCadastrosBasicosRoute: typeof AuthenticatedConfiguracoesCadastrosBasicosRoute
+  AuthenticatedConfiguracoesIndexRoute: typeof AuthenticatedConfiguracoesIndexRoute
+}
+
+const AuthenticatedConfiguracoesRouteChildren: AuthenticatedConfiguracoesRouteChildren =
+  {
+    AuthenticatedConfiguracoesCadastrosBasicosRoute:
+      AuthenticatedConfiguracoesCadastrosBasicosRoute,
+    AuthenticatedConfiguracoesIndexRoute: AuthenticatedConfiguracoesIndexRoute,
+  }
+
+const AuthenticatedConfiguracoesRouteWithChildren =
+  AuthenticatedConfiguracoesRoute._addFileChildren(
+    AuthenticatedConfiguracoesRouteChildren,
+  )
+
 interface AuthenticatedPacotesRouteChildren {
   AuthenticatedPacotesIdRoute: typeof AuthenticatedPacotesIdRoute
 }
@@ -996,6 +1031,7 @@ const AuthenticatedPacientesPreCadastrosRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedAjudaRoute: typeof AuthenticatedAjudaRouteWithChildren
+  AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRouteWithChildren
   AuthenticatedDocumentosRoute: typeof AuthenticatedDocumentosRoute
   AuthenticatedLocaisRoute: typeof AuthenticatedLocaisRoute
   AuthenticatedMeuDiaRoute: typeof AuthenticatedMeuDiaRoute
@@ -1004,16 +1040,15 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedSuporteRoute: typeof AuthenticatedSuporteRoute
   AuthenticatedAtendimentosIdRoute: typeof AuthenticatedAtendimentosIdRoute
-  AuthenticatedConfiguracoesCadastrosBasicosRoute: typeof AuthenticatedConfiguracoesCadastrosBasicosRoute
   AuthenticatedPacientesIdRoute: typeof AuthenticatedPacientesIdRoute
   AuthenticatedPacientesPreCadastrosRoute: typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
-  AuthenticatedConfiguracoesIndexRoute: typeof AuthenticatedConfiguracoesIndexRoute
   AuthenticatedPacientesIndexRoute: typeof AuthenticatedPacientesIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedAjudaRoute: AuthenticatedAjudaRouteWithChildren,
+  AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRouteWithChildren,
   AuthenticatedDocumentosRoute: AuthenticatedDocumentosRoute,
   AuthenticatedLocaisRoute: AuthenticatedLocaisRoute,
   AuthenticatedMeuDiaRoute: AuthenticatedMeuDiaRoute,
@@ -1022,12 +1057,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedSuporteRoute: AuthenticatedSuporteRoute,
   AuthenticatedAtendimentosIdRoute: AuthenticatedAtendimentosIdRoute,
-  AuthenticatedConfiguracoesCadastrosBasicosRoute:
-    AuthenticatedConfiguracoesCadastrosBasicosRoute,
   AuthenticatedPacientesIdRoute: AuthenticatedPacientesIdRoute,
   AuthenticatedPacientesPreCadastrosRoute:
     AuthenticatedPacientesPreCadastrosRouteWithChildren,
-  AuthenticatedConfiguracoesIndexRoute: AuthenticatedConfiguracoesIndexRoute,
   AuthenticatedPacientesIndexRoute: AuthenticatedPacientesIndexRoute,
 }
 
