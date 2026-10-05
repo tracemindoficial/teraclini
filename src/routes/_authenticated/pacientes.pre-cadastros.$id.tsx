@@ -30,7 +30,7 @@ import {
   useRejectRegistration,
   useSaveRegistrationRequest,
 } from "@/lib/data/patient-registration";
-import { isValidCpf } from "@/lib/patient-registration-schema";
+import { completePatientSchema } from "@/lib/patient-registration-schema";
 
 export const Route = createFileRoute("/_authenticated/pacientes/pre-cadastros/$id")({
   head: () => ({
@@ -394,16 +394,7 @@ function RegistrationRequestEditor({
     family_mental_health: request.family_mental_health,
     family_mental_health_details: request.family_mental_health_details ?? "",
   });
-  const valid =
-    values.full_name.trim().length >= 2 &&
-    values.email.includes("@") &&
-    isValidCpf(values.cpf) &&
-    Boolean(values.birth_date) &&
-    values.postal_code.replace(/\D/g, "").length === 8 &&
-    values.city.trim().length >= 2 &&
-    values.state.trim().length >= 2 &&
-    values.therapy_reason.trim().length >= 3 &&
-    (values.age_group === "adulto" || values.guardian_name.trim().length >= 2);
+  const valid = completePatientSchema.safeParse(values).success;
   const nullable = (value: string) => value.trim() || null;
   const choiceOptions = [
     ["sim", "Sim"],
