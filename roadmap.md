@@ -177,3 +177,14 @@
 - [x] Integrar serviços e valores à agenda, atendimentos e pacotes
 - [x] Criar gestão pesquisável de especialidades, serviços e valores nas configurações
 - [x] Validar duplicidade, ativação, desativação, histórico, isolamento, desktop e celular
+
+## Reconstrução definitiva do pré-cadastro
+
+- [x] Reproduzir o clique, acesso direto e recarregamento da página de detalhe
+- [x] Identificar a causa raiz na composição das rotas de pré-cadastro
+- [ ] Corrigir a rota pai para permitir lista e detalhe independentes
+- [ ] Consolidar navegação direta da pendência para o registro correto
+- [ ] Preservar respostas originais e registrar histórico operacional sem conteúdo sensível
+- [ ] Reforçar duplicidade, idempotência e atualização sem apagar dados existentes
+- [ ] Validar geração, envio, revisão, aprovação e leitura do paciente ponta a ponta
+- [ ] Validar acesso direto, recarregamento, segundo clique, isolamento e celular
