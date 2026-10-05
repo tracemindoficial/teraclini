@@ -2588,6 +2588,15 @@ export type Database = {
         }
         Returns: string
       }
+      admin_record_email_change: {
+        Args: {
+          _actor_user_id: string
+          _new_email_domain: string
+          _previous_email_domain: string
+          _target_user_id: string
+        }
+        Returns: undefined
+      }
       admin_set_account_block: {
         Args: {
           _account_id: string
@@ -2659,6 +2668,10 @@ export type Database = {
           phone: string
           reasons: string[]
         }[]
+      }
+      platform_admin_role_for: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["platform_admin_role"]
       }
       reject_patient_registration: {
         Args: { _reason: string; _request_id: string }
