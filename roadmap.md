@@ -156,4 +156,4 @@
 - [x] Centralizar modelo, validação e campos completos do paciente
 - [x] Usar o cadastro completo compartilhado nos fluxos manual e público
 - [x] Tornar o salvamento manual e a aprovação transacionais e sem perda de dados
-- [ ] Validar cadastro manual, pré-cadastro, aprovação, persistência, duplicidade e isolamento
+- [ ] Validar cadastro manual, pré-cadastro, aprovação, persistência, duplicidade e isolamento — bloqueado: não há sessão profissional disponível para o teste autenticado
