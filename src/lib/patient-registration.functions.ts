@@ -38,6 +38,7 @@ export const submitPatientRegistration = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: requestId, error } = await supabaseAdmin.rpc("submit_patient_registration", { _token_hash: tokenHash, _bucket_key: bucketKey, _payload: data.payload });
     if (error || !requestId) {
+      if (error) console.error("patient_registration_submit_failed", { code: error.code, message: error.message });
       const message = error?.message.includes("Muitas tentativas") ? "Muitas tentativas. Aguarde antes de tentar novamente." : error?.message.includes("não está mais disponível") ? "Este link não está mais disponível." : "Não foi possível enviar seu cadastro. Revise os dados e tente novamente.";
       throw new Error(message);
     }
