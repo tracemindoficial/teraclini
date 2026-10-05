@@ -383,8 +383,8 @@ export const updateAdminUserEmail = createServerFn({ method: "POST" })
       {
         _actor_user_id: context.userId,
         _target_user_id: data.userId,
-        _previous_email_domain: current.data.user.email?.split("@")[1] ?? null,
-        _new_email_domain: data.email.split("@")[1] ?? null,
+        _previous_email_domain: current.data.user.email?.split("@")[1] ?? "",
+        _new_email_domain: data.email.split("@")[1] ?? "",
       },
     );
     if (historyError) {
