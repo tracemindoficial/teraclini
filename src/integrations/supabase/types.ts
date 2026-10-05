@@ -780,6 +780,7 @@ export type Database = {
           periodicity: Database["public"]["Enums"]["care_package_periodicity"]
           quantity: number
           renewal_alert_threshold: number
+          service_name_snapshot: string | null
           service_price_id: string | null
           start_date: string
           total_value: number | null
@@ -802,6 +803,7 @@ export type Database = {
           periodicity?: Database["public"]["Enums"]["care_package_periodicity"]
           quantity: number
           renewal_alert_threshold?: number
+          service_name_snapshot?: string | null
           service_price_id?: string | null
           start_date: string
           total_value?: number | null
@@ -824,6 +826,7 @@ export type Database = {
           periodicity?: Database["public"]["Enums"]["care_package_periodicity"]
           quantity?: number
           renewal_alert_threshold?: number
+          service_name_snapshot?: string | null
           service_price_id?: string | null
           start_date?: string
           total_value?: number | null
@@ -2678,6 +2681,14 @@ export type Database = {
       }
       seed_basic_registrations: {
         Args: { target_account_id: string }
+        Returns: undefined
+      }
+      set_profile_specialties: {
+        Args: {
+          _primary_specialty_id: string
+          _profile_id: string
+          _specialty_ids: string[]
+        }
         Returns: undefined
       }
       submit_patient_registration: {

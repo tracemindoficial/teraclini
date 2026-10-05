@@ -162,6 +162,13 @@
       "when": 1791220736714,
       "tag": "0022_add_atomic_service_price_versioning",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1791221092356,
+      "tag": "0023_harden_basic_registration_updates",
+      "breakpoints": true
     }
   ]
 }
