@@ -71,7 +71,8 @@ function SettingsPage() {
         state: values.state || null,
         care_mode: values.care_mode,
       });
-      if (profile && values.specialty_ids.length) await saveSpecialties.mutateAsync({ profileId: profile.id, accountId: profile.account_id, specialtyIds: values.specialty_ids, primaryId: values.primary_specialty_id || values.specialty_ids[0] });
+      const primaryId = values.primary_specialty_id || values.specialty_ids[0];
+      if (profile && primaryId) await saveSpecialties.mutateAsync({ profileId: profile.id, accountId: profile.account_id, specialtyIds: values.specialty_ids, primaryId });
       toast.success("Dados atualizados.");
     } catch {
       toast.error("Não foi possível salvar.");
