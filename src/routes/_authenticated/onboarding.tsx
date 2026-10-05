@@ -13,9 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { PROFESSIONS } from "@/lib/domain";
-import { useProfile, useUpdateProfile } from "@/lib/data";
-import { joinProfession, splitProfession } from "@/lib/professional-profile";
+import { useProfile, useSetProfileSpecialties, useSpecialties, useUpdateProfile } from "@/lib/data";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
@@ -35,7 +33,6 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 type OnboardingValues = {
   full_name: string;
   profession: string;
-  other_profession: string;
   professional_registry: string;
   city: string;
   state: string;
@@ -44,7 +41,6 @@ type OnboardingValues = {
 const EMPTY_VALUES: OnboardingValues = {
   full_name: "",
   profession: "",
-  other_profession: "",
   professional_registry: "",
   city: "",
   state: "",
@@ -53,6 +49,8 @@ const EMPTY_VALUES: OnboardingValues = {
 function Onboarding() {
   const { data: profile, isLoading } = useProfile();
   const updateProfile = useUpdateProfile();
+  const saveSpecialties = useSetProfileSpecialties();
+  const { data: specialties = [] } = useSpecialties(true);
   const navigate = useNavigate();
   const hydrated = useRef(false);
   const [values, setValues] = useState(EMPTY_VALUES);
@@ -60,24 +58,20 @@ function Onboarding() {
 
   useEffect(() => {
     if (!profile || hydrated.current) return;
-    const profession = splitProfession(profile.profession);
+    const specialty = specialties.find((item) => item.name === profile.profession);
     setValues({
       full_name: profile.full_name ?? "",
-      profession: profession.profession,
-      other_profession: profession.otherProfession,
+      profession: specialty?.id ?? "",
       professional_registry: profile.professional_registry ?? "",
       city: profile.city ?? "",
       state: profile.state ?? "",
     });
     hydrated.current = true;
-  }, [profile]);
+  }, [profile, specialties]);
 
   function validationError() {
     if (values.full_name.trim().length < 2) return "Informe seu nome.";
     if (!values.profession) return "Selecione sua profissão.";
-    if (values.profession === "Outra" && values.other_profession.trim().length < 2) {
-      return "Informe sua profissão.";
-    }
     return null;
   }
 
@@ -96,13 +90,14 @@ function Onboarding() {
       const avatarUrl = typeof avatarCandidate === "string" ? avatarCandidate : profile?.avatar_url;
       await updateProfile.mutateAsync({
         full_name: values.full_name.trim(),
-        profession: joinProfession(values.profession, values.other_profession),
+        profession: specialties.find((item) => item.id === values.profession)?.name ?? null,
         professional_registry: values.professional_registry.trim() || null,
         city: values.city.trim() || null,
         state: values.state.trim().toUpperCase() || null,
         avatar_url: avatarUrl || null,
         onboarding_completed: true,
       });
+      if (profile) await saveSpecialties.mutateAsync({ profileId: profile.id, accountId: profile.account_id, specialtyIds: [values.profession], primaryId: values.profession });
       toast.success("Seu espaço profissional está pronto.");
       navigate({ to: "/meu-dia", replace: true });
     } catch (error) {
@@ -148,25 +143,14 @@ function Onboarding() {
                 <SelectValue placeholder="Selecionar" />
               </SelectTrigger>
               <SelectContent>
-                {PROFESSIONS.map((profession) => (
-                  <SelectItem key={profession} value={profession}>
-                    {profession}
+                {specialties.map((profession) => (
+                  <SelectItem key={profession.id} value={profession.id}>
+                    {profession.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </FormField>
-
-          {values.profession === "Outra" ? (
-            <FormField id="other-profession" label="Qual é sua profissão?" required>
-              <Input
-                id="other-profession"
-                value={values.other_profession}
-                onChange={(event) => setValues({ ...values, other_profession: event.target.value })}
-                disabled={updateProfile.isPending}
-              />
-            </FormField>
-          ) : null}
 
           <FormField id="professional-registry" label="Registro profissional" optional>
             <Input
