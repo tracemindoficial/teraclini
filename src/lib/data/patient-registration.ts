@@ -73,14 +73,18 @@ export function useSaveRegistrationRequest() {
       id: string;
       values: Database["public"]["Tables"]["patient_registration_requests"]["Update"];
     }) => {
-      const { data, error } = await supabase
-        .from("patient_registration_requests")
-        .update(values)
-        .eq("id", id)
-        .eq("status", "awaiting_approval")
-        .select()
-        .single();
+      const { data: savedId, error } = await supabase.rpc("save_patient_registration_review", {
+        _request_id: id,
+        _payload: values,
+      });
       if (error) throw new Error(error.message);
+      if (!savedId) throw new Error("A revisão não pôde ser confirmada.");
+      const { data, error: readError } = await supabase
+        .from("patient_registration_requests")
+        .select("*")
+        .eq("id", savedId)
+        .single();
+      if (readError || !data) throw new Error("A revisão foi salva, mas não pôde ser recarregada.");
       return data as RegistrationRequest;
     },
     onSuccess: (row) => {

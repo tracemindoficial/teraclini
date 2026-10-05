@@ -182,9 +182,9 @@
 
 - [x] Reproduzir o clique, acesso direto e recarregamento da página de detalhe
 - [x] Identificar a causa raiz na composição das rotas de pré-cadastro
-- [ ] Corrigir a rota pai para permitir lista e detalhe independentes
-- [ ] Consolidar navegação direta da pendência para o registro correto
-- [ ] Preservar respostas originais e registrar histórico operacional sem conteúdo sensível
-- [ ] Reforçar duplicidade, idempotência e atualização sem apagar dados existentes
+- [x] Corrigir a rota pai para permitir lista e detalhe independentes
+- [x] Consolidar navegação direta da pendência para o registro correto
+- [x] Preservar respostas originais e registrar histórico operacional sem conteúdo sensível
+- [x] Reforçar duplicidade, idempotência e atualização sem apagar dados existentes
 - [ ] Validar geração, envio, revisão, aprovação e leitura do paciente ponta a ponta
 - [ ] Validar acesso direto, recarregamento, segundo clique, isolamento e celular
