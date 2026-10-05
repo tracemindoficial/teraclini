@@ -53,6 +53,7 @@ import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedPacientesIdRouteImport } from './routes/_authenticated/pacientes.$id'
 import { Route as AuthenticatedPacientesPreCadastrosRouteImport } from './routes/_authenticated/pacientes.pre-cadastros'
 import { Route as AuthenticatedPacotesIdRouteImport } from './routes/_authenticated/pacotes.$id'
+import { Route as AdminAdminUsuariosIndexRouteImport } from './routes/_admin/admin.usuarios.index'
 import { Route as AdminAdminUsuariosIdRouteImport } from './routes/_admin/admin.usuarios.$id'
 import { Route as AuthenticatedPacientesPreCadastrosIndexRouteImport } from './routes/_authenticated/pacientes.pre-cadastros.index'
 import { Route as AuthenticatedPacientesPreCadastrosIdRouteImport } from './routes/_authenticated/pacientes.pre-cadastros.$id'
@@ -282,6 +283,11 @@ const AuthenticatedPacotesIdRoute = AuthenticatedPacotesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedPacotesRoute,
 } as any)
+const AdminAdminUsuariosIndexRoute = AdminAdminUsuariosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminAdminUsuariosRoute,
+} as any)
 const AdminAdminUsuariosIdRoute = AdminAdminUsuariosIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -345,6 +351,7 @@ export interface FileRoutesByFullPath {
   '/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
+  '/admin/usuarios/': typeof AdminAdminUsuariosIndexRoute
   '/pacientes/pre-cadastros/': typeof AuthenticatedPacientesPreCadastrosIndexRoute
 }
 export interface FileRoutesByTo {
@@ -375,7 +382,6 @@ export interface FileRoutesByTo {
   '/admin/relatorios': typeof AdminAdminRelatoriosRoute
   '/admin/suporte': typeof AdminAdminSuporteRoute
   '/admin/uso': typeof AdminAdminUsoRoute
-  '/admin/usuarios': typeof AdminAdminUsuariosRouteWithChildren
   '/admin/vencimentos': typeof AdminAdminVencimentosRoute
   '/ajuda/$slug': typeof AuthenticatedAjudaSlugRoute
   '/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
@@ -388,6 +394,7 @@ export interface FileRoutesByTo {
   '/pacientes': typeof AuthenticatedPacientesIndexRoute
   '/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
+  '/admin/usuarios': typeof AdminAdminUsuariosIndexRoute
   '/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosIndexRoute
 }
 export interface FileRoutesById {
@@ -438,6 +445,7 @@ export interface FileRoutesById {
   '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/_admin/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/_authenticated/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
+  '/_admin/admin/usuarios/': typeof AdminAdminUsuariosIndexRoute
   '/_authenticated/pacientes/pre-cadastros/': typeof AuthenticatedPacientesPreCadastrosIndexRoute
 }
 export interface FileRouteTypes {
@@ -487,6 +495,7 @@ export interface FileRouteTypes {
     | '/pacientes/'
     | '/admin/usuarios/$id'
     | '/pacientes/pre-cadastros/$id'
+    | '/admin/usuarios/'
     | '/pacientes/pre-cadastros/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -517,7 +526,6 @@ export interface FileRouteTypes {
     | '/admin/relatorios'
     | '/admin/suporte'
     | '/admin/uso'
-    | '/admin/usuarios'
     | '/admin/vencimentos'
     | '/ajuda/$slug'
     | '/atendimentos/$id'
@@ -530,6 +538,7 @@ export interface FileRouteTypes {
     | '/pacientes'
     | '/admin/usuarios/$id'
     | '/pacientes/pre-cadastros/$id'
+    | '/admin/usuarios'
     | '/pacientes/pre-cadastros'
   id:
     | '__root__'
@@ -579,6 +588,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pacientes/'
     | '/_admin/admin/usuarios/$id'
     | '/_authenticated/pacientes/pre-cadastros/$id'
+    | '/_admin/admin/usuarios/'
     | '/_authenticated/pacientes/pre-cadastros/'
   fileRoutesById: FileRoutesById
 }
@@ -905,6 +915,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPacotesIdRouteImport
       parentRoute: typeof AuthenticatedPacotesRoute
     }
+    '/_admin/admin/usuarios/': {
+      id: '/_admin/admin/usuarios/'
+      path: '/'
+      fullPath: '/admin/usuarios/'
+      preLoaderRoute: typeof AdminAdminUsuariosIndexRouteImport
+      parentRoute: typeof AdminAdminUsuariosRoute
+    }
     '/_admin/admin/usuarios/$id': {
       id: '/_admin/admin/usuarios/$id'
       path: '/$id'
@@ -931,10 +948,12 @@ declare module '@tanstack/react-router' {
 
 interface AdminAdminUsuariosRouteChildren {
   AdminAdminUsuariosIdRoute: typeof AdminAdminUsuariosIdRoute
+  AdminAdminUsuariosIndexRoute: typeof AdminAdminUsuariosIndexRoute
 }
 
 const AdminAdminUsuariosRouteChildren: AdminAdminUsuariosRouteChildren = {
   AdminAdminUsuariosIdRoute: AdminAdminUsuariosIdRoute,
+  AdminAdminUsuariosIndexRoute: AdminAdminUsuariosIndexRoute,
 }
 
 const AdminAdminUsuariosRouteWithChildren =

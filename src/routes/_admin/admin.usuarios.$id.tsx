@@ -179,7 +179,7 @@ function AdminUserDetailPage() {
         className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-primary"
       >
         <ArrowLeft className="size-4" />
-        Voltar para usuários
+        Voltar para clientes
       </Link>
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <AdminMetric label="Pacientes" value={data.counts.patients} />
@@ -201,6 +201,12 @@ function AdminUserDetailPage() {
         <dl className="surface divide-y p-5">
           <DetailRow label="E-mail" value={data.email} />
           <DetailRow label="Profissão" value={data.profession ?? "—"} />
+          <DetailRow
+            label="Especialidades"
+            value={data.specialties.length ? data.specialties.join(", ") : "—"}
+          />
+          <DetailRow label="Telefone" value={data.phone ?? "—"} />
+          <DetailRow label="Tenant" value={data.accountId ?? "—"} />
           <DetailRow label="Situação" value={statusLabel(data.accountStatus)} />
           <DetailRow label="Bloqueio" value={data.accountBlocked ? "Bloqueada" : "Sem bloqueio"} />
           {data.blockReason ? <DetailRow label="Justificativa" value={data.blockReason} /> : null}

@@ -33,6 +33,17 @@ const requirePlatformAdmin = createMiddleware({ type: "function" })
     });
   });
 
+const clientDirectoryRoles: Database["public"]["Enums"]["platform_admin_role"][] = [
+  "super_admin",
+  "support_admin",
+];
+
+function assertClientDirectoryAccess(
+  role: Database["public"]["Enums"]["platform_admin_role"],
+) {
+  if (!clientDirectoryRoles.includes(role)) throw new Response("Forbidden", { status: 403 });
+}
+
 function startOfMonth(date = new Date()) {
   return new Date(date.getFullYear(), date.getMonth(), 1);
 }
@@ -241,6 +252,7 @@ export const listAdminUsers = createServerFn({ method: "POST" })
   .middleware([requirePlatformAdmin])
   .inputValidator((input) => userListInput.parse(input))
   .handler(async ({ data, context }) => {
+    assertClientDirectoryAccess(context.platformAdminRole);
     const users = [] as Array<{
       id: string;
       email: string | undefined;
@@ -270,10 +282,11 @@ export const listAdminUsers = createServerFn({ method: "POST" })
       paymentStatesResult,
       adminsResult,
       usageResult,
+      specialtiesResult,
     ] = await Promise.all([
       context.supabaseAdmin
         .from("profiles")
-        .select("id, account_id, full_name, profession, onboarding_completed"),
+        .select("id, account_id, full_name, profession, phone, onboarding_completed"),
       context.supabaseAdmin
         .from("accounts")
         .select(
@@ -299,6 +312,9 @@ export const listAdminUsers = createServerFn({ method: "POST" })
         .from("usage_events")
         .select("account_id, occurred_at")
         .order("occurred_at", { ascending: false }),
+      context.supabaseAdmin
+        .from("profile_specialties")
+        .select("profile_id, specialty:specialties(name)"),
     ]);
     const firstError = [
       profilesResult,
@@ -309,6 +325,7 @@ export const listAdminUsers = createServerFn({ method: "POST" })
       paymentStatesResult,
       adminsResult,
       usageResult,
+      specialtiesResult,
     ].find((result) => result.error)?.error;
     if (firstError) throw new Error("Não foi possível carregar o diretório administrativo.");
 
@@ -337,6 +354,12 @@ export const listAdminUsers = createServerFn({ method: "POST" })
     for (const event of usageResult.data ?? [])
       if (!lastActivity.has(event.account_id))
         lastActivity.set(event.account_id, event.occurred_at);
+    const specialties = new Map<string, string[]>();
+    for (const item of specialtiesResult.data ?? []) {
+      const name = item.specialty?.name;
+      if (!name) continue;
+      specialties.set(item.profile_id, [...(specialties.get(item.profile_id) ?? []), name]);
+    }
 
     const search = data.search.trim().toLocaleLowerCase("pt-BR");
     const rows = users
@@ -350,6 +373,8 @@ export const listAdminUsers = createServerFn({ method: "POST" })
           name: profile?.full_name || "Cadastro incompleto",
           email: user.email ?? "E-mail indisponível",
           profession: profile?.profession ?? null,
+          phone: profile?.phone ?? null,
+          specialties: specialties.get(user.id) ?? [],
           createdAt: account?.created_at ?? user.created_at,
           lastSignInAt: user.last_sign_in_at ?? null,
           onboardingCompleted: profile?.onboarding_completed ?? false,
@@ -416,6 +441,7 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
   .middleware([requirePlatformAdmin])
   .inputValidator((input) => userDetailInput.parse(input))
   .handler(async ({ data, context }) => {
+    assertClientDirectoryAccess(context.platformAdminRole);
     const userResult = await context.supabaseAdmin.auth.admin.getUserById(data.userId);
     if (userResult.error || !userResult.data.user) throw new Response("Not found", { status: 404 });
     const user = userResult.data.user;
@@ -465,6 +491,7 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
         support: [],
         platformRole: null,
         payments: [],
+        specialties: [],
       };
     }
     const [
@@ -477,6 +504,7 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
       support,
       platformAdmin,
       payments,
+      specialties,
     ] = await Promise.all([
       context.supabaseAdmin
         .from("patients")
@@ -526,6 +554,10 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
         .eq("account_id", accountId)
         .order("created_at", { ascending: false })
         .limit(10),
+      context.supabaseAdmin
+        .from("profile_specialties")
+        .select("specialty:specialties(name)")
+        .eq("profile_id", data.userId),
     ]);
     const firstError = [
       patients,
@@ -537,6 +569,7 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
       support,
       platformAdmin,
       payments,
+      specialties,
     ].find((result) => result.error)?.error;
     if (firstError) throw new Error("Não foi possível carregar os indicadores da conta.");
     return {
@@ -571,6 +604,9 @@ export const getAdminUserDetail = createServerFn({ method: "POST" })
       platformRole:
         platformAdmin.data && !platformAdmin.data.revoked_at ? platformAdmin.data.role : null,
       payments: payments.data ?? [],
+      specialties: (specialties.data ?? []).flatMap((item) =>
+        item.specialty?.name ? [item.specialty.name] : [],
+      ),
     };
   });
 
