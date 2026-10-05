@@ -149,3 +149,11 @@
 - [ ] Auditar controles, formulários, modais, filtros, notificações e rotas sem ações mortas
 - [ ] Validar persistência, erros, permissões e isolamento com identidades fictícias
 - [ ] Consolidar matriz de funcionalidades e relatório final com pendências reais
+
+## Cadastro unificado de pacientes
+
+- [x] Auditar e comparar cadastro manual, pré-cadastro, persistência e aprovação
+- [ ] Centralizar modelo, validação e campos completos do paciente
+- [ ] Usar o cadastro completo compartilhado nos fluxos manual e público
+- [ ] Tornar o salvamento manual e a aprovação transacionais e sem perda de dados
+- [ ] Validar cadastro manual, pré-cadastro, aprovação, persistência, duplicidade e isolamento
