@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_admin/admin/usuarios")({
+export const Route = createFileRoute("/_admin/admin/usuarios/")({
   head: () => ({
     meta: [
       { title: "Clientes — Administração TeraClini" },
