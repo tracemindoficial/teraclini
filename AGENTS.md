@@ -32,3 +32,4 @@
 - Keep operational account status, administrative security blocking, and subscription state separate; enforce each independently because they have different causes and recovery flows.
 - Keep patient preregistration review RPCs transactional and security-definer, with explicit account-membership checks and restricted execute grants, so approval cannot partially persist across clinical tables.
 - Keep manual registration, public preregistration, and professional review on the same complete patient field component and schema so no entry path silently loses intake data.
+- Keep specialties, services, and versioned integer-cent prices account-scoped; deactivate referenced catalog rows and preserve service/price snapshots on appointments and packages so historical records never drift.

@@ -72,7 +72,7 @@ function SettingsPage() {
         care_mode: values.care_mode,
       });
       const primaryId = values.primary_specialty_id || values.specialty_ids[0];
-      if (profile && primaryId) await saveSpecialties.mutateAsync({ profileId: profile.id, accountId: profile.account_id, specialtyIds: values.specialty_ids, primaryId });
+      if (profile && primaryId) await saveSpecialties.mutateAsync({ profileId: profile.id, specialtyIds: values.specialty_ids, primaryId });
       toast.success("Dados atualizados.");
     } catch {
       toast.error("Não foi possível salvar.");

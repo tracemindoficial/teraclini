@@ -97,7 +97,7 @@ function Onboarding() {
         avatar_url: avatarUrl || null,
         onboarding_completed: true,
       });
-      if (profile) await saveSpecialties.mutateAsync({ profileId: profile.id, accountId: profile.account_id, specialtyIds: [values.profession], primaryId: values.profession });
+      if (profile) await saveSpecialties.mutateAsync({ profileId: profile.id, specialtyIds: [values.profession], primaryId: values.profession });
       toast.success("Seu espaço profissional está pronto.");
       navigate({ to: "/meu-dia", replace: true });
     } catch (error) {
