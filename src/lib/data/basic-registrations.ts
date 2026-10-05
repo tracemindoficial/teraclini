@@ -20,5 +20,5 @@ export function useSaveServicePrice() { const qc = useQueryClient(); return useM
     if (result.error || !result.data) throw new Error(result.error?.message ?? "Não foi possível salvar o valor.");
     return result.data.id;
   }
-  return unwrap(await supabase.rpc("save_service_price", { _price_id: values.id, _appointment_type_id: values.appointmentTypeId, _price_cents: values.priceCents, _duration_minutes: values.durationMinutes, _modality: values.modality, _billing_type: values.billingType, _package_quantity: values.packageQuantity, _is_active: values.isActive }));
+  return unwrap(await supabase.rpc("save_service_price", { _price_id: values.id, _appointment_type_id: values.appointmentTypeId, _price_cents: values.priceCents, _duration_minutes: values.durationMinutes, _modality: values.modality, _billing_type: values.billingType, _package_quantity: values.packageQuantity ?? 0, _is_active: values.isActive }));
 }, onSuccess: () => invalidate(qc) }); }
