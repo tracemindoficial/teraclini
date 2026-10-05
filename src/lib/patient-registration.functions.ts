@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-import { registrationPayloadSchema } from "@/lib/patient-registration-schema";
+import { professionalPatientSchema, registrationPayloadSchema } from "@/lib/patient-registration-schema";
 
 async function sha256(value: string) {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
@@ -59,4 +59,24 @@ export const checkPatientRegistrationLink = createServerFn({ method: "POST" })
     if (new Date(link.expires_at) <= new Date()) return { available: false as const, reason: "expired" as const };
     if (link.uses_count >= link.max_uses) return { available: false as const, reason: "used" as const };
     return { available: true as const };
+  });
+
+export const saveCompletePatient = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z.object({ patientId: z.string().uuid().optional(), payload: professionalPatientSchema }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const args = data.patientId
+      ? { _payload: data.payload, _patient_id: data.patientId }
+      : { _payload: data.payload };
+    const { data: patientId, error } = await context.supabase.rpc("save_complete_patient", args);
+    if (error || !patientId) throw new Error("Não foi possível salvar o cadastro completo.");
+    const { data: patient, error: readError } = await context.supabase
+      .from("patients")
+      .select("*")
+      .eq("id", patientId)
+      .single();
+    if (readError || !patient) throw new Error("O cadastro foi salvo, mas não pôde ser confirmado.");
+    return patient;
   });
