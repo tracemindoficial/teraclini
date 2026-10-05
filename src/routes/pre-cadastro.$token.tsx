@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { RegistrationForm } from "@/components/patient-registration/RegistrationForm";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { Button } from "@/components/ui/button";
 import { checkPatientRegistrationLink } from "@/lib/patient-registration.functions";
 
 export const Route = createFileRoute("/pre-cadastro/$token")({
@@ -39,14 +41,15 @@ function Page() {
         title="Não foi possível verificar o link"
         description="Confira sua conexão e tente novamente."
         action={
-          <button
+          <Button
             type="button"
-            className="mt-5 text-sm font-medium text-primary underline underline-offset-4 disabled:opacity-50"
+            variant="link"
+            className="mt-3"
             disabled={isFetching}
             onClick={() => void refetch()}
           >
             {isFetching ? "Tentando novamente..." : "Tentar novamente"}
-          </button>
+          </Button>
         }
       />
     );
@@ -60,7 +63,7 @@ function Page() {
   return <RegistrationForm token={token} />;
 }
 
-function Status({ title, description, action }: { title: string; description?: string; action?: React.ReactNode }) {
+function Status({ title, description, action }: { title: string; description?: string; action?: ReactNode }) {
   return (
     <main className="min-h-screen bg-background px-4 py-12">
       <div className="mx-auto max-w-lg text-center">
