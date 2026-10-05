@@ -148,6 +148,13 @@
       "when": 1791217883445,
       "tag": "0020_preserve_structured_patient_street",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1791220700696,
+      "tag": "0021_centralize_basic_registrations",
+      "breakpoints": true
     }
   ]
 }

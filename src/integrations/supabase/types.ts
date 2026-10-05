@@ -422,9 +422,11 @@ export type Database = {
       appointment_types: {
         Row: {
           account_id: string
+          category: string
           color_key: string
           created_at: string
           default_duration_minutes: number
+          description: string | null
           id: string
           is_active: boolean
           name: string
@@ -432,9 +434,11 @@ export type Database = {
         }
         Insert: {
           account_id?: string
+          category?: string
           color_key?: string
           created_at?: string
           default_duration_minutes?: number
+          description?: string | null
           id?: string
           is_active?: boolean
           name: string
@@ -442,9 +446,11 @@ export type Database = {
         }
         Update: {
           account_id?: string
+          category?: string
           color_key?: string
           created_at?: string
           default_duration_minutes?: number
+          description?: string | null
           id?: string
           is_active?: boolean
           name?: string
@@ -467,6 +473,7 @@ export type Database = {
           cancellation_reason: string | null
           completed_at: string | null
           created_at: string
+          duration_minutes_snapshot: number | null
           ends_at: string
           id: string
           location_id: string | null
@@ -475,7 +482,10 @@ export type Database = {
           package_id: string | null
           package_session_value: number | null
           patient_id: string | null
+          price_cents_snapshot: number | null
           room_id: string | null
+          service_name_snapshot: string | null
+          service_price_id: string | null
           started_at: string | null
           starts_at: string
           status: Database["public"]["Enums"]["appointment_status"]
@@ -489,6 +499,7 @@ export type Database = {
           cancellation_reason?: string | null
           completed_at?: string | null
           created_at?: string
+          duration_minutes_snapshot?: number | null
           ends_at: string
           id?: string
           location_id?: string | null
@@ -497,7 +508,10 @@ export type Database = {
           package_id?: string | null
           package_session_value?: number | null
           patient_id?: string | null
+          price_cents_snapshot?: number | null
           room_id?: string | null
+          service_name_snapshot?: string | null
+          service_price_id?: string | null
           started_at?: string | null
           starts_at: string
           status?: Database["public"]["Enums"]["appointment_status"]
@@ -511,6 +525,7 @@ export type Database = {
           cancellation_reason?: string | null
           completed_at?: string | null
           created_at?: string
+          duration_minutes_snapshot?: number | null
           ends_at?: string
           id?: string
           location_id?: string | null
@@ -519,7 +534,10 @@ export type Database = {
           package_id?: string | null
           package_session_value?: number | null
           patient_id?: string | null
+          price_cents_snapshot?: number | null
           room_id?: string | null
+          service_name_snapshot?: string | null
+          service_price_id?: string | null
           started_at?: string | null
           starts_at?: string
           status?: Database["public"]["Enums"]["appointment_status"]
@@ -568,6 +586,13 @@ export type Database = {
             columns: ["room_id"]
             isOneToOne: false
             referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_service_price_id_fkey"
+            columns: ["service_price_id"]
+            isOneToOne: false
+            referencedRelation: "service_prices"
             referencedColumns: ["id"]
           },
         ]
@@ -755,11 +780,14 @@ export type Database = {
           periodicity: Database["public"]["Enums"]["care_package_periodicity"]
           quantity: number
           renewal_alert_threshold: number
+          service_price_id: string | null
           start_date: string
           total_value: number | null
+          total_value_cents: number | null
           updated_at: string
           user_id: string
           value_per_session: number | null
+          value_per_session_cents: number | null
         }
         Insert: {
           account_id?: string
@@ -774,11 +802,14 @@ export type Database = {
           periodicity?: Database["public"]["Enums"]["care_package_periodicity"]
           quantity: number
           renewal_alert_threshold?: number
+          service_price_id?: string | null
           start_date: string
           total_value?: number | null
+          total_value_cents?: number | null
           updated_at?: string
           user_id: string
           value_per_session?: number | null
+          value_per_session_cents?: number | null
         }
         Update: {
           account_id?: string
@@ -793,11 +824,14 @@ export type Database = {
           periodicity?: Database["public"]["Enums"]["care_package_periodicity"]
           quantity?: number
           renewal_alert_threshold?: number
+          service_price_id?: string | null
           start_date?: string
           total_value?: number | null
+          total_value_cents?: number | null
           updated_at?: string
           user_id?: string
           value_per_session?: number | null
+          value_per_session_cents?: number | null
         }
         Relationships: [
           {
@@ -826,6 +860,13 @@ export type Database = {
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_packages_service_price_id_fkey"
+            columns: ["service_price_id"]
+            isOneToOne: false
+            referencedRelation: "service_prices"
             referencedColumns: ["id"]
           },
         ]
@@ -1915,6 +1956,55 @@ export type Database = {
           },
         ]
       }
+      profile_specialties: {
+        Row: {
+          account_id: string
+          created_at: string
+          id: string
+          is_primary: boolean
+          profile_id: string
+          specialty_id: string
+        }
+        Insert: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          profile_id: string
+          specialty_id: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          profile_id?: string
+          specialty_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_specialties_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_specialties_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_specialties_specialty_id_fkey"
+            columns: ["specialty_id"]
+            isOneToOne: false
+            referencedRelation: "specialties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           account_id: string
@@ -2082,6 +2172,111 @@ export type Database = {
             columns: ["room_id"]
             isOneToOne: false
             referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_prices: {
+        Row: {
+          account_id: string
+          appointment_type_id: string
+          billing_type: string
+          created_at: string
+          duration_minutes: number
+          id: string
+          is_active: boolean
+          modality: string
+          package_quantity: number | null
+          parent_price_id: string | null
+          price_cents: number
+          updated_at: string
+          valid_from: string
+        }
+        Insert: {
+          account_id?: string
+          appointment_type_id: string
+          billing_type: string
+          created_at?: string
+          duration_minutes: number
+          id?: string
+          is_active?: boolean
+          modality: string
+          package_quantity?: number | null
+          parent_price_id?: string | null
+          price_cents: number
+          updated_at?: string
+          valid_from?: string
+        }
+        Update: {
+          account_id?: string
+          appointment_type_id?: string
+          billing_type?: string
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          modality?: string
+          package_quantity?: number | null
+          parent_price_id?: string | null
+          price_cents?: number
+          updated_at?: string
+          valid_from?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_prices_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_prices_appointment_type_id_fkey"
+            columns: ["appointment_type_id"]
+            isOneToOne: false
+            referencedRelation: "appointment_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_prices_parent_price_id_fkey"
+            columns: ["parent_price_id"]
+            isOneToOne: false
+            referencedRelation: "service_prices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      specialties: {
+        Row: {
+          account_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "specialties_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
         ]
@@ -2467,6 +2662,10 @@ export type Database = {
       save_complete_patient: {
         Args: { _patient_id?: string; _payload: Json }
         Returns: string
+      }
+      seed_basic_registrations: {
+        Args: { target_account_id: string }
+        Returns: undefined
       }
       submit_patient_registration: {
         Args: { _bucket_key: string; _payload: Json; _token_hash: string }
