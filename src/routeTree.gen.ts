@@ -21,7 +21,6 @@ import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AdminAdminRouteImport } from './routes/_admin/admin'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedAjudaRouteImport } from './routes/_authenticated/ajuda'
-import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedDocumentosRouteImport } from './routes/_authenticated/documentos'
 import { Route as AuthenticatedLocaisRouteImport } from './routes/_authenticated/locais'
 import { Route as AuthenticatedMeuDiaRouteImport } from './routes/_authenticated/meu-dia'
@@ -47,6 +46,7 @@ import { Route as AdminAdminVencimentosRouteImport } from './routes/_admin/admin
 import { Route as AuthenticatedAjudaIndexRouteImport } from './routes/_authenticated/ajuda.index'
 import { Route as AuthenticatedAjudaSlugRouteImport } from './routes/_authenticated/ajuda.$slug'
 import { Route as AuthenticatedAtendimentosIdRouteImport } from './routes/_authenticated/atendimentos.$id'
+import { Route as AuthenticatedConfiguracoesIndexRouteImport } from './routes/_authenticated/configuracoes.index'
 import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes.index'
 import { Route as AuthenticatedPacientesIdRouteImport } from './routes/_authenticated/pacientes.$id'
 import { Route as AuthenticatedPacientesPreCadastrosRouteImport } from './routes/_authenticated/pacientes.pre-cadastros'
@@ -112,12 +112,6 @@ const AuthenticatedAjudaRoute = AuthenticatedAjudaRouteImport.update({
   path: '/ajuda',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedConfiguracoesRoute =
-  AuthenticatedConfiguracoesRouteImport.update({
-    id: '/configuracoes',
-    path: '/configuracoes',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedDocumentosRoute = AuthenticatedDocumentosRouteImport.update({
   id: '/documentos',
   path: '/documentos',
@@ -244,6 +238,12 @@ const AuthenticatedAtendimentosIdRoute =
     path: '/atendimentos/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedConfiguracoesIndexRoute =
+  AuthenticatedConfiguracoesIndexRouteImport.update({
+    id: '/configuracoes/',
+    path: '/configuracoes/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPacientesIndexRoute =
   AuthenticatedPacientesIndexRouteImport.update({
     id: '/pacientes/',
@@ -290,7 +290,6 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminAdminRouteWithChildren
   '/agenda': typeof AuthenticatedAgendaRoute
   '/ajuda': typeof AuthenticatedAjudaRouteWithChildren
-  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/documentos': typeof AuthenticatedDocumentosRoute
   '/locais': typeof AuthenticatedLocaisRoute
   '/meu-dia': typeof AuthenticatedMeuDiaRoute
@@ -319,6 +318,7 @@ export interface FileRoutesByFullPath {
   '/pacotes/$id': typeof AuthenticatedPacotesIdRoute
   '/admin/': typeof AdminAdminIndexRoute
   '/ajuda/': typeof AuthenticatedAjudaIndexRoute
+  '/configuracoes/': typeof AuthenticatedConfiguracoesIndexRoute
   '/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
@@ -332,7 +332,6 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
   '/agenda': typeof AuthenticatedAgendaRoute
-  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/documentos': typeof AuthenticatedDocumentosRoute
   '/locais': typeof AuthenticatedLocaisRoute
   '/meu-dia': typeof AuthenticatedMeuDiaRoute
@@ -361,6 +360,7 @@ export interface FileRoutesByTo {
   '/pacotes/$id': typeof AuthenticatedPacotesIdRoute
   '/admin': typeof AdminAdminIndexRoute
   '/ajuda': typeof AuthenticatedAjudaIndexRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesIndexRoute
   '/pacientes': typeof AuthenticatedPacientesIndexRoute
   '/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
@@ -379,7 +379,6 @@ export interface FileRoutesById {
   '/_admin/admin': typeof AdminAdminRouteWithChildren
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/ajuda': typeof AuthenticatedAjudaRouteWithChildren
-  '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/documentos': typeof AuthenticatedDocumentosRoute
   '/_authenticated/locais': typeof AuthenticatedLocaisRoute
   '/_authenticated/meu-dia': typeof AuthenticatedMeuDiaRoute
@@ -408,6 +407,7 @@ export interface FileRoutesById {
   '/_authenticated/pacotes/$id': typeof AuthenticatedPacotesIdRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
   '/_authenticated/ajuda/': typeof AuthenticatedAjudaIndexRoute
+  '/_authenticated/configuracoes/': typeof AuthenticatedConfiguracoesIndexRoute
   '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/_admin/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/_authenticated/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
@@ -425,7 +425,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/agenda'
     | '/ajuda'
-    | '/configuracoes'
     | '/documentos'
     | '/locais'
     | '/meu-dia'
@@ -454,6 +453,7 @@ export interface FileRouteTypes {
     | '/pacotes/$id'
     | '/admin/'
     | '/ajuda/'
+    | '/configuracoes/'
     | '/pacientes/'
     | '/admin/usuarios/$id'
     | '/pacientes/pre-cadastros/$id'
@@ -467,7 +467,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/termos'
     | '/agenda'
-    | '/configuracoes'
     | '/documentos'
     | '/locais'
     | '/meu-dia'
@@ -496,6 +495,7 @@ export interface FileRouteTypes {
     | '/pacotes/$id'
     | '/admin'
     | '/ajuda'
+    | '/configuracoes'
     | '/pacientes'
     | '/admin/usuarios/$id'
     | '/pacientes/pre-cadastros/$id'
@@ -513,7 +513,6 @@ export interface FileRouteTypes {
     | '/_admin/admin'
     | '/_authenticated/agenda'
     | '/_authenticated/ajuda'
-    | '/_authenticated/configuracoes'
     | '/_authenticated/documentos'
     | '/_authenticated/locais'
     | '/_authenticated/meu-dia'
@@ -542,6 +541,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pacotes/$id'
     | '/_admin/admin/'
     | '/_authenticated/ajuda/'
+    | '/_authenticated/configuracoes/'
     | '/_authenticated/pacientes/'
     | '/_admin/admin/usuarios/$id'
     | '/_authenticated/pacientes/pre-cadastros/$id'
@@ -644,13 +644,6 @@ declare module '@tanstack/react-router' {
       path: '/ajuda'
       fullPath: '/ajuda'
       preLoaderRoute: typeof AuthenticatedAjudaRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/configuracoes': {
-      id: '/_authenticated/configuracoes'
-      path: '/configuracoes'
-      fullPath: '/configuracoes'
-      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/documentos': {
@@ -828,6 +821,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAtendimentosIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/configuracoes/': {
+      id: '/_authenticated/configuracoes/'
+      path: '/configuracoes'
+      fullPath: '/configuracoes/'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/pacientes/': {
       id: '/_authenticated/pacientes/'
       path: '/pacientes'
@@ -976,7 +976,6 @@ const AuthenticatedPacientesPreCadastrosRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedAjudaRoute: typeof AuthenticatedAjudaRouteWithChildren
-  AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedDocumentosRoute: typeof AuthenticatedDocumentosRoute
   AuthenticatedLocaisRoute: typeof AuthenticatedLocaisRoute
   AuthenticatedMeuDiaRoute: typeof AuthenticatedMeuDiaRoute
@@ -987,13 +986,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAtendimentosIdRoute: typeof AuthenticatedAtendimentosIdRoute
   AuthenticatedPacientesIdRoute: typeof AuthenticatedPacientesIdRoute
   AuthenticatedPacientesPreCadastrosRoute: typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
+  AuthenticatedConfiguracoesIndexRoute: typeof AuthenticatedConfiguracoesIndexRoute
   AuthenticatedPacientesIndexRoute: typeof AuthenticatedPacientesIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedAjudaRoute: AuthenticatedAjudaRouteWithChildren,
-  AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedDocumentosRoute: AuthenticatedDocumentosRoute,
   AuthenticatedLocaisRoute: AuthenticatedLocaisRoute,
   AuthenticatedMeuDiaRoute: AuthenticatedMeuDiaRoute,
@@ -1005,6 +1004,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPacientesIdRoute: AuthenticatedPacientesIdRoute,
   AuthenticatedPacientesPreCadastrosRoute:
     AuthenticatedPacientesPreCadastrosRouteWithChildren,
+  AuthenticatedConfiguracoesIndexRoute: AuthenticatedConfiguracoesIndexRoute,
   AuthenticatedPacientesIndexRoute: AuthenticatedPacientesIndexRoute,
 }
 

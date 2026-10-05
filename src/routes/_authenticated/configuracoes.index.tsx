@@ -17,7 +17,7 @@ import { useProfile, useUpdateProfile } from "@/lib/data";
 import { PROFESSIONS, type CareMode } from "@/lib/domain";
 import { joinProfession, splitProfession } from "@/lib/professional-profile";
 
-export const Route = createFileRoute("/_authenticated/configuracoes")({
+export const Route = createFileRoute("/_authenticated/configuracoes/")({
   head: () => ({
     meta: [
       { title: "Meu Perfil Profissional — TeraClini" },
