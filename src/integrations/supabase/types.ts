@@ -2663,6 +2663,19 @@ export type Database = {
         Args: { _patient_id?: string; _payload: Json }
         Returns: string
       }
+      save_service_price: {
+        Args: {
+          _appointment_type_id: string
+          _billing_type: string
+          _duration_minutes: number
+          _is_active: boolean
+          _modality: string
+          _package_quantity: number
+          _price_cents: number
+          _price_id: string
+        }
+        Returns: string
+      }
       seed_basic_registrations: {
         Args: { target_account_id: string }
         Returns: undefined

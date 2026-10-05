@@ -155,6 +155,13 @@
       "when": 1791220700696,
       "tag": "0021_centralize_basic_registrations",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1791220736714,
+      "tag": "0022_add_atomic_service_price_versioning",
+      "breakpoints": true
     }
   ]
 }
