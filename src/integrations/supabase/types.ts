@@ -1642,6 +1642,7 @@ export type Database = {
           registration_source: string
           state: string | null
           status: Database["public"]["Enums"]["patient_status"]
+          street: string | null
           updated_at: string
           user_id: string
         }
@@ -1669,6 +1670,7 @@ export type Database = {
           registration_source?: string
           state?: string | null
           status?: Database["public"]["Enums"]["patient_status"]
+          street?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1696,6 +1698,7 @@ export type Database = {
           registration_source?: string
           state?: string | null
           status?: Database["public"]["Enums"]["patient_status"]
+          street?: string | null
           updated_at?: string
           user_id?: string
         }

@@ -31,3 +31,4 @@
 - Keep administrative operations server-authorized by role, explicitly confirmed, and recorded in append-only non-clinical histories because support and billing actions are security-sensitive.
 - Keep operational account status, administrative security blocking, and subscription state separate; enforce each independently because they have different causes and recovery flows.
 - Keep patient preregistration review RPCs transactional and security-definer, with explicit account-membership checks and restricted execute grants, so approval cannot partially persist across clinical tables.
+- Keep manual registration, public preregistration, and professional review on the same complete patient field component and schema so no entry path silently loses intake data.
