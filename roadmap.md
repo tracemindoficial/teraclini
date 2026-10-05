@@ -167,3 +167,13 @@
 - [x] Confirmar o contrato real de banco, RLS e funções do pré-cadastro
 - [x] Corrigir falhas comprovadas de link, cópia, atualização da lista e validação compartilhada
 - [ ] Validar o fluxo autenticado completo de geração até aprovação — bloqueado: não há sessão profissional disponível
+
+## Cadastros básicos padronizados
+
+- [x] Auditar especialidades, serviços, valores, pacotes, agenda e isolamento existentes
+- [ ] Centralizar especialidades e vínculos do perfil sem perder o texto legado
+- [ ] Evoluir tipos de atendimento existentes para serviços configuráveis por conta
+- [ ] Criar tabela de preços em centavos com versões e vínculos históricos
+- [ ] Integrar serviços e valores à agenda, atendimentos e pacotes
+- [ ] Criar gestão pesquisável de especialidades, serviços e valores nas configurações
+- [ ] Validar duplicidade, ativação, desativação, histórico, isolamento, desktop e celular
