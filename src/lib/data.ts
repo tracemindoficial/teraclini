@@ -10,3 +10,4 @@ export * from "./data/schedule";
 export * from "./data/patient-registration";
 export * from "./data/packages";
 export * from "./data/support";
+export * from "./data/basic-registrations";
