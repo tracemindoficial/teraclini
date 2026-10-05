@@ -27,12 +27,29 @@ export const Route = createFileRoute("/pre-cadastro/$token")({
 });
 function Page() {
   const { token } = Route.useParams();
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, isFetching, refetch } = useQuery({
     queryKey: ["public-registration-link", token],
     queryFn: () => checkPatientRegistrationLink({ data: { token } }),
     retry: false,
   });
   if (isLoading) return <Status title="Verificando link seguro..." />;
+  if (isError)
+    return (
+      <Status
+        title="Não foi possível verificar o link"
+        description="Confira sua conexão e tente novamente."
+        action={
+          <button
+            type="button"
+            className="mt-5 text-sm font-medium text-primary underline underline-offset-4 disabled:opacity-50"
+            disabled={isFetching}
+            onClick={() => void refetch()}
+          >
+            {isFetching ? "Tentando novamente..." : "Tentar novamente"}
+          </button>
+        }
+      />
+    );
   if (!data?.available)
     return (
       <Status
@@ -43,7 +60,7 @@ function Page() {
   return <RegistrationForm token={token} />;
 }
 
-function Status({ title, description }: { title: string; description?: string }) {
+function Status({ title, description, action }: { title: string; description?: string; action?: React.ReactNode }) {
   return (
     <main className="min-h-screen bg-background px-4 py-12">
       <div className="mx-auto max-w-lg text-center">
@@ -51,6 +68,7 @@ function Status({ title, description }: { title: string; description?: string })
         <div className="surface mt-10 p-8">
           <h1 className="text-2xl font-semibold">{title}</h1>
           {description ? <p className="mt-3 text-sm text-muted-foreground">{description}</p> : null}
+          {action}
           <Link
             to="/privacidade"
             className="mt-5 inline-block text-sm font-medium text-primary underline underline-offset-4"

@@ -94,11 +94,14 @@ export function useRevokeRegistrationLink() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("patient_registration_links")
         .update({ revoked_at: new Date().toISOString() })
-        .eq("id", id);
+        .eq("id", id)
+        .select("id")
+        .single();
       if (error) throw new Error(error.message);
+      if (!data) throw new Error("O link não foi encontrado ou não pôde ser revogado.");
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.registrationLinks }),
   });

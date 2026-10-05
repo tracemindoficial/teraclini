@@ -157,3 +157,11 @@
 - [x] Usar o cadastro completo compartilhado nos fluxos manual e público
 - [x] Tornar o salvamento manual e a aprovação transacionais e sem perda de dados
 - [ ] Validar cadastro manual, pré-cadastro, aprovação, persistência, duplicidade e isolamento — bloqueado: não há sessão profissional disponível para o teste autenticado
+
+## Auditoria forense de execução
+
+- [x] Confirmar a cadeia real de rota, página e componentes executados na prévia atual
+- [x] Comparar os módulos reportados com o código-fonte e os artefatos servidos
+- [x] Confirmar o contrato real de banco, RLS e funções do pré-cadastro
+- [x] Corrigir falhas comprovadas de link, cópia, atualização da lista e validação compartilhada
+- [ ] Validar o fluxo autenticado completo de geração até aprovação — bloqueado: não há sessão profissional disponível
