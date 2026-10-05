@@ -2461,6 +2461,10 @@ export type Database = {
         Args: { _message: string; _ticket_id: string }
         Returns: string
       }
+      save_complete_patient: {
+        Args: { _patient_id?: string; _payload: Json }
+        Returns: string
+      }
       submit_patient_registration: {
         Args: { _bucket_key: string; _payload: Json; _token_hash: string }
         Returns: string
