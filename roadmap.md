@@ -171,9 +171,9 @@
 ## Cadastros básicos padronizados
 
 - [x] Auditar especialidades, serviços, valores, pacotes, agenda e isolamento existentes
-- [ ] Centralizar especialidades e vínculos do perfil sem perder o texto legado
-- [ ] Evoluir tipos de atendimento existentes para serviços configuráveis por conta
-- [ ] Criar tabela de preços em centavos com versões e vínculos históricos
-- [ ] Integrar serviços e valores à agenda, atendimentos e pacotes
-- [ ] Criar gestão pesquisável de especialidades, serviços e valores nas configurações
-- [ ] Validar duplicidade, ativação, desativação, histórico, isolamento, desktop e celular
+- [x] Centralizar especialidades e vínculos do perfil sem perder o texto legado
+- [x] Evoluir tipos de atendimento existentes para serviços configuráveis por conta
+- [x] Criar tabela de preços em centavos com versões e vínculos históricos
+- [x] Integrar serviços e valores à agenda, atendimentos e pacotes
+- [x] Criar gestão pesquisável de especialidades, serviços e valores nas configurações
+- [x] Validar duplicidade, ativação, desativação, histórico, isolamento, desktop e celular

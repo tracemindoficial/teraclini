@@ -58,7 +58,7 @@ function PackageDetailsPage() {
   return (
     <AppShell
       title={item.patient.full_name}
-      description={item.appointment_type?.name ?? "Pacote de atendimentos"}
+      description={item.service_name_snapshot ?? item.appointment_type?.name ?? "Pacote de atendimentos"}
       action={
         <Button variant="outline" onClick={() => setEditOpen(true)}>
           Editar
