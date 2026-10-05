@@ -47,6 +47,7 @@ import { Route as AuthenticatedAjudaIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAjudaSlugRouteImport } from './routes/_authenticated/ajuda.$slug'
 import { Route as AuthenticatedAtendimentosIdRouteImport } from './routes/_authenticated/atendimentos.$id'
 import { Route as AuthenticatedConfiguracoesIndexRouteImport } from './routes/_authenticated/configuracoes.index'
+import { Route as AuthenticatedConfiguracoesCadastrosBasicosRouteImport } from './routes/_authenticated/configuracoes.cadastros-basicos'
 import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes.index'
 import { Route as AuthenticatedPacientesIdRouteImport } from './routes/_authenticated/pacientes.$id'
 import { Route as AuthenticatedPacientesPreCadastrosRouteImport } from './routes/_authenticated/pacientes.pre-cadastros'
@@ -244,6 +245,12 @@ const AuthenticatedConfiguracoesIndexRoute =
     path: '/configuracoes/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedConfiguracoesCadastrosBasicosRoute =
+  AuthenticatedConfiguracoesCadastrosBasicosRouteImport.update({
+    id: '/configuracoes/cadastros-basicos',
+    path: '/configuracoes/cadastros-basicos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPacientesIndexRoute =
   AuthenticatedPacientesIndexRouteImport.update({
     id: '/pacientes/',
@@ -313,6 +320,7 @@ export interface FileRoutesByFullPath {
   '/admin/vencimentos': typeof AdminAdminVencimentosRoute
   '/ajuda/$slug': typeof AuthenticatedAjudaSlugRoute
   '/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
+  '/configuracoes/cadastros-basicos': typeof AuthenticatedConfiguracoesCadastrosBasicosRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
   '/pacotes/$id': typeof AuthenticatedPacotesIdRoute
@@ -355,6 +363,7 @@ export interface FileRoutesByTo {
   '/admin/vencimentos': typeof AdminAdminVencimentosRoute
   '/ajuda/$slug': typeof AuthenticatedAjudaSlugRoute
   '/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
+  '/configuracoes/cadastros-basicos': typeof AuthenticatedConfiguracoesCadastrosBasicosRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
   '/pacotes/$id': typeof AuthenticatedPacotesIdRoute
@@ -402,6 +411,7 @@ export interface FileRoutesById {
   '/_admin/admin/vencimentos': typeof AdminAdminVencimentosRoute
   '/_authenticated/ajuda/$slug': typeof AuthenticatedAjudaSlugRoute
   '/_authenticated/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
+  '/_authenticated/configuracoes/cadastros-basicos': typeof AuthenticatedConfiguracoesCadastrosBasicosRoute
   '/_authenticated/pacientes/$id': typeof AuthenticatedPacientesIdRoute
   '/_authenticated/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
   '/_authenticated/pacotes/$id': typeof AuthenticatedPacotesIdRoute
@@ -448,6 +458,7 @@ export interface FileRouteTypes {
     | '/admin/vencimentos'
     | '/ajuda/$slug'
     | '/atendimentos/$id'
+    | '/configuracoes/cadastros-basicos'
     | '/pacientes/$id'
     | '/pacientes/pre-cadastros'
     | '/pacotes/$id'
@@ -490,6 +501,7 @@ export interface FileRouteTypes {
     | '/admin/vencimentos'
     | '/ajuda/$slug'
     | '/atendimentos/$id'
+    | '/configuracoes/cadastros-basicos'
     | '/pacientes/$id'
     | '/pacientes/pre-cadastros'
     | '/pacotes/$id'
@@ -536,6 +548,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/vencimentos'
     | '/_authenticated/ajuda/$slug'
     | '/_authenticated/atendimentos/$id'
+    | '/_authenticated/configuracoes/cadastros-basicos'
     | '/_authenticated/pacientes/$id'
     | '/_authenticated/pacientes/pre-cadastros'
     | '/_authenticated/pacotes/$id'
@@ -828,6 +841,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConfiguracoesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/configuracoes/cadastros-basicos': {
+      id: '/_authenticated/configuracoes/cadastros-basicos'
+      path: '/configuracoes/cadastros-basicos'
+      fullPath: '/configuracoes/cadastros-basicos'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesCadastrosBasicosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/pacientes/': {
       id: '/_authenticated/pacientes/'
       path: '/pacientes'
@@ -984,6 +1004,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedSuporteRoute: typeof AuthenticatedSuporteRoute
   AuthenticatedAtendimentosIdRoute: typeof AuthenticatedAtendimentosIdRoute
+  AuthenticatedConfiguracoesCadastrosBasicosRoute: typeof AuthenticatedConfiguracoesCadastrosBasicosRoute
   AuthenticatedPacientesIdRoute: typeof AuthenticatedPacientesIdRoute
   AuthenticatedPacientesPreCadastrosRoute: typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
   AuthenticatedConfiguracoesIndexRoute: typeof AuthenticatedConfiguracoesIndexRoute
@@ -1001,6 +1022,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedSuporteRoute: AuthenticatedSuporteRoute,
   AuthenticatedAtendimentosIdRoute: AuthenticatedAtendimentosIdRoute,
+  AuthenticatedConfiguracoesCadastrosBasicosRoute:
+    AuthenticatedConfiguracoesCadastrosBasicosRoute,
   AuthenticatedPacientesIdRoute: AuthenticatedPacientesIdRoute,
   AuthenticatedPacientesPreCadastrosRoute:
     AuthenticatedPacientesPreCadastrosRouteWithChildren,
