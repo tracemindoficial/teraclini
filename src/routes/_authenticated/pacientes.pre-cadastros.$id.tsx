@@ -234,7 +234,12 @@ function Page() {
           </p>
           <div className="mt-5 grid gap-x-8 gap-y-4 sm:grid-cols-2">
             {originalDetails(request).map((item) => (
-              <Detail key={item.label} label={item.label} value={item.value} wide={item.wide} />
+              <Detail
+                key={item.label}
+                label={item.label}
+                value={item.value}
+                {...(item.wide ? { wide: true } : {})}
+              />
             ))}
           </div>
         </section>
