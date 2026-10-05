@@ -37,8 +37,8 @@ export function PackageDialog({
   const { data: patients } = usePatients();
   const { data: types } = useAppointmentTypes();
   const save = useSavePackage();
-  const { data: prices } = useServicePrices(true, values.typeId === "none" ? undefined : values.typeId);
   const [values, setValues] = useState(defaultValues());
+  const { data: prices } = useServicePrices(true, values.typeId === "none" ? undefined : values.typeId);
 
   useEffect(() => {
     if (!open) return;
