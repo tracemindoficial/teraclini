@@ -153,9 +153,17 @@ function PatientProfile() {
                 value={patient.birth_date ? formatDate(patient.birth_date) : "—"}
               />
               <DetailRow label="Sexo" value={patient.gender ?? "—"} />
+              <DetailRow label="CPF" value={patient.cpf ?? "—"} />
               <DetailRow label="Telefone" value={patient.phone ?? "—"} />
               <DetailRow label="E-mail" value={patient.email ?? "—"} />
               <DetailRow label="Endereço" value={patient.address ?? "—"} />
+              <DetailRow
+                label="Cidade/UF"
+                value={[patient.city, patient.state].filter(Boolean).join("/") || "—"}
+              />
+              <DetailRow label="Estado civil" value={patient.marital_status ?? "—"} />
+              <DetailRow label="Escolaridade" value={patient.education ?? "—"} />
+              <DetailRow label="Ocupação" value={patient.occupation ?? "—"} />
             </dl>
           </div>
 

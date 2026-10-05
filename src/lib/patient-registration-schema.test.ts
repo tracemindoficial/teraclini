@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   EMPTY_REGISTRATION,
   isValidCpf,
+  professionalPatientSchema,
   registrationPayloadSchema,
 } from "@/lib/patient-registration-schema";
 
@@ -52,5 +53,27 @@ describe("patient preregistration validation", () => {
       expect(result.data.phone).toBe("");
       expect(result.data.guardian_name).toBe("");
     }
+  });
+
+  it("uses the same complete contract for professional registration", () => {
+    const result = professionalPatientSchema.safeParse({
+      ...validPayload,
+      status: "ativo",
+      notes: "Observação interna",
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("applies the same guardian rule to professional registration", () => {
+    const result = professionalPatientSchema.safeParse({
+      ...validPayload,
+      age_group: "adolescente",
+      guardian_name: "",
+      status: "avaliacao",
+      notes: "",
+    });
+
+    expect(result.success).toBe(false);
   });
 });

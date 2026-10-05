@@ -1,6 +1,9 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
+import { CompletePatientFields } from "@/components/patients/CompletePatientFields";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import {
@@ -10,7 +13,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -19,20 +21,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AGE_GROUPS, PATIENT_STATUSES, type AgeGroup, type PatientStatus } from "@/lib/domain";
-import { useSavePatient, useSaveGuardian, type Patient } from "@/lib/data";
-import { cn } from "@/lib/utils";
+import { PATIENT_STATUSES } from "@/lib/domain";
+import { useSaveCompletePatient, type Patient } from "@/lib/data";
+import { EMPTY_REGISTRATION, professionalPatientSchema, type ProfessionalPatientFormValues, type ProfessionalPatientPayload } from "@/lib/patient-registration-schema";
 
 const EMPTY = {
-  full_name: "",
-  age_group: "adulto" as AgeGroup,
-  birth_date: "",
-  gender: "",
-  phone: "",
-  email: "",
-  address: "",
-  status: "ativo" as PatientStatus,
+  ...EMPTY_REGISTRATION,
   notes: "",
+  status: "ativo" as const,
 };
 
 export function PatientDialog({
@@ -46,71 +42,49 @@ export function PatientDialog({
   patient?: Patient | undefined;
   onSaved?: ((patient: Patient) => void) | undefined;
 }) {
-  const [values, setValues] = useState(EMPTY);
-  const [guardian, setGuardian] = useState({
-    full_name: "",
-    relationship: "",
-    phone: "",
-    email: "",
+  const form = useForm<ProfessionalPatientFormValues, unknown, ProfessionalPatientPayload>({
+    resolver: zodResolver(professionalPatientSchema),
+    defaultValues: EMPTY,
   });
-  const savePatient = useSavePatient();
-  const saveGuardian = useSaveGuardian();
+  const savePatient = useSaveCompletePatient();
 
   useEffect(() => {
     if (!open) return;
-    setValues(
-      patient
-        ? {
-            full_name: patient.full_name,
-            age_group: patient.age_group,
-            birth_date: patient.birth_date ?? "",
-            gender: patient.gender ?? "",
-            phone: patient.phone ?? "",
-            email: patient.email ?? "",
-            address: patient.address ?? "",
-            status: patient.status,
-            notes: patient.notes ?? "",
-          }
-        : EMPTY,
-    );
-    setGuardian({ full_name: "", relationship: "", phone: "", email: "" });
-  }, [open, patient]);
+    form.reset(patient ? {
+      ...EMPTY,
+      full_name: patient.full_name,
+      age_group: patient.age_group,
+      birth_date: patient.birth_date ?? "",
+      gender: patient.gender ?? "",
+      phone: patient.phone ?? "",
+      email: patient.email ?? "",
+      cpf: patient.cpf ?? "",
+      postal_code: patient.postal_code ?? "",
+      street: patient.address ?? "",
+      address_number: patient.address_number ?? "",
+      address_complement: patient.address_complement ?? "",
+      neighborhood: patient.neighborhood ?? "",
+      city: patient.city ?? "",
+      state: patient.state ?? "",
+      marital_status: patient.marital_status ?? "",
+      education: patient.education ?? "",
+      occupation: patient.occupation ?? "",
+      status: patient.status,
+      notes: patient.notes ?? "",
+    } : EMPTY);
+  }, [form, open, patient]);
 
-  const needsGuardian = values.age_group !== "adulto";
-
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault();
+  const handleSubmit = form.handleSubmit(async (payload) => {
     try {
-      const saved = await savePatient.mutateAsync({
-        ...(patient ? { id: patient.id } : {}),
-        full_name: values.full_name.trim(),
-        age_group: values.age_group,
-        birth_date: values.birth_date || null,
-        gender: values.gender || null,
-        phone: values.phone || null,
-        email: values.email || null,
-        address: values.address || null,
-        status: values.status,
-        notes: values.notes || null,
-      });
-
-      if (needsGuardian && guardian.full_name.trim()) {
-        await saveGuardian.mutateAsync({
-          patient_id: saved.id,
-          full_name: guardian.full_name.trim(),
-          relationship: guardian.relationship || null,
-          phone: guardian.phone || null,
-          email: guardian.email || null,
-        });
-      }
+      const saved = await savePatient.mutateAsync(patient ? { patientId: patient.id, payload } : { payload });
 
       toast.success(patient ? "Paciente atualizado." : "Paciente cadastrado.");
       onOpenChange(false);
       onSaved?.(saved);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Não foi possível salvar.");
+      toast.error(error instanceof Error ? error.message : "Não foi possível salvar o cadastro completo.");
     }
-  }
+  });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -120,73 +94,13 @@ export function PatientDialog({
           <DialogDescription>Quem será atendido?</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-3 gap-2">
-            {AGE_GROUPS.map((group) => (
-              <button
-                key={group.value}
-                type="button"
-                onClick={() => setValues({ ...values, age_group: group.value })}
-                className={cn(
-                  "rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors",
-                  values.age_group === group.value
-                    ? "border-primary bg-secondary text-secondary-foreground"
-                    : "hover:bg-accent",
-                )}
-              >
-                {group.label}
-              </button>
-            ))}
-          </div>
-
-          <FormField label="Nome completo" required>
-            <Input
-              required
-              value={values.full_name}
-              onChange={(event) => setValues({ ...values, full_name: event.target.value })}
-            />
-          </FormField>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <FormField label="Data de nascimento">
-              <Input
-                type="date"
-                value={values.birth_date}
-                onChange={(event) => setValues({ ...values, birth_date: event.target.value })}
-              />
-            </FormField>
-            <FormField label="Sexo">
-              <Input
-                value={values.gender}
-                onChange={(event) => setValues({ ...values, gender: event.target.value })}
-              />
-            </FormField>
-            <FormField label="Telefone">
-              <Input
-                value={values.phone}
-                onChange={(event) => setValues({ ...values, phone: event.target.value })}
-              />
-            </FormField>
-            <FormField label="E-mail">
-              <Input
-                type="email"
-                value={values.email}
-                onChange={(event) => setValues({ ...values, email: event.target.value })}
-              />
-            </FormField>
-          </div>
-
-          <FormField label="Endereço">
-            <Input
-              value={values.address}
-              onChange={(event) => setValues({ ...values, address: event.target.value })}
-            />
-          </FormField>
-
+        <FormProvider {...form}>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <CompletePatientFields />
           <FormField label="Situação">
             <Select
-              value={values.status}
-              onValueChange={(value) => setValues({ ...values, status: value as PatientStatus })}
+              value={form.watch("status")}
+              onValueChange={(value) => form.setValue("status", value as ProfessionalPatientPayload["status"])}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -201,42 +115,10 @@ export function PatientDialog({
             </Select>
           </FormField>
 
-          {needsGuardian && !patient ? (
-            <div className="rounded-xl border bg-muted/40 p-4">
-              <p className="text-sm font-medium">Responsável</p>
-              <p className="mb-3 text-xs text-muted-foreground">Opcional agora, editável depois.</p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Input
-                  placeholder="Nome"
-                  value={guardian.full_name}
-                  onChange={(event) => setGuardian({ ...guardian, full_name: event.target.value })}
-                />
-                <Input
-                  placeholder="Parentesco"
-                  value={guardian.relationship}
-                  onChange={(event) =>
-                    setGuardian({ ...guardian, relationship: event.target.value })
-                  }
-                />
-                <Input
-                  placeholder="Telefone"
-                  value={guardian.phone}
-                  onChange={(event) => setGuardian({ ...guardian, phone: event.target.value })}
-                />
-                <Input
-                  placeholder="E-mail"
-                  value={guardian.email}
-                  onChange={(event) => setGuardian({ ...guardian, email: event.target.value })}
-                />
-              </div>
-            </div>
-          ) : null}
-
           <FormField label="Observações">
             <Textarea
               rows={3}
-              value={values.notes}
-              onChange={(event) => setValues({ ...values, notes: event.target.value })}
+              {...form.register("notes")}
             />
           </FormField>
 
@@ -249,6 +131,7 @@ export function PatientDialog({
             </Button>
           </div>
         </form>
+        </FormProvider>
       </DialogContent>
     </Dialog>
   );

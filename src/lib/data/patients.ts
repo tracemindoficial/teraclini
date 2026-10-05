@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { currentUserId, unwrap, type Guardian, type Patient, type Tables } from "./shared";
 import { queryKeys } from "@/lib/query-keys";
+import { saveCompletePatient } from "@/lib/patient-registration.functions";
+import type { ProfessionalPatientPayload } from "@/lib/patient-registration-schema";
 
 export function usePatients(search?: string) {
   return useQuery({
@@ -37,6 +39,21 @@ export function useSavePatient() {
     onSuccess: (patient) => {
       qc.invalidateQueries({ queryKey: queryKeys.patients });
       qc.invalidateQueries({ queryKey: queryKeys.patient(patient.id) });
+      qc.invalidateQueries({ queryKey: queryKeys.onboardingTasks });
+    },
+  });
+}
+
+export function useSaveCompletePatient() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ patientId, payload }: { patientId?: string | undefined; payload: ProfessionalPatientPayload }) =>
+      saveCompletePatient({ data: patientId ? { patientId, payload } : { payload } }),
+    onSuccess: (patient) => {
+      qc.invalidateQueries({ queryKey: queryKeys.patients });
+      qc.invalidateQueries({ queryKey: queryKeys.patient(patient.id) });
+      qc.invalidateQueries({ queryKey: queryKeys.guardians(patient.id) });
+      qc.invalidateQueries({ queryKey: queryKeys.anamneses(patient.id) });
       qc.invalidateQueries({ queryKey: queryKeys.onboardingTasks });
     },
   });
