@@ -8,16 +8,11 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 import { CompletePatientFields } from "@/components/patients/CompletePatientFields";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FormField } from "@/components/ui/form-field";
-import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { EMPTY_REGISTRATION, registrationPayloadSchema, type RegistrationFormValues, type RegistrationPayload } from "@/lib/patient-registration-schema";
 import { submitPatientRegistration } from "@/lib/patient-registration.functions";
 
 const STEPS = ["Identificação", "Endereço", "Contatos", "Sua busca", "Histórico", "Revisão"];
-const OPTIONS = { yesNoPrivate: [["sim", "Sim"], ["nao", "Não"], ["prefiro_nao_informar", "Prefiro não informar"]] } as const;
 
 export function RegistrationForm({ token }: { token: string }) {
   const [step, setStep] = useState(0);
