@@ -188,3 +188,12 @@
 - [x] Reforçar duplicidade, idempotência e atualização sem apagar dados existentes
 - [x] Validar geração, envio, revisão, aprovação e leitura do paciente ponta a ponta
 - [ ] Validar isolamento entre contas e o fluxo completo em celular
+
+## Administração definitiva de clientes
+
+- [ ] Consolidar a entidade administrativa como conta profissional, sem confundir cliente com paciente
+- [ ] Restringir dados e ações da lista/detalhe conforme o papel administrativo
+- [ ] Tornar alterações cadastrais, de e-mail e acesso integralmente auditáveis
+- [ ] Validar lista, detalhe, edição, persistência, inativação e reativação com contas descartáveis
+- [ ] Confirmar bloqueio real de acesso, isolamento clínico, RLS e não regressão
+- [ ] Documentar o estado da estrutura para a futura cobrança, sem implementar PIX
