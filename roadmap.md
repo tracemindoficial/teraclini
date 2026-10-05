@@ -145,7 +145,7 @@
 - [ ] Validar edição, ativação e bloqueio ponta a ponta com uma sessão administrativa autorizada
 - [x] Restaurar aprovação atômica do pré-cadastro sem enfraquecer o isolamento por conta
 - [x] Validar contrato de retorno, CPF na revisão e atualização dos caches de pré-cadastro
-- [ ] Validar aprovação do pré-cadastro e continuidade para agendamento com sessão profissional autorizada
+- [x] Validar aprovação do pré-cadastro e continuidade para agendamento com sessão profissional autorizada
 - [ ] Auditar controles, formulários, modais, filtros, notificações e rotas sem ações mortas
 - [ ] Validar persistência, erros, permissões e isolamento com identidades fictícias
 - [ ] Consolidar matriz de funcionalidades e relatório final com pendências reais
@@ -166,7 +166,7 @@
 - [x] Comparar os módulos reportados com o código-fonte e os artefatos servidos
 - [x] Confirmar o contrato real de banco, RLS e funções do pré-cadastro
 - [x] Corrigir falhas comprovadas de link, cópia, atualização da lista e validação compartilhada
-- [ ] Validar o fluxo autenticado completo de geração até aprovação — bloqueado: não há sessão profissional disponível
+- [x] Validar o fluxo autenticado completo de geração até aprovação
 
 ## Cadastros básicos padronizados
 
@@ -182,9 +182,9 @@
 
 - [x] Reproduzir o clique, acesso direto e recarregamento da página de detalhe
 - [x] Identificar a causa raiz na composição das rotas de pré-cadastro
-- [ ] Corrigir a rota pai para permitir lista e detalhe independentes
-- [ ] Consolidar navegação direta da pendência para o registro correto
-- [ ] Preservar respostas originais e registrar histórico operacional sem conteúdo sensível
-- [ ] Reforçar duplicidade, idempotência e atualização sem apagar dados existentes
-- [ ] Validar geração, envio, revisão, aprovação e leitura do paciente ponta a ponta
-- [ ] Validar acesso direto, recarregamento, segundo clique, isolamento e celular
+- [x] Corrigir a rota pai para permitir lista e detalhe independentes
+- [x] Consolidar navegação direta da pendência para o registro correto
+- [x] Preservar respostas originais e registrar histórico operacional sem conteúdo sensível
+- [x] Reforçar duplicidade, idempotência e atualização sem apagar dados existentes
+- [x] Validar geração, envio, revisão, aprovação e leitura do paciente ponta a ponta
+- [ ] Validar isolamento entre contas e o fluxo completo em celular

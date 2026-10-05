@@ -176,6 +176,20 @@
       "when": 1791221191359,
       "tag": "0024_accept_price_quantity_sentinel",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1791222243833,
+      "tag": "0025_harden_patient_preregistration_workflow",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1791222524060,
+      "tag": "0026_allow_patient_registration_audit_actions",
+      "breakpoints": true
     }
   ]
 }

@@ -1511,6 +1511,7 @@ export type Database = {
           medication_use: string
           neighborhood: string | null
           occupation: string | null
+          original_data: Json | null
           patient_id: string | null
           payment_preference: string | null
           phone: string | null
@@ -1524,6 +1525,7 @@ export type Database = {
           rejection_reason: string | null
           reviewed_at: string | null
           reviewed_by: string | null
+          reviewed_data: Json | null
           state: string
           status: string
           street: string | null
@@ -1564,6 +1566,7 @@ export type Database = {
           medication_use: string
           neighborhood?: string | null
           occupation?: string | null
+          original_data?: Json | null
           patient_id?: string | null
           payment_preference?: string | null
           phone?: string | null
@@ -1577,6 +1580,7 @@ export type Database = {
           rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          reviewed_data?: Json | null
           state: string
           status?: string
           street?: string | null
@@ -1617,6 +1621,7 @@ export type Database = {
           medication_use?: string
           neighborhood?: string | null
           occupation?: string | null
+          original_data?: Json | null
           patient_id?: string | null
           payment_preference?: string | null
           phone?: string | null
@@ -1630,6 +1635,7 @@ export type Database = {
           rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          reviewed_data?: Json | null
           state?: string
           status?: string
           street?: string | null
@@ -2664,6 +2670,10 @@ export type Database = {
       }
       save_complete_patient: {
         Args: { _patient_id?: string; _payload: Json }
+        Returns: string
+      }
+      save_patient_registration_review: {
+        Args: { _payload: Json; _request_id: string }
         Returns: string
       }
       save_service_price: {

@@ -54,6 +54,7 @@ import { Route as AuthenticatedPacientesIdRouteImport } from './routes/_authenti
 import { Route as AuthenticatedPacientesPreCadastrosRouteImport } from './routes/_authenticated/pacientes.pre-cadastros'
 import { Route as AuthenticatedPacotesIdRouteImport } from './routes/_authenticated/pacotes.$id'
 import { Route as AdminAdminUsuariosIdRouteImport } from './routes/_admin/admin.usuarios.$id'
+import { Route as AuthenticatedPacientesPreCadastrosIndexRouteImport } from './routes/_authenticated/pacientes.pre-cadastros.index'
 import { Route as AuthenticatedPacientesPreCadastrosIdRouteImport } from './routes/_authenticated/pacientes.pre-cadastros.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -286,6 +287,12 @@ const AdminAdminUsuariosIdRoute = AdminAdminUsuariosIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AdminAdminUsuariosRoute,
 } as any)
+const AuthenticatedPacientesPreCadastrosIndexRoute =
+  AuthenticatedPacientesPreCadastrosIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedPacientesPreCadastrosRoute,
+  } as any)
 const AuthenticatedPacientesPreCadastrosIdRoute =
   AuthenticatedPacientesPreCadastrosIdRouteImport.update({
     id: '/$id',
@@ -338,6 +345,7 @@ export interface FileRoutesByFullPath {
   '/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
+  '/pacientes/pre-cadastros/': typeof AuthenticatedPacientesPreCadastrosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -373,7 +381,6 @@ export interface FileRoutesByTo {
   '/atendimentos/$id': typeof AuthenticatedAtendimentosIdRoute
   '/configuracoes/cadastros-basicos': typeof AuthenticatedConfiguracoesCadastrosBasicosRoute
   '/pacientes/$id': typeof AuthenticatedPacientesIdRoute
-  '/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosRouteWithChildren
   '/pacotes/$id': typeof AuthenticatedPacotesIdRoute
   '/admin': typeof AdminAdminIndexRoute
   '/ajuda': typeof AuthenticatedAjudaIndexRoute
@@ -381,6 +388,7 @@ export interface FileRoutesByTo {
   '/pacientes': typeof AuthenticatedPacientesIndexRoute
   '/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
+  '/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -430,6 +438,7 @@ export interface FileRoutesById {
   '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/_admin/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/_authenticated/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
+  '/_authenticated/pacientes/pre-cadastros/': typeof AuthenticatedPacientesPreCadastrosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -478,6 +487,7 @@ export interface FileRouteTypes {
     | '/pacientes/'
     | '/admin/usuarios/$id'
     | '/pacientes/pre-cadastros/$id'
+    | '/pacientes/pre-cadastros/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -513,7 +523,6 @@ export interface FileRouteTypes {
     | '/atendimentos/$id'
     | '/configuracoes/cadastros-basicos'
     | '/pacientes/$id'
-    | '/pacientes/pre-cadastros'
     | '/pacotes/$id'
     | '/admin'
     | '/ajuda'
@@ -521,6 +530,7 @@ export interface FileRouteTypes {
     | '/pacientes'
     | '/admin/usuarios/$id'
     | '/pacientes/pre-cadastros/$id'
+    | '/pacientes/pre-cadastros'
   id:
     | '__root__'
     | '/'
@@ -569,6 +579,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pacientes/'
     | '/_admin/admin/usuarios/$id'
     | '/_authenticated/pacientes/pre-cadastros/$id'
+    | '/_authenticated/pacientes/pre-cadastros/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -901,6 +912,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminUsuariosIdRouteImport
       parentRoute: typeof AdminAdminUsuariosRoute
     }
+    '/_authenticated/pacientes/pre-cadastros/': {
+      id: '/_authenticated/pacientes/pre-cadastros/'
+      path: '/'
+      fullPath: '/pacientes/pre-cadastros/'
+      preLoaderRoute: typeof AuthenticatedPacientesPreCadastrosIndexRouteImport
+      parentRoute: typeof AuthenticatedPacientesPreCadastrosRoute
+    }
     '/_authenticated/pacientes/pre-cadastros/$id': {
       id: '/_authenticated/pacientes/pre-cadastros/$id'
       path: '/$id'
@@ -1015,12 +1033,15 @@ const AuthenticatedPacotesRouteWithChildren =
 
 interface AuthenticatedPacientesPreCadastrosRouteChildren {
   AuthenticatedPacientesPreCadastrosIdRoute: typeof AuthenticatedPacientesPreCadastrosIdRoute
+  AuthenticatedPacientesPreCadastrosIndexRoute: typeof AuthenticatedPacientesPreCadastrosIndexRoute
 }
 
 const AuthenticatedPacientesPreCadastrosRouteChildren: AuthenticatedPacientesPreCadastrosRouteChildren =
   {
     AuthenticatedPacientesPreCadastrosIdRoute:
       AuthenticatedPacientesPreCadastrosIdRoute,
+    AuthenticatedPacientesPreCadastrosIndexRoute:
+      AuthenticatedPacientesPreCadastrosIndexRoute,
   }
 
 const AuthenticatedPacientesPreCadastrosRouteWithChildren =

@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { AlertTriangle, CheckCircle2, Pencil, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock3, Pencil, XCircle } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { CompletePatientFields } from "@/components/patients/CompletePatientFields";
 import { Badge } from "@/components/ui/badge";
@@ -227,6 +227,34 @@ function Page() {
             )}
           </div>
         </section>
+        <section className="surface p-5 sm:p-7">
+          <h2 className="text-lg font-semibold">Respostas originais</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Registro preservado exatamente como foi recebido. Alterações da revisão não modificam esta versão.
+          </p>
+          <div className="mt-5 grid gap-x-8 gap-y-4 sm:grid-cols-2">
+            {originalDetails(request).map((item) => (
+              <Detail
+                key={item.label}
+                label={item.label}
+                value={item.value}
+                {...(item.wide ? { wide: true } : {})}
+              />
+            ))}
+          </div>
+        </section>
+        <section className="surface p-5 sm:p-7">
+          <div className="flex items-center gap-2">
+            <Clock3 className="size-4 text-primary" />
+            <h2 className="text-lg font-semibold">Histórico</h2>
+          </div>
+          <ol className="mt-4 space-y-4 border-l pl-5">
+            <HistoryItem label="Enviado pelo paciente" at={request.submitted_at} />
+            {request.reviewed_at ? <HistoryItem label={request.status === "approved" ? "Revisado" : request.status === "rejected" ? "Revisado e recusado" : "Editado pelo profissional"} at={request.reviewed_at} /> : null}
+            {request.approved_at ? <HistoryItem label="Aprovado e convertido em paciente" at={request.approved_at} /> : null}
+            {request.rejected_at ? <HistoryItem label="Recusado" at={request.rejected_at} /> : null}
+          </ol>
+        </section>
         {pending && (
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <Button
@@ -238,7 +266,7 @@ function Page() {
             </Button>
             <Button className="gap-2" disabled={approve.isPending} onClick={() => approveNow()}>
               <CheckCircle2 className="size-4" />
-              {approve.isPending ? "Aprovando..." : "Aprovar como novo paciente"}
+              {approve.isPending ? "Aprovando..." : "Aprovar e cadastrar paciente"}
             </Button>
           </div>
         )}
@@ -406,4 +434,34 @@ function answer(value: string, details: string | null) {
     prefiro_nao_informar: "Preferiu não informar",
   };
   return `${labels[value] ?? value}${details ? ` — ${details}` : ""}`;
+}
+
+function originalDetails(request: RegistrationRequest) {
+  const original = request.original_data && typeof request.original_data === "object" && !Array.isArray(request.original_data)
+    ? request.original_data as Record<string, unknown>
+    : {};
+  const text = (key: string) => typeof original[key] === "string" ? original[key] as string : null;
+  return [
+    { label: "Nome", value: text("full_name") },
+    { label: "CPF", value: text("cpf") },
+    { label: "Nascimento", value: text("birth_date") },
+    { label: "E-mail", value: text("email") },
+    { label: "Telefone", value: text("phone") },
+    { label: "Cidade/UF", value: [text("city"), text("state")].filter(Boolean).join("/") || null },
+    { label: "Motivo da busca", value: text("therapy_reason"), wide: true },
+    { label: "Terapia anterior", value: answer(text("previous_therapy") ?? "", text("previous_therapy_details")), wide: true },
+    { label: "Diagnóstico comunicado", value: answer(text("medical_diagnosis") ?? "", text("medical_diagnosis_details")), wide: true },
+    { label: "Uso de medicamentos", value: answer(text("medication_use") ?? "", text("medication_details")), wide: true },
+    { label: "Histórico familiar", value: answer(text("family_mental_health") ?? "", text("family_mental_health_details")), wide: true },
+  ];
+}
+
+function HistoryItem({ label, at }: { label: string; at: string }) {
+  return (
+    <li className="relative">
+      <span className="absolute -left-[25px] top-1.5 size-2.5 rounded-full bg-primary" />
+      <p className="text-sm font-medium">{label}</p>
+      <time className="text-xs text-muted-foreground">{new Date(at).toLocaleString("pt-BR")}</time>
+    </li>
+  );
 }
