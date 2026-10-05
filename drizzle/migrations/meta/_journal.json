@@ -169,6 +169,13 @@
       "when": 1791221092356,
       "tag": "0023_harden_basic_registration_updates",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1791221191359,
+      "tag": "0024_accept_price_quantity_sentinel",
+      "breakpoints": true
     }
   ]
 }
