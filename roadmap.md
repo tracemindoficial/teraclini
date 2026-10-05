@@ -191,9 +191,9 @@
 
 ## Administração definitiva de clientes
 
-- [ ] Consolidar a entidade administrativa como conta profissional, sem confundir cliente com paciente
-- [ ] Restringir dados e ações da lista/detalhe conforme o papel administrativo
-- [ ] Tornar alterações cadastrais, de e-mail e acesso integralmente auditáveis
-- [ ] Validar lista, detalhe, edição, persistência, inativação e reativação com contas descartáveis
-- [ ] Confirmar bloqueio real de acesso, isolamento clínico, RLS e não regressão
-- [ ] Documentar o estado da estrutura para a futura cobrança, sem implementar PIX
+- [x] Consolidar a entidade administrativa como conta profissional, sem confundir cliente com paciente
+- [x] Restringir dados e ações da lista/detalhe conforme o papel administrativo
+- [x] Tornar alterações cadastrais, de e-mail e acesso integralmente auditáveis
+- [x] Validar lista, detalhe, edição, persistência, inativação e reativação com conta descartável
+- [x] Confirmar bloqueio real de acesso, isolamento clínico, RLS e não regressão
+- [x] Documentar o estado da estrutura para a futura cobrança, sem implementar PIX
