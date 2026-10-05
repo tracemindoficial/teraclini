@@ -33,3 +33,4 @@
 - Keep patient preregistration review RPCs transactional and security-definer, with explicit account-membership checks and restricted execute grants, so approval cannot partially persist across clinical tables.
 - Keep manual registration, public preregistration, and professional review on the same complete patient field component and schema so no entry path silently loses intake data.
 - Keep specialties, services, and versioned integer-cent prices account-scoped; deactivate referenced catalog rows and preserve service/price snapshots on appointments and packages so historical records never drift.
+- Treat the administrative client as the professional account/tenant, never as a patient; client-directory reads are limited to operational platform roles and non-clinical projections.

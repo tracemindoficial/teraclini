@@ -29,11 +29,12 @@ import { AdminNotifications } from "@/components/admin/AdminNotifications";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
+import { useAdminSelf } from "@/lib/data/admin";
 import { cn } from "@/lib/utils";
 
 const links = [
   { to: "/admin", label: "Visão geral", icon: LayoutDashboard },
-  { to: "/admin/usuarios", label: "Usuários", icon: Users },
+  { to: "/admin/usuarios", label: "Clientes", icon: Users, operationalOnly: true },
   { to: "/admin/notificacoes", label: "Notificações", icon: Bell },
   { to: "/admin/uso", label: "Uso do Sistema", icon: Activity },
   { to: "/admin/metricas", label: "Métricas", icon: LineChart },
@@ -67,6 +68,10 @@ export function AdminShell({
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const adminSelf = useAdminSelf();
+  const canManageClients = ["super_admin", "support_admin"].includes(
+    adminSelf.data?.role ?? "",
+  );
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -77,7 +82,9 @@ export function AdminShell({
 
   const navigation = (close?: () => void) => (
     <nav className="space-y-1" aria-label="Administração master">
-      {links.map((item) => (
+      {links
+        .filter((item) => !("operationalOnly" in item && item.operationalOnly) || canManageClients)
+        .map((item) => (
         <Link
           key={item.to}
           to={item.to}
@@ -92,7 +99,7 @@ export function AdminShell({
           <item.icon className="size-5" />
           {item.label}
         </Link>
-      ))}
+        ))}
     </nav>
   );
 

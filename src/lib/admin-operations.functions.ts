@@ -378,28 +378,24 @@ export const updateAdminUserEmail = createServerFn({ method: "POST" })
         throw new Error("Este e-mail já está em uso.");
       throw new Error("Não foi possível alterar o e-mail.");
     }
-    const { error: accessEventError } = await context.supabaseAdmin
-      .from("account_access_events")
-      .insert({
-        account_id: account.id,
-        user_id: data.userId,
-        actor_user_id: context.userId,
-        event_type: "email_changed",
-        details: { previous_email_domain: current.data.user.email?.split("@")[1] ?? null },
-      });
-    if (accessEventError) console.error("Admin email access history write failed");
-    try {
-      await audit(
-        context.supabaseAdmin,
-        context.userId,
-        "user.email_change",
-        "user",
-        data.userId,
-        account.id,
-        ["email"],
-      );
-    } catch {
-      console.error("Admin email audit write failed");
+    const { error: historyError } = await context.supabaseAdmin.rpc(
+      "admin_record_email_change",
+      {
+        _actor_user_id: context.userId,
+        _target_user_id: data.userId,
+        _previous_email_domain: current.data.user.email?.split("@")[1] ?? null,
+        _new_email_domain: data.email.split("@")[1] ?? null,
+      },
+    );
+    if (historyError) {
+      const previousEmail = current.data.user.email;
+      if (previousEmail) {
+        await context.supabaseAdmin.auth.admin.updateUserById(data.userId, {
+          email: previousEmail,
+          email_confirm: true,
+        });
+      }
+      throw new Error("A alteração foi revertida porque não foi possível registrar a auditoria.");
     }
     return { ok: true as const, unchanged: false };
   });

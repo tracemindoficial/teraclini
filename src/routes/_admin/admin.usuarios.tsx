@@ -28,9 +28,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_admin/admin/usuarios")({
   head: () => ({
     meta: [
-      { title: "Usuários — Administração TeraClini" },
+      { title: "Clientes — Administração TeraClini" },
       { name: "description", content: "Gestão administrativa de contas TeraClini." },
-      { property: "og:title", content: "Usuários — Administração TeraClini" },
+      { property: "og:title", content: "Clientes — Administração TeraClini" },
       { property: "og:description", content: "Gestão administrativa de contas TeraClini." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -67,12 +67,12 @@ function AdminUsersPage() {
 
   return (
     <AdminShell
-      title="Usuários"
-      description="Contas, acesso, assinatura e atividade"
+      title="Clientes"
+      description="Profissionais assinantes, contas, acesso e atividade"
       action={
         <Button className="gap-2" onClick={() => setInviteOpen(true)}>
           <UserPlus className="size-4" />
-          Adicionar usuário
+          Adicionar cliente
         </Button>
       }
     >
@@ -176,6 +176,8 @@ function AdminUsersPage() {
               <thead className="border-b bg-muted/50 text-xs text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3">Profissional</th>
+                  <th className="px-4 py-3">Contato</th>
+                  <th className="px-4 py-3">Profissão / especialidade</th>
                   <th className="px-4 py-3">Cadastro</th>
                   <th className="px-4 py-3">Conta</th>
                   <th className="px-4 py-3">Perfil</th>
@@ -194,6 +196,13 @@ function AdminUsersPage() {
                     <td className="px-4 py-3">
                       <p className="font-medium">{row.name}</p>
                       <p className="text-xs text-muted-foreground">{row.email}</p>
+                    </td>
+                    <td className="px-4 py-3">{row.phone ?? "—"}</td>
+                    <td className="px-4 py-3">
+                      <p>{row.profession ?? "—"}</p>
+                      {row.specialties.length ? (
+                        <p className="text-xs text-muted-foreground">{row.specialties.join(", ")}</p>
+                      ) : null}
                     </td>
                     <td className="px-4 py-3">{formatDate(row.createdAt)}</td>
                     <td className="px-4 py-3">
@@ -251,7 +260,7 @@ function AdminUsersPage() {
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Adicionar usuário</DialogTitle>
+            <DialogTitle>Adicionar cliente</DialogTitle>
             <DialogDescription>
               Um convite seguro será enviado para a pessoa definir o próprio acesso.
             </DialogDescription>
