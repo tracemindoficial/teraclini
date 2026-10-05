@@ -60,7 +60,7 @@ export function PatientDialog({
       email: patient.email ?? "",
       cpf: patient.cpf ?? "",
       postal_code: patient.postal_code ?? "",
-      street: patient.street ?? patient.address ?? "",
+      street: ("street" in patient ? patient.street : null) ?? patient.address ?? "",
       address_number: patient.address_number ?? "",
       address_complement: patient.address_complement ?? "",
       neighborhood: patient.neighborhood ?? "",

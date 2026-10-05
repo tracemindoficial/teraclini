@@ -25,7 +25,7 @@ import {
   useRejectRegistration,
   useSaveRegistrationRequest,
 } from "@/lib/data/patient-registration";
-import { completePatientSchema, type CompletePatientPayload, type RegistrationFormValues } from "@/lib/patient-registration-schema";
+import { registrationPayloadSchema, type CompletePatientPayload, type RegistrationFormValues, type RegistrationPayload } from "@/lib/patient-registration-schema";
 
 export const Route = createFileRoute("/_authenticated/pacientes/pre-cadastros/$id")({
   head: () => ({
@@ -293,7 +293,7 @@ function Page() {
             onCancel={() => setEditOpen(false)}
             onSave={async (values) => {
               try {
-                await save.mutateAsync({ id, values });
+                await save.mutateAsync({ id, values: { ...values, age_group: values.age_group as RegistrationRequest["age_group"] } });
                 toast.success("Dados do pré-cadastro atualizados.");
                 setEditOpen(false);
               } catch (error) {
@@ -322,8 +322,8 @@ function RegistrationRequestEditor({
   onCancel: () => void;
   onSave: (values: CompletePatientPayload) => Promise<void>;
 }) {
-  const form = useForm<RegistrationFormValues, unknown, CompletePatientPayload>({
-    resolver: zodResolver(completePatientSchema),
+  const form = useForm<RegistrationFormValues, unknown, RegistrationPayload>({
+    resolver: zodResolver(registrationPayloadSchema),
     defaultValues: {
     full_name: request.full_name,
     email: request.email,
@@ -376,7 +376,7 @@ function RegistrationRequestEditor({
   }, [form, request]);
   return (
     <FormProvider {...form}>
-      <form className="space-y-5" onSubmit={form.handleSubmit(onSave)}>
+      <form className="space-y-5" onSubmit={form.handleSubmit(({ privacy_consent: _privacyConsent, ...values }) => onSave(values as CompletePatientPayload))}>
         <CompletePatientFields />
         <DialogFooter>
         <Button type="button" variant="outline" onClick={onCancel}>
