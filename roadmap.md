@@ -153,7 +153,7 @@
 ## Cadastro unificado de pacientes
 
 - [x] Auditar e comparar cadastro manual, pré-cadastro, persistência e aprovação
-- [ ] Centralizar modelo, validação e campos completos do paciente
-- [ ] Usar o cadastro completo compartilhado nos fluxos manual e público
-- [ ] Tornar o salvamento manual e a aprovação transacionais e sem perda de dados
+- [x] Centralizar modelo, validação e campos completos do paciente
+- [x] Usar o cadastro completo compartilhado nos fluxos manual e público
+- [x] Tornar o salvamento manual e a aprovação transacionais e sem perda de dados
 - [ ] Validar cadastro manual, pré-cadastro, aprovação, persistência, duplicidade e isolamento
