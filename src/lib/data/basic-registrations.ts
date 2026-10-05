@@ -16,9 +16,9 @@ export function useSaveService() { const qc = useQueryClient(); return useMutati
 export function useServicePrices(activeOnly = false, serviceId?: string) { return useQuery({ queryKey: [...queryKeys.servicePrices, activeOnly, serviceId ?? "all"], queryFn: async () => { let query = supabase.from("service_prices").select("*, appointment_type:appointment_types(id, name)").order("created_at", { ascending: false }); if (activeOnly) query = query.eq("is_active", true); if (serviceId) query = query.eq("appointment_type_id", serviceId); return unwrap(await query) as unknown as ServicePrice[]; } }); }
 export function useSaveServicePrice() { const qc = useQueryClient(); return useMutation({ mutationFn: async (values: { id?: string; appointmentTypeId: string; priceCents: number; durationMinutes: number; modality: string; billingType: string; packageQuantity: number | null; isActive: boolean }) => {
   if (!values.id) {
-    const saved = unwrap(await supabase.from("service_prices").insert({ appointment_type_id: values.appointmentTypeId, price_cents: values.priceCents, duration_minutes: values.durationMinutes, modality: values.modality, billing_type: values.billingType, package_quantity: values.packageQuantity, is_active: values.isActive }).select("id").single());
-    if (!saved) throw new Error("Não foi possível salvar o valor.");
-    return saved.id;
+    const result = await supabase.from("service_prices").insert({ appointment_type_id: values.appointmentTypeId, price_cents: values.priceCents, duration_minutes: values.durationMinutes, modality: values.modality, billing_type: values.billingType, package_quantity: values.packageQuantity, is_active: values.isActive }).select("id").single();
+    if (result.error || !result.data) throw new Error(result.error?.message ?? "Não foi possível salvar o valor.");
+    return result.data.id;
   }
   return unwrap(await supabase.rpc("save_service_price", { _price_id: values.id, _appointment_type_id: values.appointmentTypeId, _price_cents: values.priceCents, _duration_minutes: values.durationMinutes, _modality: values.modality, _billing_type: values.billingType, _package_quantity: values.packageQuantity ?? 0, _is_active: values.isActive }));
 }, onSuccess: () => invalidate(qc) }); }
