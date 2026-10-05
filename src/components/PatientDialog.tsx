@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { PATIENT_STATUSES } from "@/lib/domain";
 import { useSaveCompletePatient, type Patient } from "@/lib/data";
-import { EMPTY_REGISTRATION, professionalPatientSchema, type ProfessionalPatientPayload } from "@/lib/patient-registration-schema";
+import { EMPTY_REGISTRATION, professionalPatientSchema, type ProfessionalPatientFormValues, type ProfessionalPatientPayload } from "@/lib/patient-registration-schema";
 
 const EMPTY = {
   ...EMPTY_REGISTRATION,
@@ -42,7 +42,7 @@ export function PatientDialog({
   patient?: Patient | undefined;
   onSaved?: ((patient: Patient) => void) | undefined;
 }) {
-  const form = useForm<ProfessionalPatientPayload>({
+  const form = useForm<ProfessionalPatientFormValues, unknown, ProfessionalPatientPayload>({
     resolver: zodResolver(professionalPatientSchema),
     defaultValues: EMPTY,
   });

@@ -91,6 +91,7 @@ export type RegistrationPayload = z.infer<typeof registrationPayloadSchema>;
 export type RegistrationFormValues = z.input<typeof registrationPayloadSchema>;
 export type CompletePatientPayload = z.infer<typeof completePatientSchema>;
 export type ProfessionalPatientPayload = z.infer<typeof professionalPatientSchema>;
+export type ProfessionalPatientFormValues = z.input<typeof professionalPatientSchema>;
 
 export const EMPTY_REGISTRATION: RegistrationPayload = {
   full_name: "", email: "", birth_date: "", cpf: "", age_group: "adulto", gender: "", marital_status: "", education: "", occupation: "", phone: "",
