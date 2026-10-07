@@ -1,5 +1,12 @@
 # Roadmap
 
+## Agenda visual semanal
+
+- [ ] Auditar e reaproveitar dados, conflitos, disponibilidade, bloqueios e ações existentes
+- [ ] Implementar mapa semanal de segunda a domingo, Dia e Lista com blocos proporcionais
+- [ ] Integrar criação rápida, detalhes, movimentação segura, filtros e pacotes
+- [ ] Validar regras automatizadas e fluxos autenticados em desktop, tablet e smartphone sem alterar dados reais
+
 ## Concluído
 
 - [x] Corrigir autenticação, primeiro acesso e onboarding mínimo
