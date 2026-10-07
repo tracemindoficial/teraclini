@@ -31,7 +31,7 @@ export function AgendaCalendar({ appointments, blocks, availability, anchor, vie
   const earliest = Math.min(7, ...times.map((time) => Number(time.slice(0, 2))));
   const latest = Math.min(24, Math.max(21, ...times.map((time) => Number(time.slice(0, 2)) + 1)));
   return <div className="agenda-calendar overflow-x-auto rounded-lg border border-border bg-card">
-    <div className={view === "semana" ? "min-w-[1080px]" : view === "mes" ? "min-w-[700px]" : "min-w-0"}>
+    <div className={view === "semana" ? "min-w-[900px]" : view === "mes" ? "min-w-[700px]" : "min-w-0"}>
       <FullCalendar ref={calendar}
         plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin, luxonPlugin]}
         locale={ptLocale} timeZone={timeZone} firstDay={1} weekends
@@ -45,18 +45,18 @@ export function AgendaCalendar({ appointments, blocks, availability, anchor, vie
         eventDisplay="block" eventMinHeight={0} eventShortHeight={58}
         slotEventOverlap={false} eventOverlap={false} nowIndicator
         editable eventDurationEditable={false} longPressDelay={650}
-        eventAllow={(_drop, event) => Boolean(event && event.extendedProps.kind === "appointment" && canMove(event.extendedProps.appointment))}
+        eventAllow={(_drop, event) => Boolean(event && event.extendedProps["kind"] === "appointment" && canMove(event.extendedProps["appointment"]))}
         events={[
           ...appointments.map((appointment) => ({ id: appointment.id, start: appointment.starts_at, end: appointment.ends_at, title: appointment.patient?.full_name ?? "Sem paciente", editable: canMove(appointment), classNames: [`agenda-status-${appointment.status}`], extendedProps: { kind: "appointment", appointment } })),
           ...blocks.map((block) => ({ id: `block-${block.id}`, start: block.starts_at, end: block.ends_at, title: block.reason, editable: false, classNames: ["agenda-block"], extendedProps: { kind: "block", block } })),
           ...availability.filter((rule) => rule.is_active).map((rule) => ({ id: `availability-${rule.id}`, daysOfWeek: [rule.weekday], startTime: rule.start_time, endTime: rule.end_time, startRecur: rule.valid_from ?? undefined, endRecur: rule.valid_until ? `${rule.valid_until}T23:59:59` : undefined, display: "background", classNames: ["agenda-available"] })),
         ]}
         dateClick={(info) => { const local = localParts(info.date, timeZone); onCreate(local.date, view === "mes" ? "09:00" : local.time); }}
-        eventClick={(info) => { if (info.event.extendedProps.kind === "block") onBlock(info.event.extendedProps.block); else onSelect(info.event.extendedProps.appointment); }}
+        eventClick={(info) => { if (info.event.extendedProps["kind"] === "block") onBlock(info.event.extendedProps["block"]); else onSelect(info.event.extendedProps["appointment"]); }}
         eventDrop={async (info) => {
           const start = info.event.start;
           if (!start) return info.revert();
-          try { await onMove(info.event.extendedProps.appointment, start.toISOString()); } catch { info.revert(); }
+          try { await onMove(info.event.extendedProps["appointment"], start.toISOString()); } catch { info.revert(); }
         }}
         eventDidMount={(info) => {
           if (info.event.display === "background") return;
@@ -65,8 +65,8 @@ export function AgendaCalendar({ appointments, blocks, availability, anchor, vie
           info.el.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); info.el.click(); } });
         }}
         eventContent={(info) => {
-          if (info.event.extendedProps.kind === "block") return <div className="agenda-event-content"><span className="flex items-center gap-1 text-[11px]"><LockKeyhole className="size-3" />Bloqueio · {info.timeText}</span><strong className="agenda-patient">{info.event.title}</strong></div>;
-          const appointment = info.event.extendedProps.appointment as AppointmentWithRefs | undefined;
+          if (info.event.extendedProps["kind"] === "block") return <div className="agenda-event-content"><span className="flex items-center gap-1 text-[11px]"><LockKeyhole className="size-3" />Bloqueio · {info.timeText}</span><strong className="agenda-patient">{info.event.title}</strong></div>;
+          const appointment = info.event.extendedProps["appointment"] as AppointmentWithRefs | undefined;
           if (!appointment) return null;
           const local = appointment.modality === "online" ? "Online" : appointment.location?.name ?? "Presencial";
           return <div className="agenda-event-content" title={`${appointment.patient?.full_name ?? "Sem paciente"} · ${local} · ${labelOf(APPOINTMENT_STATUSES, appointment.status)}`}>

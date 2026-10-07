@@ -80,7 +80,7 @@ export function AgendaPage() {
     <div className="mt-3" aria-busy={isLoading}>{isLoading ? <p className="py-12 text-center text-sm text-muted-foreground">Carregando agenda…</p> : view === "lista" ? <div className="space-y-6">{filtered.length === 0 ? <p className="py-12 text-center text-sm text-muted-foreground">Nenhum atendimento neste período.</p> : Object.entries(grouped).map(([day, items]) => <section key={day}><h2 className="mb-2 text-sm font-semibold capitalize">{formatDateLong(`${day}T12:00:00`)}</h2><ul className="space-y-2">{items.map((item) => <AppointmentRow key={item.id} appointment={item} />)}</ul></section>)}</div> : <ClientOnly fallback={<p>Carregando agenda…</p>}><Suspense fallback={<p>Carregando agenda…</p>}><AgendaCalendar appointments={filtered} blocks={visibleBlocks} availability={visibleAvailability} anchor={anchor} view={view} timeZone={timeZone} onSelect={(item) => setSelectedId(item.id)} onCreate={create} onMove={move} onBlock={(block) => { setEditBlock(block); setBlockOpen(true); }} /></Suspense></ClientOnly>}</div>
     <AppointmentDialog open={dialogOpen} onOpenChange={setDialogOpen} appointment={edit} defaultDate={baseDate} defaultTime={createTime} timeZone={timeZone} />
     {selected ? <AppointmentQuickDetails key={selected.id} appointment={selected} timeZone={timeZone} onClose={() => setSelectedId(undefined)} onEdit={() => { setEdit(selected); setSelectedId(undefined); setDialogOpen(true); }} onMove={(start) => move(selected, start)} /> : null}
-    <AvailabilityDialog open={availabilityOpen} onOpenChange={setAvailabilityOpen} rule={editRule} />
-    <ScheduleBlockDialog open={blockOpen} onOpenChange={setBlockOpen} block={editBlock} />
+    <AvailabilityDialog open={availabilityOpen} onOpenChange={setAvailabilityOpen} {...(editRule ? { rule: editRule } : {})} />
+    <ScheduleBlockDialog open={blockOpen} onOpenChange={setBlockOpen} {...(editBlock ? { block: editBlock } : {})} />
   </AppShell>;
 }

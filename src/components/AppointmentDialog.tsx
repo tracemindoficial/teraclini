@@ -159,7 +159,7 @@ export function AppointmentDialog({
         modality: values.modality,
         status: values.status,
         notes: values.notes || null,
-        cancellation_reason: values.status === "cancelado" ? appointment?.cancellation_reason : null,
+        cancellation_reason: values.status === "cancelado" ? appointment?.cancellation_reason ?? null : null,
         package_id: values.package_id === "none" ? null : values.package_id,
       });
       toast.success(appointment ? "Agendamento atualizado." : "Atendimento agendado.");
