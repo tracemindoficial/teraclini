@@ -239,6 +239,13 @@
       "when": 1791412316791,
       "tag": "0033_professional_finance_and_atomic_package_scheduling",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1791412353277,
+      "tag": "0034_professional_finance_queries_and_package_replay_guard",
+      "breakpoints": true
     }
   ]
 }

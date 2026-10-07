@@ -521,6 +521,7 @@ export type Database = {
           modality: Database["public"]["Enums"]["appointment_modality"]
           notes: string | null
           package_id: string | null
+          package_scheduling_key: string | null
           package_session_value: number | null
           patient_id: string | null
           price_cents_snapshot: number | null
@@ -547,6 +548,7 @@ export type Database = {
           modality?: Database["public"]["Enums"]["appointment_modality"]
           notes?: string | null
           package_id?: string | null
+          package_scheduling_key?: string | null
           package_session_value?: number | null
           patient_id?: string | null
           price_cents_snapshot?: number | null
@@ -573,6 +575,7 @@ export type Database = {
           modality?: Database["public"]["Enums"]["appointment_modality"]
           notes?: string | null
           package_id?: string | null
+          package_scheduling_key?: string | null
           package_session_value?: number | null
           patient_id?: string | null
           price_cents_snapshot?: number | null
@@ -2970,6 +2973,11 @@ export type Database = {
         Args: { _appointment_id?: string; _mode?: string; _package_id?: string }
         Returns: string
       }
+      finance_lookup: {
+        Args: { _kind: string; _search?: string }
+        Returns: Json
+      }
+      finance_query: { Args: { _filters?: Json }; Returns: Json }
       finance_receipt_action: { Args: { _payload: Json }; Returns: string }
       has_account_role: {
         Args: {
