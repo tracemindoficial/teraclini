@@ -2,11 +2,16 @@
 
 ## Gestão rápida e exclusão segura de clientes
 
-- [ ] Auditar vínculos reais, autorização, exclusão atual e consultas administrativas
-- [ ] Medir carregamento da lista, detalhe e visão administrativa antes das mudanças
-- [ ] Implementar edição leve, busca e paginação no banco, com atualização localizada
-- [ ] Implementar exclusão definitiva somente de contas vazias elegíveis, preservando auditoria e dados reais
-- [ ] Validar permissões, vínculos, persistência, exclusão descartável e desempenho antes/depois
+- [x] Auditar vínculos reais, autorização, exclusão atual e consultas administrativas
+- [x] Implementar edição leve, busca por nome/e-mail/telefone e paginação no banco
+- [x] Implementar exclusão individual real de identidade e perfil, com revalidação e auditoria preservada
+- [x] Validar edição, persistência, busca por telefone, exclusão descartável, ausência de identidade/perfil e preservação de auditoria
+- [x] Validar visualmente recusa por vínculos e autoexclusão; executar 56 testes automatizados
+- [x] Transferir agregações da visão geral para o banco e conferir carregamento administrativo
+- [ ] Comparar desempenho antes/depois em condições equivalentes: baseline autorizado anterior não foi capturado; não declarar ganho percentual
+- [ ] Exercitar falha externa e retomada, concorrência, paginação com mais de 20 identidades e isolamento ponta a ponta entre dois profissionais; não gerar dados de clientes reais para simular volume
+
+Relatório em `docs/admin-client-management-report.md`. Nenhuma identidade existente foi excluída; somente a conta QA criada nesta implementação. Os históricos imutáveis permanecem e a conta mínima fica arquivada, explicitamente diferenciada da exclusão da identidade.
 
 ## Agenda visual semanal
 
