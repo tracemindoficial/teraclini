@@ -11,9 +11,10 @@ export function PendingClientDeletions() {
     {pending.data.map((job) => <div key={job.user_id} className="flex flex-wrap items-center gap-3 text-sm">
       <span>{job.user_id}</span>
       <Button variant="outline" disabled={complete.isPending} onClick={async () => {
-        if (!window.confirm("Retomar a exclusão já confirmada?")) return;
+        const confirmation = window.prompt("Digite o e-mail confirmado na exclusão; se a identidade já foi removida, digite RETOMAR.");
+        if (!confirmation?.trim()) return;
         try {
-          await complete.mutateAsync({ userId: job.user_id, confirmation: "retomar", confirm: true });
+          await complete.mutateAsync({ userId: job.user_id, confirmation, confirm: true });
           toast.success("Exclusão finalizada; auditoria preservada.");
         } catch (error) {
           toast.error(error instanceof Error ? error.message : "Não foi possível finalizar.");
