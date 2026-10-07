@@ -2,8 +2,8 @@
 
 ## Unificação de serviços, pacotes, agenda e financeiro profissional
 
-- [ ] Auditar código e esquema real: serviços, preços, pacotes, agendamentos, consumo e financeiro existente
-- [ ] Apresentar estruturas reutilizáveis, lacunas, riscos e arquitetura final proposta
+- [x] Auditar código e esquema real: serviços, preços, pacotes, agendamentos, consumo e financeiro existente; 26 testes de regras passaram
+- [x] Preparar proposta com estruturas reutilizáveis, lacunas, riscos e arquitetura final para aprovação
 - [ ] Implementar somente após autorização explícita do usuário — bloqueado nesta etapa por aprovação ainda não concedida
 
 ## Gestão rápida e exclusão segura de clientes
