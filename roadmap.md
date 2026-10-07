@@ -1,5 +1,16 @@
 # Roadmap
 
+## Agenda visual semanal
+
+- [x] Auditar e reaproveitar dados, conflitos, disponibilidade, bloqueios e ações existentes
+- [x] Validar renderização dos sete dias, alternância Dia/Lista e abertura do formulário no horário clicado
+- [x] Validar renderização autenticada em desktop, tablet e smartphone sem alterar dados clínicos
+- [x] Executar 43 testes automatizados, incluindo duração, fuso, intervalos e preservação da duração no movimento
+- [ ] Validar visualmente blocos proporcionais e ações de detalhes com dados descartáveis
+- [ ] Validar persistência ponta a ponta: criação, movimento, conflitos, cancelamento e consumo de pacotes
+
+Implementados calendário, filtros, detalhes, movimento parcial e motivo obrigatório de cancelamento. Migração 0028 preserva horários históricos, aplica o fuso de cada regra de disponibilidade e revoga exclusão física autenticada. Build automático passou. Nenhum atendimento real foi criado ou alterado; ações mutáveis não foram declaradas validadas ponta a ponta. O erro relatado em `src/pages/Index.tsx` não foi reproduzido; esse arquivo não existe no código atual.
+
 ## Concluído
 
 - [x] Corrigir autenticação, primeiro acesso e onboarding mínimo

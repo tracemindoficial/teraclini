@@ -170,3 +170,42 @@
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lift);
 }
+
+.agenda-calendar {
+  --fc-border-color: var(--border);
+  --fc-page-bg-color: var(--card);
+  --fc-neutral-bg-color: var(--muted);
+  --fc-today-bg-color: color-mix(in oklch, var(--secondary) 12%, var(--card));
+  --fc-event-bg-color: color-mix(in oklch, var(--secondary) 40%, var(--card));
+  --fc-event-border-color: var(--primary);
+  --fc-event-text-color: var(--foreground);
+  --fc-now-indicator-color: var(--destructive);
+  --fc-small-font-size: 0.75rem;
+}
+.agenda-calendar .fc-theme-standard td,
+.agenda-calendar .fc-theme-standard th { border-color: var(--border); }
+.agenda-calendar .fc-col-header-cell { background: var(--card); padding: 10px 0; font-size: 12px; text-transform: capitalize; }
+.agenda-calendar .fc-timegrid-slot { height: 78px; }
+.agenda-calendar .fc-timegrid-slot-label { width: 58px; color: var(--muted-foreground); font-size: 11px; vertical-align: top; }
+.agenda-calendar .fc-timegrid-slot-label-cushion { transform: translateY(-8px); }
+.agenda-calendar .fc-timegrid-slot-minor { border-top-style: solid; border-top-color: color-mix(in oklch, var(--border) 55%, var(--card)); }
+.agenda-calendar .fc-timegrid-event { border-width: 0 0 0 3px; border-radius: 5px; box-shadow: none; overflow: hidden; }
+.agenda-calendar .fc-event-main { color: var(--foreground); }
+.agenda-calendar .fc-timegrid-event-harness { margin-right: 3px; margin-left: 2px; }
+.agenda-event-content { display: flex; height: 100%; flex-direction: column; gap: 2px; padding: 5px 6px; overflow: hidden; white-space: normal; }
+.agenda-event-time { font-size: 10px; line-height: 13px; }
+.agenda-event-time > span { font-size: 9px; }
+.agenda-patient { font-size: 12px; line-height: 15px; overflow-wrap: anywhere; }
+.agenda-event-place { display: flex; align-items: center; gap: 3px; font-size: 10px; line-height: 13px; }
+.agenda-event-service { font-size: 10px; line-height: 13px; color: var(--muted-foreground); }
+.agenda-calendar .agenda-status-confirmado { background: color-mix(in oklch, var(--secondary) 65%, var(--card)); }
+.agenda-calendar .agenda-status-em_andamento { border-color: var(--accent); background: color-mix(in oklch, var(--accent) 18%, var(--card)); }
+.agenda-calendar .agenda-status-realizado { border-color: var(--success); background: color-mix(in oklch, var(--success) 12%, var(--card)); }
+.agenda-calendar .agenda-status-falta { border-color: var(--warning); background: color-mix(in oklch, var(--warning) 15%, var(--card)); }
+.agenda-calendar .agenda-status-cancelado { border-color: var(--destructive); background: var(--muted); }
+.agenda-calendar .agenda-block { border-color: var(--muted-foreground); background: var(--muted); }
+.agenda-calendar .agenda-available { background: var(--secondary); opacity: 0.22; }
+.agenda-calendar .fc-daygrid-day-number { color: var(--foreground); }
+.agenda-calendar .fc-daygrid-event { white-space: normal; }
+.agenda-calendar .fc-highlight { background: color-mix(in oklch, var(--secondary) 50%, transparent); }
+.agenda-calendar .fc-event:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }

@@ -19,7 +19,6 @@ import {
   APPOINTMENT_STATUSES,
   APPOINTMENT_TYPES,
   toDateInput,
-  toTimeInput,
   type AppointmentModality,
   type AppointmentStatus,
   type AppointmentType,
@@ -31,9 +30,11 @@ import {
   usePackages,
   useAppointmentTypes,
   useServicePrices,
+  useRooms,
   type AppointmentWithRefs,
 } from "@/lib/data";
 import { centsToReais, modalityMatches } from "@/lib/basic-registrations";
+import { AGENDA_TIMEZONE, localParts, zonedDate } from "@/lib/agenda-rules";
 
 export function AppointmentDialog({
   open,
@@ -41,22 +42,29 @@ export function AppointmentDialog({
   appointment,
   defaultDate,
   defaultPatientId,
+  defaultTime,
+  timeZone = AGENDA_TIMEZONE,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   appointment?: AppointmentWithRefs | undefined;
   defaultDate?: Date | undefined;
   defaultPatientId?: string | undefined;
+  defaultTime?: string;
+  timeZone?: string;
 }) {
   const { data: patients } = usePatients();
   const { data: locations } = useLocations();
   const saveAppointment = useSaveAppointment();
   const [patientDialogOpen, setPatientDialogOpen] = useState(false);
+  const [patientSearch, setPatientSearch] = useState("");
+  const [cancellationReason, setCancellationReason] = useState("");
   const { data: services } = useAppointmentTypes();
 
   const [values, setValues] = useState({
     patient_id: "",
     location_id: "",
+    room_id: "none",
     date: toDateInput(new Date()),
     start: "09:00",
     end: "10:00",
@@ -69,20 +77,24 @@ export function AppointmentDialog({
     package_id: "none",
   });
   const { data: servicePrices } = useServicePrices(true, values.appointment_type_id || undefined);
+  const { data: rooms } = useRooms(values.location_id || undefined);
   const { data: patientPackages } = usePackages(values.patient_id || undefined);
   const completedAppointment = appointment?.status === "realizado";
 
   useEffect(() => {
     if (!open) return;
+    setPatientSearch("");
+    setCancellationReason(appointment?.cancellation_reason ?? "");
     if (appointment) {
-      const start = new Date(appointment.starts_at);
-      const end = new Date(appointment.ends_at);
+      const start = localParts(appointment.starts_at, timeZone);
+      const end = localParts(appointment.ends_at, timeZone);
       setValues({
         patient_id: appointment.patient_id ?? "",
         location_id: appointment.location_id ?? "",
-        date: toDateInput(start),
-        start: toTimeInput(start),
-        end: toTimeInput(end),
+        room_id: appointment.room_id ?? "none",
+        date: start.date,
+        start: start.time,
+        end: end.time,
         type: appointment.type,
         appointment_type_id: appointment.appointment_type_id ?? "",
         service_price_id: appointment.service_price_id ?? "none",
@@ -98,9 +110,10 @@ export function AppointmentDialog({
       ...current,
       patient_id: defaultPatientId ?? "",
       location_id: "",
+      room_id: "none",
       date: toDateInput(base),
-      start: "09:00",
-      end: "10:00",
+      start: defaultTime ?? "09:00",
+      end: localParts(new Date(zonedDate(toDateInput(base), defaultTime ?? "09:00", timeZone).getTime() + 60 * 60_000), timeZone).time,
       type: "atendimento_clinico",
       appointment_type_id: services?.[0]?.id ?? "",
       service_price_id: "none",
@@ -109,28 +122,28 @@ export function AppointmentDialog({
       notes: "",
       package_id: "none",
     }));
-  }, [open, appointment, defaultDate, defaultPatientId, services]);
+  }, [open, appointment, defaultDate, defaultPatientId, defaultTime, timeZone]);
 
   function selectService(serviceId: string) {
     const service = services?.find((item) => item.id === serviceId);
-    const start = new Date(`${values.date}T${values.start}`);
+    const start = zonedDate(values.date, values.start, timeZone);
     const end = new Date(start.getTime() + (service?.default_duration_minutes ?? 60) * 60_000);
-    setValues({ ...values, appointment_type_id: serviceId, service_price_id: "none", end: toTimeInput(end) });
+    setValues({ ...values, appointment_type_id: serviceId, service_price_id: "none", end: localParts(end, timeZone).time });
   }
 
   function selectPrice(priceId: string) {
     const price = servicePrices?.find((item) => item.id === priceId);
     if (!price) return setValues({ ...values, service_price_id: priceId });
-    const start = new Date(`${values.date}T${values.start}`);
+    const start = zonedDate(values.date, values.start, timeZone);
     const end = new Date(start.getTime() + price.duration_minutes * 60_000);
-    setValues({ ...values, service_price_id: priceId, end: toTimeInput(end) });
+    setValues({ ...values, service_price_id: priceId, end: localParts(end, timeZone).time });
   }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     try {
-      const startsAt = new Date(`${values.date}T${values.start}`);
-      const endsAt = new Date(`${values.date}T${values.end}`);
+      const startsAt = zonedDate(values.date, values.start, timeZone);
+      const endsAt = zonedDate(values.date, values.end, timeZone);
       if (endsAt <= startsAt) {
         toast.error("O horário final deve ser depois do inicial.");
         return;
@@ -139,6 +152,7 @@ export function AppointmentDialog({
         ...(appointment ? { id: appointment.id } : {}),
         patient_id: values.patient_id || null,
         location_id: values.location_id || null,
+        room_id: values.room_id === "none" ? null : values.room_id,
         starts_at: startsAt.toISOString(),
         ends_at: endsAt.toISOString(),
         type: values.type,
@@ -147,6 +161,7 @@ export function AppointmentDialog({
         modality: values.modality,
         status: values.status,
         notes: values.notes || null,
+        cancellation_reason: values.status === "cancelado" ? cancellationReason.trim() : null,
         package_id: values.package_id === "none" ? null : values.package_id,
       });
       toast.success(appointment ? "Agendamento atualizado." : "Atendimento agendado.");
@@ -176,6 +191,7 @@ export function AppointmentDialog({
                   + Novo paciente
                 </Button>
               </div>
+              <Input aria-label="Buscar paciente" placeholder="Buscar paciente" value={patientSearch} onChange={(event) => setPatientSearch(event.target.value)} />
               <Select
                 value={values.patient_id}
                 onValueChange={(value) => setValues({ ...values, patient_id: value })}
@@ -184,9 +200,9 @@ export function AppointmentDialog({
                   <SelectValue placeholder="Selecionar paciente" />
                 </SelectTrigger>
                 <SelectContent>
-                  {(patients ?? []).map((patient) => (
+                  {(patients ?? []).filter((patient) => !patientSearch || patient.id === values.patient_id || patient.full_name.toLocaleLowerCase().includes(patientSearch.toLocaleLowerCase())).map((patient) => (
                     <SelectItem key={patient.id} value={patient.id}>
-                      {patient.full_name}
+                      {patient.full_name}{patient.birth_date ? ` · ${patient.birth_date.split("-").reverse().join("/")}` : ""}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -198,6 +214,7 @@ export function AppointmentDialog({
                 <Label>Data</Label>
                 <Input
                   type="date"
+                  disabled={completedAppointment}
                   required
                   value={values.date}
                   onChange={(event) => setValues({ ...values, date: event.target.value })}
@@ -207,6 +224,7 @@ export function AppointmentDialog({
                 <Label>Início</Label>
                 <Input
                   type="time"
+                  disabled={completedAppointment}
                   required
                   value={values.start}
                   onChange={(event) => setValues({ ...values, start: event.target.value })}
@@ -216,6 +234,7 @@ export function AppointmentDialog({
                 <Label>Fim</Label>
                 <Input
                   type="time"
+                  disabled={completedAppointment}
                   required
                   value={values.end}
                   onChange={(event) => setValues({ ...values, end: event.target.value })}
@@ -223,11 +242,13 @@ export function AppointmentDialog({
               </div>
             </div>
 
+            <div className="space-y-1.5"><Label>Duração</Label><Select disabled={completedAppointment} value={String(Math.round((zonedDate(values.date, values.end, timeZone).getTime() - zonedDate(values.date, values.start, timeZone).getTime()) / 60_000))} onValueChange={(minutes) => setValues({ ...values, end: localParts(new Date(zonedDate(values.date, values.start, timeZone).getTime() + Number(minutes) * 60_000), timeZone).time })}><SelectTrigger><SelectValue placeholder="Personalizada" /></SelectTrigger><SelectContent>{[30,45,60,90,120].map((minutes) => <SelectItem key={minutes} value={String(minutes)}>{minutes} min</SelectItem>)}</SelectContent></Select></div>
+
             <div className="space-y-1.5">
               <Label>Local de atendimento</Label>
               <Select
                 value={values.location_id}
-                onValueChange={(value) => setValues({ ...values, location_id: value })}
+                onValueChange={(value) => setValues({ ...values, location_id: value, room_id: "none" })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecionar local" />
@@ -241,6 +262,8 @@ export function AppointmentDialog({
                 </SelectContent>
               </Select>
             </div>
+
+            {values.location_id ? <div className="space-y-1.5"><Label>Sala</Label><Select value={values.room_id} onValueChange={(room_id) => setValues({ ...values, room_id })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="none">Sem sala vinculada</SelectItem>{(rooms ?? []).filter((room) => room.is_active || room.id === values.room_id).map((room) => <SelectItem key={room.id} value={room.id}>{room.name}</SelectItem>)}</SelectContent></Select></div> : null}
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
@@ -319,6 +342,7 @@ export function AppointmentDialog({
               <div className="space-y-1.5">
                 <Label>Situação</Label>
                 <Select
+                  disabled={completedAppointment}
                   value={values.status}
                   onValueChange={(value) =>
                     setValues({ ...values, status: value as AppointmentStatus })
@@ -338,6 +362,7 @@ export function AppointmentDialog({
               </div>
             ) : null}
 
+            {values.status === "cancelado" ? <div className="space-y-1.5"><Label htmlFor="appointment-cancellation">Motivo do cancelamento</Label><Input id="appointment-cancellation" required minLength={3} value={cancellationReason} onChange={(event) => setCancellationReason(event.target.value)} /></div> : null}
             <div className="space-y-1.5">
               <Label>Observações</Label>
               <Textarea

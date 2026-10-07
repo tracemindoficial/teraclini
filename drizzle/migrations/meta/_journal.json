@@ -197,6 +197,13 @@
       "when": 1791240052498,
       "tag": "0027_harden_platform_admin_client_operations",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1791405723369,
+      "tag": "0028_protect_visual_agenda_history_and_timezone",
+      "breakpoints": true
     }
   ]
 }
