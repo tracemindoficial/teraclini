@@ -13,6 +13,9 @@
 
 ## Project architecture
 
+- Keep patient finance separate from platform billing, with database-serialized receipt actions, confirmed-only balances and append-only audit events to prevent double counting and cross-tenant exposure.
+- Schedule package appointments in one transactional RPC using the existing versioned price catalogue and exact-cent allocation so conflicts roll back the entire contract.
+
 - Keep route modules as page composition only; reusable UI belongs under `src/components` to prevent route-bundle coupling.
 - Keep browser data hooks grouped by domain under `src/lib/data`, with shared query keys in `src/lib/query-keys.ts` to make cache invalidation predictable.
 - Preserve client-side `user_id` stamping on legacy clinical tables because those columns remain required while `account_id` is supplied by the database.
