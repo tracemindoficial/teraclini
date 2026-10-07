@@ -19,7 +19,6 @@ import {
   APPOINTMENT_STATUSES,
   APPOINTMENT_TYPES,
   toDateInput,
-  toTimeInput,
   type AppointmentModality,
   type AppointmentStatus,
   type AppointmentType,
@@ -59,6 +58,7 @@ export function AppointmentDialog({
   const saveAppointment = useSaveAppointment();
   const [patientDialogOpen, setPatientDialogOpen] = useState(false);
   const [patientSearch, setPatientSearch] = useState("");
+  const [cancellationReason, setCancellationReason] = useState("");
   const { data: services } = useAppointmentTypes();
 
   const [values, setValues] = useState({
@@ -83,6 +83,8 @@ export function AppointmentDialog({
 
   useEffect(() => {
     if (!open) return;
+    setPatientSearch("");
+    setCancellationReason(appointment?.cancellation_reason ?? "");
     if (appointment) {
       const start = localParts(appointment.starts_at, timeZone);
       const end = localParts(appointment.ends_at, timeZone);
@@ -159,7 +161,7 @@ export function AppointmentDialog({
         modality: values.modality,
         status: values.status,
         notes: values.notes || null,
-        cancellation_reason: values.status === "cancelado" ? appointment?.cancellation_reason ?? null : null,
+        cancellation_reason: values.status === "cancelado" ? cancellationReason.trim() : null,
         package_id: values.package_id === "none" ? null : values.package_id,
       });
       toast.success(appointment ? "Agendamento atualizado." : "Atendimento agendado.");
@@ -360,6 +362,7 @@ export function AppointmentDialog({
               </div>
             ) : null}
 
+            {values.status === "cancelado" ? <div className="space-y-1.5"><Label htmlFor="appointment-cancellation">Motivo do cancelamento</Label><Input id="appointment-cancellation" required minLength={3} value={cancellationReason} onChange={(event) => setCancellationReason(event.target.value)} /></div> : null}
             <div className="space-y-1.5">
               <Label>Observações</Label>
               <Textarea
