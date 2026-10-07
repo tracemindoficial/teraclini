@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Outlet, useRouterState } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
@@ -20,8 +20,13 @@ export const Route = createFileRoute("/_authenticated/pacotes")({
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
   ] }),
-  component: PackagesPage,
+  component: PackagesRoute,
 });
+
+function PackagesRoute() {
+  const pathname = useRouterState({ select: state => state.location.pathname });
+  return pathname.replace(/\/$/, "") === "/pacotes" ? <PackagesPage /> : <Outlet />;
+}
 
 function PackagesPage() {
   const navigate = useNavigate();
