@@ -204,6 +204,34 @@
       "when": 1791405723369,
       "tag": "0028_protect_visual_agenda_history_and_timezone",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1791409394153,
+      "tag": "0029_paginated_admin_client_directory",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1791409531467,
+      "tag": "0030_safe_empty_client_deletion",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1791409942113,
+      "tag": "0031_correct_deletion_audit_result",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1791410025036,
+      "tag": "0032_aggregate_admin_overview_in_database",
+      "breakpoints": true
     }
   ]
 }

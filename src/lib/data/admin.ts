@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import {
@@ -44,6 +44,7 @@ export function useAdminUsers(
   const fetcher = useServerFn(listAdminUsers);
   return useQuery({
     queryKey: [...adminKeys.users(search, status, sort, page), role, payment],
+    placeholderData: keepPreviousData,
     queryFn: () => fetcher({ data: { search, status, payment, role, sort, page, pageSize: 20 } }),
   });
 }

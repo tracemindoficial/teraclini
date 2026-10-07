@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, UserPlus } from "lucide-react";
-import { useState } from "react";
+import { Pencil, Search, UserPlus } from "lucide-react";
+import { useEffect, useState } from "react";
 
+import { AdminUserOperations } from "@/components/admin/AdminUserOperations";
+import { PendingClientDeletions } from "@/components/admin/PendingClientDeletions";
 import { AdminShell, AdminState } from "@/components/admin/AdminShell";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,7 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { brlFromCents } from "@/lib/admin-metrics";
 import { useAdminUsers } from "@/lib/data/admin";
-import { useInviteAdminUser } from "@/lib/data/admin-operations";
+import { useAdminUserEditable, useInviteAdminUser } from "@/lib/data/admin-operations";
 import {
   Dialog,
   DialogContent,
@@ -46,6 +48,10 @@ function formatDate(value: string | null) {
 
 function AdminUsersPage() {
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [editingId, setEditingId] = useState("");
+  const editable = useAdminUserEditable(editingId);
+  useEffect(() => { const timer = setTimeout(() => setDebouncedSearch(search), 300); return () => clearTimeout(timer); }, [search]);
   const [status, setStatus] = useState<"all" | "active" | "suspended" | "closed" | "blocked">(
     "all",
   );
@@ -63,7 +69,7 @@ function AdminUsersPage() {
     role: "professional",
   });
   const inviteUser = useInviteAdminUser();
-  const { data, isLoading, error } = useAdminUsers(search, status, payment, role, sort, page);
+  const { data, isLoading, error } = useAdminUsers(debouncedSearch, status, payment, role, sort, page);
 
   return (
     <AdminShell
@@ -76,8 +82,9 @@ function AdminUsersPage() {
         </Button>
       }
     >
-      <div className="surface mb-5 grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_12rem_12rem_12rem_12rem]">
-        <label className="relative">
+      <PendingClientDeletions />
+      <div className="surface mb-5 grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-4">
+        <label className="relative sm:col-span-2 xl:col-span-4">
           <Search className="absolute left-3 top-3 size-4 text-muted-foreground" />
           <Input
             value={search}
@@ -85,7 +92,7 @@ function AdminUsersPage() {
               setSearch(event.target.value);
               setPage(1);
             }}
-            placeholder="Buscar por nome ou e-mail"
+            placeholder="Buscar por nome, e-mail ou telefone"
             className="pl-9"
           />
         </label>
@@ -223,6 +230,7 @@ function AdminUsersPage() {
                     <td className="px-4 py-3">{formatDate(row.lastSignInAt)}</td>
                     <td className="px-4 py-3">{formatDate(row.lastActivityAt)}</td>
                     <td className="px-4 py-3">
+                      <Button variant="ghost" size="sm" aria-label={`Editar ${row.name}`} onClick={() => setEditingId(row.id)}><Pencil className="size-4" /></Button>
                       <Button asChild type="button" variant="outline" size="sm">
                         <Link to="/admin/usuarios/$id" params={{ id: row.id }} preload="intent">
                           Ver detalhes
@@ -257,6 +265,8 @@ function AdminUsersPage() {
           </div>
         </>
       )}
+      {editingId && editable.data ? <AdminUserOperations key={editingId} user={editable.data} quick onClose={() => setEditingId("")} /> : null}
+      {editingId && !editable.data ? <Dialog open onOpenChange={() => setEditingId("")}><DialogContent><DialogHeader><DialogTitle>Editar cadastro</DialogTitle><DialogDescription>{editable.error ? "Não foi possível carregar o cadastro." : "Carregando cadastro..."}</DialogDescription></DialogHeader></DialogContent></Dialog> : null}
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
         <DialogContent>
           <DialogHeader>

@@ -31,9 +31,9 @@ export interface AdminUserEditableData {
   phone: string | null;
   careMode: "presencial" | "online" | "ambos" | null;
 }
-export function AdminUserOperations({ user }: { user: AdminUserEditableData }) {
+export function AdminUserOperations({ user, quick = false, onClose }: { user: AdminUserEditableData; quick?: boolean; onClose?: () => void }) {
   const operations = useAdminUserOperations(user.id);
-  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(quick);
   const [emailOpen, setEmailOpen] = useState(false);
   const [profile, setProfile] = useState({
     fullName: user.name,
@@ -69,7 +69,8 @@ export function AdminUserOperations({ user }: { user: AdminUserEditableData }) {
     }
   };
   return (
-    <section className="surface mt-6 p-5">
+    <section className={quick ? "contents" : "surface mt-6 p-5"}>
+      {!quick ? <>
       <div>
         <h2 className="font-semibold">Cadastro e acesso</h2>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -130,7 +131,8 @@ export function AdminUserOperations({ user }: { user: AdminUserEditableData }) {
           Exigir nova senha
         </Button>
       </div>
-      <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+      </> : null}
+      <Dialog open={profileOpen} onOpenChange={(open) => { setProfileOpen(open); if (!open) onClose?.(); }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Editar cadastro</DialogTitle>
@@ -198,7 +200,7 @@ export function AdminUserOperations({ user }: { user: AdminUserEditableData }) {
             </Select>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setProfileOpen(false)}>
+            <Button variant="outline" onClick={() => { setProfileOpen(false); onClose?.(); }}>
               Cancelar
             </Button>
             <Button
@@ -220,7 +222,7 @@ export function AdminUserOperations({ user }: { user: AdminUserEditableData }) {
                     }),
                   "Cadastro atualizado.",
                 );
-                if (saved) setProfileOpen(false);
+                if (saved) { setProfileOpen(false); onClose?.(); }
               }}
             >
               Salvar
