@@ -21,7 +21,7 @@ export function useAppointments(params: {
       let query = supabase
         .from("appointments")
         .select(APPOINTMENT_SELECT)
-        .gte("starts_at", params.from)
+          .gt("ends_at", params.from)
         .lt("starts_at", params.to)
         .order("starts_at");
       if (params.locationId) query = query.eq("location_id", params.locationId);
@@ -78,6 +78,24 @@ export function useSaveAppointment() {
       qc.invalidateQueries({ queryKey: queryKeys.pendingEvolutions });
       qc.invalidateQueries({ queryKey: queryKeys.onboardingTasks });
       qc.invalidateQueries({ queryKey: queryKeys.packages });
+      qc.invalidateQueries({ queryKey: ["appointment-events"] });
+    },
+  });
+}
+
+export function useUpdateAppointment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...values }: Tables["appointments"]["Update"] & { id: string }) => {
+      const result = await supabase.from("appointments").update(values).eq("id", id).select().single();
+      if (result.error) {
+        if (result.error.code === "23P01") throw new Error("Este horário conflita com outro atendimento do profissional, paciente ou sala.");
+        throw new Error(result.error.message);
+      }
+      return result.data as Appointment;
+    },
+    onSuccess: () => {
+      for (const key of [queryKeys.appointments, queryKeys.appointment, queryKeys.patientAppointments, queryKeys.packages, queryKeys.pendingEvolutions, ["appointment-events"]]) qc.invalidateQueries({ queryKey: key });
     },
   });
 }
