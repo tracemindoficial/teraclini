@@ -1,5 +1,13 @@
 # Roadmap
 
+## Gestão rápida e exclusão segura de clientes
+
+- [ ] Auditar vínculos reais, autorização, exclusão atual e consultas administrativas
+- [ ] Medir carregamento da lista, detalhe e visão administrativa antes das mudanças
+- [ ] Implementar edição leve, busca e paginação no banco, com atualização localizada
+- [ ] Implementar exclusão definitiva somente de contas vazias elegíveis, preservando auditoria e dados reais
+- [ ] Validar permissões, vínculos, persistência, exclusão descartável e desempenho antes/depois
+
 ## Agenda visual semanal
 
 - [x] Auditar e reaproveitar dados, conflitos, disponibilidade, bloqueios e ações existentes
