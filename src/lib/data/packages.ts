@@ -68,6 +68,7 @@ export function usePackageEvents(packageId: string) {
 }
 
 function invalidatePackages(qc: ReturnType<typeof useQueryClient>, id?: string) {
+  qc.invalidateQueries({ queryKey: queryKeys.finance });
   qc.invalidateQueries({ queryKey: queryKeys.packages });
   qc.invalidateQueries({ queryKey: queryKeys.appointments });
   qc.invalidateQueries({ queryKey: queryKeys.patientAppointments });

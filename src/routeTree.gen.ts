@@ -23,6 +23,7 @@ import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedAjudaRouteImport } from './routes/_authenticated/ajuda'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedDocumentosRouteImport } from './routes/_authenticated/documentos'
+import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
 import { Route as AuthenticatedLocaisRouteImport } from './routes/_authenticated/locais'
 import { Route as AuthenticatedMeuDiaRouteImport } from './routes/_authenticated/meu-dia'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -125,6 +126,11 @@ const AuthenticatedConfiguracoesRoute =
 const AuthenticatedDocumentosRoute = AuthenticatedDocumentosRouteImport.update({
   id: '/documentos',
   path: '/documentos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFinanceiroRoute = AuthenticatedFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedLocaisRoute = AuthenticatedLocaisRouteImport.update({
@@ -319,6 +325,7 @@ export interface FileRoutesByFullPath {
   '/ajuda': typeof AuthenticatedAjudaRouteWithChildren
   '/configuracoes': typeof AuthenticatedConfiguracoesRouteWithChildren
   '/documentos': typeof AuthenticatedDocumentosRoute
+  '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/locais': typeof AuthenticatedLocaisRoute
   '/meu-dia': typeof AuthenticatedMeuDiaRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -364,6 +371,7 @@ export interface FileRoutesByTo {
   '/termos': typeof TermosRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/documentos': typeof AuthenticatedDocumentosRoute
+  '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/locais': typeof AuthenticatedLocaisRoute
   '/meu-dia': typeof AuthenticatedMeuDiaRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -413,6 +421,7 @@ export interface FileRoutesById {
   '/_authenticated/ajuda': typeof AuthenticatedAjudaRouteWithChildren
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRouteWithChildren
   '/_authenticated/documentos': typeof AuthenticatedDocumentosRoute
+  '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
   '/_authenticated/locais': typeof AuthenticatedLocaisRoute
   '/_authenticated/meu-dia': typeof AuthenticatedMeuDiaRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -463,6 +472,7 @@ export interface FileRouteTypes {
     | '/ajuda'
     | '/configuracoes'
     | '/documentos'
+    | '/financeiro'
     | '/locais'
     | '/meu-dia'
     | '/onboarding'
@@ -508,6 +518,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/agenda'
     | '/documentos'
+    | '/financeiro'
     | '/locais'
     | '/meu-dia'
     | '/onboarding'
@@ -556,6 +567,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ajuda'
     | '/_authenticated/configuracoes'
     | '/_authenticated/documentos'
+    | '/_authenticated/financeiro'
     | '/_authenticated/locais'
     | '/_authenticated/meu-dia'
     | '/_authenticated/onboarding'
@@ -703,6 +715,13 @@ declare module '@tanstack/react-router' {
       path: '/documentos'
       fullPath: '/documentos'
       preLoaderRoute: typeof AuthenticatedDocumentosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/financeiro': {
+      id: '/_authenticated/financeiro'
+      path: '/financeiro'
+      fullPath: '/financeiro'
+      preLoaderRoute: typeof AuthenticatedFinanceiroRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/locais': {
@@ -1073,6 +1092,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAjudaRoute: typeof AuthenticatedAjudaRouteWithChildren
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRouteWithChildren
   AuthenticatedDocumentosRoute: typeof AuthenticatedDocumentosRoute
+  AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
   AuthenticatedLocaisRoute: typeof AuthenticatedLocaisRoute
   AuthenticatedMeuDiaRoute: typeof AuthenticatedMeuDiaRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -1090,6 +1110,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAjudaRoute: AuthenticatedAjudaRouteWithChildren,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRouteWithChildren,
   AuthenticatedDocumentosRoute: AuthenticatedDocumentosRoute,
+  AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,
   AuthenticatedLocaisRoute: AuthenticatedLocaisRoute,
   AuthenticatedMeuDiaRoute: AuthenticatedMeuDiaRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,

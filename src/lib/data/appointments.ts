@@ -72,6 +72,7 @@ export function useSaveAppointment() {
       ) as Appointment;
     },
     onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.finance });
       qc.invalidateQueries({ queryKey: queryKeys.appointments });
       qc.invalidateQueries({ queryKey: queryKeys.patientAppointments });
       qc.invalidateQueries({ queryKey: queryKeys.appointment });

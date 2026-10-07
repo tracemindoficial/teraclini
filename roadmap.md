@@ -4,7 +4,13 @@
 
 - [x] Auditar código e esquema real: serviços, preços, pacotes, agendamentos, consumo e financeiro existente; 26 testes de regras passaram
 - [x] Preparar proposta com estruturas reutilizáveis, lacunas, riscos e arquitetura final para aprovação
-- [ ] Implementar somente após autorização explícita do usuário — bloqueado nesta etapa por aprovação ainda não concedida
+- [x] Implementar após aprovação: títulos, recebimentos, histórico, consultas paginadas, filtros, CSV e conexão aos pacotes/atendimentos
+- [x] Validar 69 testes automatizados e transações reais desfeitas: avulso, pacotes 4/8, consumo realizado/cancelado, confirmação, parcial/total, relatório e preços preservados
+- [x] Validar duas contas transacionais: RPC rejeita escrita cruzada e RLS não retorna títulos, recebimentos nem históricos da outra conta
+- [x] Validar pela tela: contratar 4 sessões, receber R$300 de R$720, saldo R$420 após recarregar, estornar e exportar CSV
+- [x] Encerrar dados QA persistidos: quatro sessões e título cancelados, recebimento estornado, paciente e preço inativos; históricos preservados
+
+Relatório: `docs/professional-finance-validation.md`. Pagamento é registro manual, sem integração de cobrança. Validação móvel e concorrência com requisições simultâneas não foram declaradas realizadas.
 
 ## Gestão rápida e exclusão segura de clientes
 

@@ -1,4 +1,6 @@
 export const queryKeys = {
+  finance: ["professional-finance"] as const,
+  financeLookup: ["professional-finance-lookup"] as const,
   profile: ["profile"] as const,
   onboardingTasks: ["onboarding-tasks"] as const,
   locations: ["locations"] as const,

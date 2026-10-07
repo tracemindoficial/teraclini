@@ -4,6 +4,8 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { AppointmentDialog } from "@/components/AppointmentDialog";
+import { FinanceLedger } from "@/components/finance/FinanceLedger";
+import { useImportContract } from "@/lib/data/finance";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DetailRow } from "@/components/ui/detail-row";
@@ -49,6 +51,7 @@ function AppointmentPage() {
 
   const [content, setContent] = useState("");
   const [editOpen, setEditOpen] = useState(false);
+  const importContract = useImportContract();
 
   useEffect(() => {
     setContent(evolution?.content ?? "");
@@ -210,6 +213,10 @@ function AppointmentPage() {
         </form>
       </div>
 
+      <section className="mt-6 border-y py-5">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h2 className="font-semibold">Financeiro do atendimento</h2>{!appointment.package_id && appointment.price_cents_snapshot !== null && <Button variant="outline" disabled={importContract.isPending} onClick={async () => { try { await importContract.mutateAsync({ _appointment_id: id }); toast.success("Contrato incluído no financeiro."); } catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível incluir."); } }}>Incluir contrato existente</Button>}</div>
+        <FinanceLedger filters={{ appointment_id: id }} />
+      </section>
       <AppointmentDialog open={editOpen} onOpenChange={setEditOpen} appointment={appointment} />
     </AppShell>
   );

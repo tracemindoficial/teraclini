@@ -232,6 +232,34 @@
       "when": 1791410025036,
       "tag": "0032_aggregate_admin_overview_in_database",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1791412316791,
+      "tag": "0033_professional_finance_and_atomic_package_scheduling",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1791412353277,
+      "tag": "0034_professional_finance_queries_and_package_replay_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1791412677162,
+      "tag": "0035_harden_professional_contract_scheduling_and_permissions",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1791412808383,
+      "tag": "0036_fix_receipt_confirmation_method_binding",
+      "breakpoints": true
     }
   ]
 }

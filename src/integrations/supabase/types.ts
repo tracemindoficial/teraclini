@@ -521,6 +521,7 @@ export type Database = {
           modality: Database["public"]["Enums"]["appointment_modality"]
           notes: string | null
           package_id: string | null
+          package_scheduling_key: string | null
           package_session_value: number | null
           patient_id: string | null
           price_cents_snapshot: number | null
@@ -547,6 +548,7 @@ export type Database = {
           modality?: Database["public"]["Enums"]["appointment_modality"]
           notes?: string | null
           package_id?: string | null
+          package_scheduling_key?: string | null
           package_session_value?: number | null
           patient_id?: string | null
           price_cents_snapshot?: number | null
@@ -573,6 +575,7 @@ export type Database = {
           modality?: Database["public"]["Enums"]["appointment_modality"]
           notes?: string | null
           package_id?: string | null
+          package_scheduling_key?: string | null
           package_session_value?: number | null
           patient_id?: string | null
           price_cents_snapshot?: number | null
@@ -811,8 +814,12 @@ export type Database = {
         Row: {
           account_id: string
           appointment_type_id: string | null
+          contracted_duration_minutes: number | null
+          contracted_unit_cents: number | null
           created_at: string
+          discount_cents: number
           end_date: string | null
+          finance_mode: string
           id: string
           lifecycle_status: Database["public"]["Enums"]["care_package_lifecycle"]
           notes: string | null
@@ -821,6 +828,10 @@ export type Database = {
           periodicity: Database["public"]["Enums"]["care_package_periodicity"]
           quantity: number
           renewal_alert_threshold: number
+          scheduled_modality:
+            | Database["public"]["Enums"]["appointment_modality"]
+            | null
+          scheduling_key: string | null
           service_name_snapshot: string | null
           service_price_id: string | null
           start_date: string
@@ -834,8 +845,12 @@ export type Database = {
         Insert: {
           account_id?: string
           appointment_type_id?: string | null
+          contracted_duration_minutes?: number | null
+          contracted_unit_cents?: number | null
           created_at?: string
+          discount_cents?: number
           end_date?: string | null
+          finance_mode?: string
           id?: string
           lifecycle_status?: Database["public"]["Enums"]["care_package_lifecycle"]
           notes?: string | null
@@ -844,6 +859,10 @@ export type Database = {
           periodicity?: Database["public"]["Enums"]["care_package_periodicity"]
           quantity: number
           renewal_alert_threshold?: number
+          scheduled_modality?:
+            | Database["public"]["Enums"]["appointment_modality"]
+            | null
+          scheduling_key?: string | null
           service_name_snapshot?: string | null
           service_price_id?: string | null
           start_date: string
@@ -857,8 +876,12 @@ export type Database = {
         Update: {
           account_id?: string
           appointment_type_id?: string | null
+          contracted_duration_minutes?: number | null
+          contracted_unit_cents?: number | null
           created_at?: string
+          discount_cents?: number
           end_date?: string | null
+          finance_mode?: string
           id?: string
           lifecycle_status?: Database["public"]["Enums"]["care_package_lifecycle"]
           notes?: string | null
@@ -867,6 +890,10 @@ export type Database = {
           periodicity?: Database["public"]["Enums"]["care_package_periodicity"]
           quantity?: number
           renewal_alert_threshold?: number
+          scheduled_modality?:
+            | Database["public"]["Enums"]["appointment_modality"]
+            | null
+          scheduling_key?: string | null
           service_name_snapshot?: string | null
           service_price_id?: string | null
           start_date?: string
@@ -2006,6 +2033,220 @@ export type Database = {
           },
         ]
       }
+      professional_financial_events: {
+        Row: {
+          account_id: string
+          actor_user_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          new_values: Json
+          previous_values: Json
+          receipt_id: string | null
+          receivable_id: string
+        }
+        Insert: {
+          account_id: string
+          actor_user_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          new_values?: Json
+          previous_values?: Json
+          receipt_id?: string | null
+          receivable_id: string
+        }
+        Update: {
+          account_id?: string
+          actor_user_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          new_values?: Json
+          previous_values?: Json
+          receipt_id?: string | null
+          receivable_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_financial_events_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_financial_events_receipt_id_fkey"
+            columns: ["receipt_id"]
+            isOneToOne: false
+            referencedRelation: "professional_receipts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_financial_events_receivable_id_fkey"
+            columns: ["receivable_id"]
+            isOneToOne: false
+            referencedRelation: "professional_receivables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professional_receipts: {
+        Row: {
+          account_id: string
+          amount_cents: number
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          created_by: string
+          id: string
+          method: string
+          note: string | null
+          receivable_id: string
+          received_on: string
+          request_key: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          amount_cents: number
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          method: string
+          note?: string | null
+          receivable_id: string
+          received_on: string
+          request_key: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          amount_cents?: number
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          method?: string
+          note?: string | null
+          receivable_id?: string
+          received_on?: string
+          request_key?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_receipts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_receipts_receivable_id_fkey"
+            columns: ["receivable_id"]
+            isOneToOne: false
+            referencedRelation: "professional_receivables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professional_receivables: {
+        Row: {
+          account_id: string
+          amount_cents: number
+          appointment_id: string | null
+          appointment_type_id: string | null
+          cancelled_at: string | null
+          created_at: string
+          created_by: string
+          due_on: string
+          id: string
+          modality: string | null
+          origin: string
+          package_id: string | null
+          patient_id: string
+          service_name_snapshot: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          amount_cents: number
+          appointment_id?: string | null
+          appointment_type_id?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          created_by: string
+          due_on: string
+          id?: string
+          modality?: string | null
+          origin: string
+          package_id?: string | null
+          patient_id: string
+          service_name_snapshot: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          amount_cents?: number
+          appointment_id?: string | null
+          appointment_type_id?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          created_by?: string
+          due_on?: string
+          id?: string
+          modality?: string | null
+          origin?: string
+          package_id?: string | null
+          patient_id?: string
+          service_name_snapshot?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_receivables_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_receivables_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_receivables_appointment_type_id_fkey"
+            columns: ["appointment_type_id"]
+            isOneToOne: false
+            referencedRelation: "appointment_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_receivables_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "care_packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_receivables_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profile_specialties: {
         Row: {
           account_id: string
@@ -2714,11 +2955,30 @@ export type Database = {
         Args: { _existing_patient_id?: string; _request_id: string }
         Returns: string
       }
+      can_manage_professional_finance: {
+        Args: { _account_id: string }
+        Returns: boolean
+      }
+      create_professional_receivable: {
+        Args: { _appointment_id?: string; _package_id?: string }
+        Returns: string
+      }
       create_support_ticket: {
         Args: { _message: string; _subject: string }
         Returns: string
       }
       current_account_id: { Args: never; Returns: string }
+      finance_cancel_title: { Args: { _id: string }; Returns: undefined }
+      finance_import_contract: {
+        Args: { _appointment_id?: string; _mode?: string; _package_id?: string }
+        Returns: string
+      }
+      finance_lookup: {
+        Args: { _kind: string; _search?: string }
+        Returns: Json
+      }
+      finance_query: { Args: { _filters?: Json }; Returns: Json }
+      finance_receipt_action: { Args: { _payload: Json }; Returns: string }
       has_account_role: {
         Args: {
           _account_id: string
@@ -2776,6 +3036,7 @@ export type Database = {
         }
         Returns: string
       }
+      schedule_care_package: { Args: { _payload: Json }; Returns: string }
       seed_basic_registrations: {
         Args: { target_account_id: string }
         Returns: undefined
