@@ -29,6 +29,9 @@ Eventos append-only de preparação e conclusão, ator e identificadores, sem e-
 
 Não exercitados: falha externa simulada/retomada, corrida concorrente, mais de uma página real, isolamento completo com dois profissionais após esta mudança. Regras de proteção têm cobertura unitária; isso não substitui esses ensaios.
 
+### Revisão de integridade e riscos pendentes
+O lock compartilhado por escrita foi mantido: removê-lo permitiria que uma transação já iniciada criasse vínculos depois da contagem de preparação. Ele acrescenta uma consulta por linha escrita; seu custo e potenciais deadlocks em operações concorrentes precisam de ensaio de carga. A exclusão Auth ocorre após o commit da preparação e a finalização ocorre depois da chamada Auth, sem manter o lock de preparação entre essas etapas. Uma falha de FK no Auth não autoriza apagar vínculos: mantém a operação pendente para investigação/retomada, cuja recuperação ainda não foi testada com falha simulada. A limpeza final é explicitamente limitada a cinco tabelas de infraestrutura; novos módulos devem atualizar a revisão de dependências e locks antes de permitir exclusões. A conta administrativa ativa é um requisito atual das RPCs, não um teste de desempenho.
+
 ## 8. Dados preservados
 Somente identidade QA criada nesta execução foi removida. Nenhuma conta preexistente, paciente, registro clínico, arquivo ou registro financeiro foi alterado/excluído para teste. Cadastros e auditorias existentes permanecem. Cobrança e PIX não implementados.
 
