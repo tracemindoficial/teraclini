@@ -1,5 +1,11 @@
 # Roadmap
 
+## Unificação de serviços, pacotes, agenda e financeiro profissional
+
+- [x] Auditar código e esquema real: serviços, preços, pacotes, agendamentos, consumo e financeiro existente; 26 testes de regras passaram
+- [x] Preparar proposta com estruturas reutilizáveis, lacunas, riscos e arquitetura final para aprovação
+- [ ] Implementar somente após autorização explícita do usuário — bloqueado nesta etapa por aprovação ainda não concedida
+
 ## Gestão rápida e exclusão segura de clientes
 
 - [x] Auditar vínculos reais, autorização, exclusão atual e consultas administrativas
