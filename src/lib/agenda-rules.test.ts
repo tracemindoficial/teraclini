@@ -1,0 +1,26 @@
+import { describe, expect, it } from "vitest";
+import { agendaRange, canMove, durationMinutes, hasConflict, localParts, movedTimes, overlaps, statusActions, zonedDate } from "./agenda-rules";
+
+describe("weekly agenda rules", () => {
+  for (const [end, minutes] of [["09:30", 30], ["10:00", 60], ["10:30", 90], ["11:00", 120]] as const) {
+    it(`represents ${minutes} minutes proportionally`, () => expect(durationMinutes(`2026-10-05T09:00:00-03:00`, `2026-10-05T${end}:00-03:00`)).toBe(minutes));
+  }
+  for (const time of ["09:30", "14:30"]) it(`preserves ${time}`, () => expect(localParts(zonedDate("2026-10-05", time)).time).toBe(time));
+  it("includes Saturday and Sunday in Monday-based week", () => {
+    expect(agendaRange("2026-10-10", "semana").start).toBe("2026-10-05");
+    expect(agendaRange("2026-10-11", "semana").end).toBe("2026-10-12");
+  });
+  it("allows consecutive 09–10 and 10–11", () => expect(overlaps("2026-10-05T09:00Z", "2026-10-05T10:00Z", "2026-10-05T10:00Z", "2026-10-05T11:00Z")).toBe(false));
+  it("blocks 09–10 with 09:30–10:30", () => expect(overlaps("2026-10-05T09:00Z", "2026-10-05T10:00Z", "2026-10-05T09:30Z", "2026-10-05T10:30Z")).toBe(true));
+  const appointment = { id: "a", starts_at: "2026-10-09T09:00:00-03:00", ends_at: "2026-10-09T10:30:00-03:00", status: "agendado" };
+  it("preserves 90-minute duration when moved", () => expect(movedTimes(appointment, "2026-10-10T14:30:00-03:00").ends_at).toBe("2026-10-10T19:00:00.000Z"));
+  it("never moves completed appointments", () => expect(canMove({ ...appointment, status: "realizado" }, new Date("2026-10-01"))).toBe(false));
+  it("never moves historical appointments", () => expect(canMove(appointment, new Date("2026-10-12"))).toBe(false));
+  it("ignores cancelled slots and own record in conflicts", () => expect(hasConflict(appointment, appointment.starts_at, appointment.ends_at, [appointment, { ...appointment, id: "b", status: "cancelado" }])).toBe(false));
+  it("completed status offers no accidental cancellation or reopening", () => expect(statusActions("realizado")).toEqual([]));
+  it("offers cancellation and missing attendance on scheduled events", () => expect(statusActions("agendado")).toContain("falta"));
+  it("preserves Friday and Saturday local dates across UTC midnight", () => {
+    expect(localParts("2026-10-10T01:30:00Z").date).toBe("2026-10-09");
+    expect(localParts("2026-10-11T01:30:00Z").date).toBe("2026-10-10");
+  });
+});
