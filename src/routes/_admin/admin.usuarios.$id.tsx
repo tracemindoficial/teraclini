@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, Ban, CheckCircle2, LockKeyhole, LockKeyholeOpen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -52,6 +52,7 @@ export const Route = createFileRoute("/_admin/admin/usuarios/$id")({
 });
 
 function AdminUserDetailPage() {
+  const navigate = useNavigate();
   const { id } = useParams({ from: "/_admin/admin/usuarios/$id" });
   const { data, isLoading, error, refetch, isFetching } = useAdminUserDetail(id);
   const setStatus = useSetAdminAccountStatus(id);
@@ -471,14 +472,13 @@ function AdminUserDetailPage() {
       </section>
       {data.profileExists ? (
         <section className="surface mt-6 border-destructive/30 p-5">
-          <h2 className="font-semibold">Encerrar conta vazia</h2>
+          <h2 className="font-semibold">Excluir identidade de conta vazia</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Preserva o registro administrativo e encerra o acesso somente quando não há dados
-            vinculados.
+            Remove definitivamente o perfil e o acesso. O registro mínimo da conta permanece arquivado para preservar auditorias. Dados vinculados impedem a exclusão.
           </p>
           <Button variant="destructive" className="mt-4 gap-2" onClick={() => setDeleteOpen(true)}>
             <Trash2 className="size-4" />
-            Verificar encerramento
+            Verificar exclusão
           </Button>
         </section>
       ) : null}
@@ -486,10 +486,9 @@ function AdminUserDetailPage() {
         <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Encerrar conta vazia</DialogTitle>
+              <DialogTitle>Excluir identidade de conta vazia</DialogTitle>
               <DialogDescription>
-                O acesso será encerrado e o registro mínimo preservado. Dados vinculados bloqueiam
-                esta ação.
+                O perfil e a identidade serão excluídos. Auditorias serão preservadas em uma conta arquivada. A operação não apaga dados clínicos ou financeiros.
               </DialogDescription>
             </DialogHeader>
             {deletionPreview.isLoading ? (
@@ -499,18 +498,9 @@ function AdminUserDetailPage() {
             ) : deletionPreview.data ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  <span>Pacientes: {deletionPreview.data.counts.patients}</span>
-                  <span>Atendimentos: {deletionPreview.data.counts.appointments}</span>
-                  <span>Documentos: {deletionPreview.data.counts.documents}</span>
-                  <span>Pagamentos: {deletionPreview.data.counts.payments}</span>
-                  <span>Assinaturas: {deletionPreview.data.counts.subscriptions}</span>
-                  <span>Suporte: {deletionPreview.data.counts.support}</span>
-                  <span>Atividade: {deletionPreview.data.counts.activity}</span>
-                  <span>Eventos de acesso: {deletionPreview.data.counts.accessEvents}</span>
-                  <span>Notas administrativas: {deletionPreview.data.counts.adminNotes}</span>
-                  <span>Eventos financeiros: {deletionPreview.data.counts.paymentEvents}</span>
-                  <span>Eventos de licença: {deletionPreview.data.counts.subscriptionEvents}</span>
-                  <span>Eventos de uso: {deletionPreview.data.counts.usageEvents}</span>
+                  {Object.entries(deletionPreview.data.counts).map(([key, count]) => (
+                    <span key={key}>{dependencyLabel(key)}: {count}</span>
+                  ))}
                 </div>
                 {deletionPreview.data.canDelete ? (
                   <Input
@@ -542,16 +532,16 @@ function AdminUserDetailPage() {
                       confirmation: deleteConfirmation,
                       confirm: true,
                     });
-                    toast.success("Conta vazia encerrada.");
-                    window.location.href = "/admin/usuarios";
+                    toast.success("Identidade excluída. Conta mínima arquivada; auditoria preservada.");
+                    await navigate({ to: "/admin/usuarios" });
                   } catch (error) {
                     toast.error(
-                      error instanceof Error ? error.message : "Não foi possível encerrar a conta.",
+                      error instanceof Error ? error.message : "Não foi possível concluir a exclusão.",
                     );
                   }
                 }}
               >
-                Encerrar acesso
+                {closeUser.isPending ? "Excluindo..." : "Excluir definitivamente"}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -582,4 +572,20 @@ function accessActionTitle(action: "activate" | "deactivate" | "block" | "unbloc
   if (action === "deactivate") return "Desativar conta";
   if (action === "block") return "Bloquear conta";
   return "Desbloquear conta";
+}
+
+function dependencyLabel(key: string) {
+  const labels: Record<string, string> = {
+    patients: "Pacientes", appointments: "Atendimentos", documents: "Documentos", care_packages: "Pacotes",
+    payments: "Pagamentos", account_subscriptions: "Assinaturas", support_tickets: "Chamados", support_messages: "Mensagens de suporte",
+    anamneses: "Anamneses", evolutions: "Evoluções", guardians: "Responsáveis", locations: "Locais", rooms: "Salas",
+    availability_rules: "Disponibilidades", schedule_blocks: "Bloqueios", patient_registration_requests: "Pré-cadastros",
+    patient_registration_links: "Links de cadastro", service_prices: "Preços", profile_specialties: "Especialidades vinculadas",
+    custom_services: "Serviços personalizados", custom_specialties: "Especialidades personalizadas", files: "Arquivos",
+    other_members: "Outros membros", other_profiles: "Outros perfis", other_memberships: "Outras contas", other_roles: "Outros vínculos",
+    activity_log: "Atividades", usage_events: "Eventos de uso", admin_notes: "Notas administrativas", help_events: "Eventos de ajuda",
+    help_progress: "Progresso de ajuda", appointment_events: "Histórico de atendimentos", care_package_events: "Histórico de pacotes",
+    payment_events: "Histórico financeiro", subscription_events: "Histórico de licenças",
+  };
+  return labels[key] ?? key;
 }

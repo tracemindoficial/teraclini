@@ -35,3 +35,6 @@
 - Keep specialties, services, and versioned integer-cent prices account-scoped; deactivate referenced catalog rows and preserve service/price snapshots on appointments and packages so historical records never drift.
 - Treat the administrative client as the professional account/tenant, never as a patient; client-directory reads are limited to operational platform roles and non-clinical projections.
 - Keep the visual agenda in reusable appointment components using a client-only FullCalendar engine, timezone-aware pure date rules, and partial updates for movement so SSR stays safe and unchanged appointment links and snapshots remain intact.
+
+- Keep administrative directory pagination and overview aggregates in protected database RPCs; return only bounded operational projections to avoid loading whole tenants and histories.
+- Definitive empty-client deletion uses a persisted prepare/Auth/finalize sequence and tenant write locks; retain a minimal archived account for immutable audit integrity and never cascade clinical or financial data.

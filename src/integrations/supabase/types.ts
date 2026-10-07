@@ -164,6 +164,8 @@ export type Database = {
           blocked_at: string | null
           blocked_by: string | null
           created_at: string
+          deleted_identity_at: string | null
+          deletion_started_at: string | null
           id: string
           name: string
           owner_user_id: string
@@ -177,6 +179,8 @@ export type Database = {
           blocked_at?: string | null
           blocked_by?: string | null
           created_at?: string
+          deleted_identity_at?: string | null
+          deletion_started_at?: string | null
           id?: string
           name?: string
           owner_user_id: string
@@ -190,6 +194,8 @@ export type Database = {
           blocked_at?: string | null
           blocked_by?: string | null
           created_at?: string
+          deleted_identity_at?: string | null
+          deletion_started_at?: string | null
           id?: string
           name?: string
           owner_user_id?: string
@@ -229,6 +235,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "activity_log_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_client_deletions: {
+        Row: {
+          account_id: string
+          actor_user_id: string
+          completed_at: string | null
+          created_at: string
+          stage: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          actor_user_id: string
+          completed_at?: string | null
+          created_at?: string
+          stage?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          actor_user_id?: string
+          completed_at?: string | null
+          created_at?: string
+          stage?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_client_deletions_account_id_fkey"
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts"
@@ -2574,8 +2615,29 @@ export type Database = {
         }
         Returns: boolean
       }
+      admin_client_dependency_counts: {
+        Args: { _actor_user_id: string; _target_user_id: string }
+        Returns: Json
+      }
+      admin_client_directory: {
+        Args: {
+          _actor_user_id: string
+          _page?: number
+          _page_size?: number
+          _payment?: string
+          _role?: string
+          _search?: string
+          _sort?: string
+          _status?: string
+        }
+        Returns: Json
+      }
       admin_confirm_payment: {
         Args: { _actor_user_id: string; _payment_id: string }
+        Returns: boolean
+      }
+      admin_finalize_client_deletion: {
+        Args: { _actor_user_id: string; _target_user_id: string }
         Returns: boolean
       }
       admin_manage_subscription: {
@@ -2585,6 +2647,18 @@ export type Database = {
           _actor_user_id: string
           _days?: number
           _plan_id?: string
+        }
+        Returns: string
+      }
+      admin_overview_summary: {
+        Args: { _actor_user_id: string }
+        Returns: Json
+      }
+      admin_prepare_client_deletion: {
+        Args: {
+          _actor_user_id: string
+          _confirmation: string
+          _target_user_id: string
         }
         Returns: string
       }

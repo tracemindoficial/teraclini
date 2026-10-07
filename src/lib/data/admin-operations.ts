@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   getAdminNotifications,
+  getAdminUserEditable,
   getAdminUserDeletionPreview,
   getAdminUserHistory,
   manageAdminSubscription,
@@ -15,10 +16,12 @@ import {
   updateAdminUserProfile,
   inviteAdminUser,
   closeAdminUserAccount,
+  listPendingAdminDeletions,
 } from "@/lib/admin-operations.functions";
 
 const refreshUser = (client: ReturnType<typeof useQueryClient>, userId: string) => {
   client.invalidateQueries({ queryKey: ["admin", "users", userId] });
+  client.invalidateQueries({ queryKey: ["admin", "editable", userId] });
   client.invalidateQueries({ queryKey: ["admin", "users"] });
   client.invalidateQueries({ queryKey: ["admin", "history", userId] });
 };
@@ -90,8 +93,15 @@ export function useCloseAdminUserAccount() {
   const fn = useServerFn(closeAdminUserAccount);
   return useMutation({
     mutationFn: (data: { userId: string; confirmation: string; confirm: true }) => fn({ data }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["admin", "users"] }),
+    onSettled: () => {
+      client.invalidateQueries({ queryKey: ["admin", "users"] });
+      client.invalidateQueries({ queryKey: ["admin", "pending-deletions"] });
+    },
   });
+}
+export function usePendingAdminDeletions() {
+  const fn = useServerFn(listPendingAdminDeletions);
+  return useQuery({ queryKey: ["admin", "pending-deletions"], queryFn: () => fn() });
 }
 export function useAdminUserHistory(userId: string) {
   const fn = useServerFn(getAdminUserHistory);
@@ -145,4 +155,9 @@ export function useMarkAllAdminNotificationsRead() {
     mutationFn: (keys: string[]) => fn({ data: { keys } }),
     onSuccess: () => client.invalidateQueries({ queryKey: ["admin", "notifications"] }),
   });
+}
+
+export function useAdminUserEditable(userId: string) {
+  const fn = useServerFn(getAdminUserEditable);
+  return useQuery({ queryKey: ["admin", "editable", userId], queryFn: () => fn({ data: { userId } }), enabled: Boolean(userId) });
 }

@@ -1,6 +1,7 @@
 import { createMiddleware, createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
+import { deletionEligibility } from "@/lib/admin-client-rules";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -76,6 +77,21 @@ const profileInput = z.object({
   careMode: z.enum(["presencial", "online", "ambos"]).nullable(),
   confirm: z.literal(true),
 });
+
+export const getAdminUserEditable = createServerFn({ method: "POST" })
+  .middleware([requireOperationalAdmin])
+  .inputValidator((input) => z.object({ userId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    assertRole(context.platformAdminRole, operationalRoles);
+    const [profile, identity] = await Promise.all([
+      context.supabaseAdmin.from("profiles").select("id, full_name, profession, professional_registry, city, state, phone, care_mode").eq("id", data.userId).single(),
+      context.supabaseAdmin.auth.admin.getUserById(data.userId),
+    ]);
+    if (profile.error || identity.error || !profile.data || !identity.data.user) throw new Error("Cadastro não encontrado.");
+    const p = profile.data;
+    return { id: p.id, name: p.full_name, email: identity.data.user.email ?? "", profession: p.profession,
+      professionalRegistry: p.professional_registry, city: p.city, state: p.state, phone: p.phone, careMode: p.care_mode };
+  });
 
 export const updateAdminUserProfile = createServerFn({ method: "POST" })
   .middleware([requireOperationalAdmin])
@@ -164,138 +180,29 @@ export const inviteAdminUser = createServerFn({ method: "POST" })
 
 const deletionInput = z.object({ userId: z.string().uuid() });
 
-async function deletionPreview(client: SupabaseClient<Database>, userId: string) {
-  const userResult = await client.auth.admin.getUserById(userId);
-  if (userResult.error || !userResult.data.user) throw new Error("Usuário não encontrado.");
-  const { data: profile, error: profileError } = await client
-    .from("profiles")
-    .select("account_id, full_name")
-    .eq("id", userId)
-    .maybeSingle();
-  if (profileError || !profile) throw new Error("Perfil não encontrado.");
-  const accountId = profile.account_id;
-  const [
-    patients,
-    appointments,
-    documents,
-    packages,
-    payments,
-    subscriptions,
-    support,
-    accessEvents,
-    activity,
-    adminNotes,
-    paymentEvents,
-    subscriptionEvents,
-    usageEvents,
-    admin,
-  ] = await Promise.all([
-    client
-      .from("patients")
-      .select("id", { count: "exact", head: true })
-      .eq("account_id", accountId),
-    client
-      .from("appointments")
-      .select("id", { count: "exact", head: true })
-      .eq("account_id", accountId),
-    client
-      .from("documents")
-      .select("id", { count: "exact", head: true })
-      .eq("account_id", accountId),
-    client
-      .from("care_packages")
-      .select("id", { count: "exact", head: true })
-      .eq("account_id", accountId),
-    client
-      .from("payments")
-      .select("id", { count: "exact", head: true })
-      .eq("account_id", accountId),
-    client
-      .from("account_subscriptions")
-      .select("id", { count: "exact", head: true })
-      .eq("account_id", accountId),
-    client
-      .from("support_tickets")
-      .select("id", { count: "exact", head: true })
-      .eq("account_id", accountId),
-    client
-      .from("account_access_events")
-      .select("id", { count: "exact", head: true })
-      .eq("account_id", accountId),
-    client
-      .from("activity_log")
-      .select("id", { count: "exact", head: true })
-      .eq("account_id", accountId),
-    client
-      .from("admin_notes")
-      .select("id", { count: "exact", head: true })
-      .eq("account_id", accountId),
-    client
-      .from("payment_events")
-      .select("id", { count: "exact", head: true })
-      .eq("account_id", accountId),
-    client
-      .from("subscription_events")
-      .select("id", { count: "exact", head: true })
-      .eq("account_id", accountId),
-    client
-      .from("usage_events")
-      .select("id", { count: "exact", head: true })
-      .eq("account_id", accountId),
-    client.from("platform_admins").select("role, revoked_at").eq("user_id", userId).maybeSingle(),
+export const listPendingAdminDeletions = createServerFn({ method: "GET" })
+  .middleware([requireOperationalAdmin])
+  .handler(async ({ context }) => {
+    if (context.platformAdminRole !== "super_admin") return [];
+    const result = await context.supabaseAdmin.from("admin_client_deletions")
+      .select("user_id, stage").neq("stage", "completed").limit(100);
+    if (result.error) throw new Error("Não foi possível verificar exclusões pendentes.");
+    return result.data;
+  });
+
+async function deletionPreview(client: SupabaseClient<Database>, userId: string, actorId: string) {
+  const [identity, profile, dependencies, admin] = await Promise.all([
+    client.auth.admin.getUserById(userId),
+    client.from("profiles").select("account_id, full_name").eq("id", userId).single(),
+    client.rpc("admin_client_dependency_counts", { _actor_user_id: actorId, _target_user_id: userId }),
+    client.from("platform_admins").select("id").eq("user_id", userId),
   ]);
-  const results = [
-    patients,
-    appointments,
-    documents,
-    packages,
-    payments,
-    subscriptions,
-    support,
-    accessEvents,
-    activity,
-    adminNotes,
-    paymentEvents,
-    subscriptionEvents,
-    usageEvents,
-  ];
-  if (results.some((result) => result.error) || admin.error)
-    throw new Error("Não foi possível verificar as dependências da conta.");
-  const counts = {
-    patients: patients.count ?? 0,
-    appointments: appointments.count ?? 0,
-    documents: documents.count ?? 0,
-    packages: packages.count ?? 0,
-    payments: payments.count ?? 0,
-    subscriptions: subscriptions.count ?? 0,
-    support: support.count ?? 0,
-    accessEvents: accessEvents.count ?? 0,
-    activity: activity.count ?? 0,
-    adminNotes: adminNotes.count ?? 0,
-    paymentEvents: paymentEvents.count ?? 0,
-    subscriptionEvents: subscriptionEvents.count ?? 0,
-    usageEvents: usageEvents.count ?? 0,
-  };
-  const hasDependencies = Object.values(counts).some((count) => count > 0);
-  const isAdmin = Boolean(admin.data && !admin.data.revoked_at);
-  const isProtectedAccount =
-    userResult.data.user.email?.toLocaleLowerCase("pt-BR") === "eduardocomplex@gmail.com";
-  return {
-    userId,
-    accountId,
-    name: profile.full_name,
-    email: userResult.data.user.email ?? "E-mail indisponível",
-    counts,
-    isAdmin,
-    canDelete: !hasDependencies && !isAdmin && !isProtectedAccount,
-    reason: isProtectedAccount
-      ? "Esta conta prioritária está protegida contra encerramento."
-      : isAdmin
-        ? "Contas administrativas devem ser preservadas."
-        : hasDependencies
-          ? "A conta possui dados que exigem preservação. Use a desativação."
-          : null,
-  };
+  if (identity.error || profile.error || dependencies.error || admin.error || !identity.data.user || !profile.data) throw new Error("Não foi possível verificar os vínculos da conta.");
+  const counts = z.record(z.string(), z.number().int().nonnegative()).parse(dependencies.data);
+  const email = identity.data.user.email ?? "";
+  const isAdmin = Boolean(admin.data?.length);
+  return { userId, accountId: profile.data.account_id, name: profile.data.full_name, email, counts, isAdmin,
+    ...deletionEligibility({ self: actorId === userId, admin: isAdmin, protectedAccount: email.toLowerCase() === "eduardocomplex@gmail.com", counts }) };
 }
 
 export const getAdminUserDeletionPreview = createServerFn({ method: "POST" })
@@ -304,7 +211,7 @@ export const getAdminUserDeletionPreview = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     if (context.platformAdminRole !== "super_admin")
       throw new Response("Forbidden", { status: 403 });
-    return deletionPreview(context.supabaseAdmin, data.userId);
+    return deletionPreview(context.supabaseAdmin, data.userId, context.userId);
   });
 
 export const closeAdminUserAccount = createServerFn({ method: "POST" })
@@ -318,40 +225,29 @@ export const closeAdminUserAccount = createServerFn({ method: "POST" })
     if (context.platformAdminRole !== "super_admin")
       throw new Response("Forbidden", { status: 403 });
     if (data.userId === context.userId) throw new Error("Você não pode excluir sua própria conta.");
-    const preview = await deletionPreview(context.supabaseAdmin, data.userId);
-    if (!preview.canDelete) throw new Error(preview.reason ?? "Esta conta não pode ser encerrada.");
-    if (data.confirmation.toLowerCase() !== preview.email.toLowerCase())
-      throw new Error("A confirmação não corresponde ao e-mail da conta.");
-
-    const blocked = await context.supabaseAdmin.auth.admin.updateUserById(data.userId, {
-      ban_duration: "876000h",
-    });
-    if (blocked.error) throw new Error("Não foi possível encerrar o acesso de autenticação.");
-    const { error: accountError } = await context.supabaseAdmin
-      .from("accounts")
-      .update({
-        status: "closed",
-        blocked_at: new Date().toISOString(),
-        block_reason: "Conta vazia encerrada pelo administrador master",
-        access_state_changed_at: new Date().toISOString(),
-        access_state_changed_by: context.userId,
-      })
-      .eq("id", preview.accountId)
-      .eq("status", "active");
-    if (accountError) {
-      await context.supabaseAdmin.auth.admin.updateUserById(data.userId, { ban_duration: "none" });
-      throw new Error("Não foi possível encerrar a conta.");
+    // A prepared operation remains recoverable after an external Auth failure.
+    const existing = await context.supabaseAdmin.from("admin_client_deletions").select("stage, account_id").eq("user_id", data.userId).maybeSingle();
+    if (existing.error) throw new Error("Não foi possível verificar a operação de exclusão.");
+    if (existing.data?.stage === "completed") return { ok: true as const, accountArchived: true };
+    const identity = await context.supabaseAdmin.auth.admin.getUserById(data.userId);
+    if (identity.data.user) {
+      const prepared = await context.supabaseAdmin.rpc("admin_prepare_client_deletion", {
+        _actor_user_id: context.userId, _target_user_id: data.userId, _confirmation: data.confirmation,
+      });
+      if (prepared.error) throw new Error(prepared.error.message);
+      const removed = await context.supabaseAdmin.auth.admin.deleteUser(data.userId);
+      if (removed.error) {
+        await audit(context.supabaseAdmin, context.userId, "user.delete_identity_failed", "user", data.userId, prepared.data, [], "failed");
+        throw new Error("A exclusão não terminou. A conta permanece protegida; tente novamente para concluir.");
+      }
+    } else if (!existing.data) {
+      throw new Error("Identidade não encontrada e exclusão não preparada.");
     }
-    await audit(
-      context.supabaseAdmin,
-      context.userId,
-      "user.close_empty",
-      "user",
-      data.userId,
-      null,
-      ["status", "blocked_at"],
-    );
-    return { ok: true as const };
+    const finalized = await context.supabaseAdmin.rpc("admin_finalize_client_deletion", {
+      _actor_user_id: context.userId, _target_user_id: data.userId,
+    });
+    if (finalized.error || !finalized.data) throw new Error("A identidade foi removida; a finalização está pendente. Tente novamente.");
+    return { ok: true as const, accountArchived: true };
   });
 
 const emailInput = z.object({
