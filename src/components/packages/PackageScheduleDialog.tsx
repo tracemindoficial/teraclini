@@ -12,8 +12,8 @@ import { useLocations } from '@/lib/data/locations';
 import { useRooms } from '@/lib/data/schedule';
 import type { CarePackageWithRefs } from '@/lib/data/packages';
 import { contractedTotal, currency, moneyCents, packageDates } from '@/lib/finance-rules';
-export function PackageScheduleDialog({open,onOpenChange,item,onSaved}:{open:boolean;onOpenChange:(v:boolean)=>void;item?:CarePackageWithRefs;onSaved?:(id:string)=>void}){return <Dialog open={open} onOpenChange={onOpenChange}>{open&&<ScheduleForm item={item} onClose={()=>onOpenChange(false)} onSaved={onSaved}/>}</Dialog>;}
-function ScheduleForm({item,onClose,onSaved}:{item?:CarePackageWithRefs;onClose:()=>void;onSaved?: (id:string)=>void}){
+export function PackageScheduleDialog({open,onOpenChange,item,onSaved}:{open:boolean;onOpenChange:(v:boolean)=>void;item?:CarePackageWithRefs | undefined;onSaved?:((id:string)=>void) | undefined}){return <Dialog open={open} onOpenChange={onOpenChange}>{open&&<ScheduleForm item={item} onClose={()=>onOpenChange(false)} onSaved={onSaved}/>}</Dialog>;}
+function ScheduleForm({item,onClose,onSaved}:{item?:CarePackageWithRefs | undefined;onClose:()=>void;onSaved?: ((id:string)=>void) | undefined}){
  const [search,setSearch]=useState('');const [patient,setPatient]=useState(item?.patient_id??'');const [priceId,setPrice]=useState('');
  const [quantity,setQuantity]=useState(String(item?Math.max(1,item.quantity-item.appointments.length):4));const [discount,setDiscount]=useState('0');const [mode,setMode]=useState('prepaid');const [frequency,setFrequency]=useState('weekly');const [interval,setInterval]=useState('7');const [date,setDate]=useState('');const [time,setTime]=useState('09:00');const [slots,setSlots]=useState<{date:string;time:string}[]>([]);
  const [modality,setModality]=useState(item?.scheduled_modality??'online');const [location,setLocation]=useState('none');const [room,setRoom]=useState('none');const [key]=useState(()=>crypto.randomUUID());
