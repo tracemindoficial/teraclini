@@ -1,0 +1,21 @@
+CREATE OR REPLACE FUNCTION public.finance_receipt_action(_payload jsonb) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public,pg_temp AS $$
+DECLARE action text:=_payload->>'action'; r public.professional_receipts%ROWTYPE; t public.professional_receivables%ROWTYPE; rid uuid; amount bigint; paid bigint; target_status text; key uuid; received date; payment_method text;
+BEGIN
+ IF action='create' THEN SELECT * INTO t FROM public.professional_receivables WHERE id=(_payload->>'receivable_id')::uuid FOR UPDATE;
+ ELSE SELECT * INTO r FROM public.professional_receipts WHERE id=(_payload->>'id')::uuid; SELECT * INTO t FROM public.professional_receivables WHERE id=r.receivable_id FOR UPDATE; SELECT * INTO r FROM public.professional_receipts WHERE id=r.id FOR UPDATE; END IF;
+ IF t.id IS NULL OR NOT coalesce(public.can_manage_professional_finance(t.account_id),false) THEN RAISE EXCEPTION 'Título não encontrado ou sem permissão.'; END IF;
+ IF action='create' THEN key:=(_payload->>'request_key')::uuid; IF key IS NULL THEN RAISE EXCEPTION 'Identificador obrigatório.'; END IF; SELECT id INTO rid FROM public.professional_receipts WHERE account_id=t.account_id AND request_key=key; IF rid IS NOT NULL THEN RETURN rid; END IF; target_status:=CASE WHEN coalesce((_payload->>'confirmed')::boolean,false) THEN 'confirmed' ELSE 'pending' END;
+ ELSIF action='confirm' THEN IF r.status<>'pending' THEN RAISE EXCEPTION 'Somente um recebimento pendente pode ser confirmado.'; END IF; target_status:='confirmed';
+ ELSIF action='reverse' THEN IF r.status<>'confirmed' THEN RAISE EXCEPTION 'Somente um recebimento confirmado pode ser estornado.'; END IF; target_status:='reversed';
+ ELSIF action='cancel' THEN IF r.status<>'pending' THEN RAISE EXCEPTION 'Somente um recebimento pendente pode ser cancelado.'; END IF; target_status:='cancelled';
+ ELSIF action='edit' THEN IF r.status NOT IN ('pending','confirmed') THEN RAISE EXCEPTION 'Movimento encerrado não pode ser editado.'; END IF; target_status:=r.status;
+ ELSE RAISE EXCEPTION 'Ação inválida.'; END IF;
+ amount:=coalesce((_payload->>'amount_cents')::bigint,r.amount_cents); received:=coalesce((_payload->>'received_on')::date,r.received_on); payment_method:=coalesce(_payload->>'method',r.method);
+ IF amount IS NULL OR amount<=0 OR amount>2147483647 OR received IS NULL OR payment_method IS NULL OR payment_method NOT IN ('pix','card','cash','transfer','other') THEN RAISE EXCEPTION 'Revise valor, data e forma de pagamento.'; END IF;
+ IF t.cancelled_at IS NOT NULL AND target_status IN ('pending','confirmed') THEN RAISE EXCEPTION 'Título cancelado não recebe pagamentos.'; END IF;
+ SELECT coalesce(sum(amount_cents),0) INTO paid FROM public.professional_receipts WHERE receivable_id=t.id AND status='confirmed' AND (r.id IS NULL OR id<>r.id);
+ IF target_status='confirmed' AND paid+amount>t.amount_cents THEN RAISE EXCEPTION 'O recebimento ultrapassa o saldo contratado.'; END IF;
+ IF action='create' THEN INSERT INTO public.professional_receipts(account_id,receivable_id,amount_cents,received_on,method,status,note,request_key,created_by,confirmed_by,confirmed_at) VALUES(t.account_id,t.id,amount,received,payment_method,target_status,left(_payload->>'note',1000),key,auth.uid(),CASE WHEN target_status='confirmed' THEN auth.uid() END,CASE WHEN target_status='confirmed' THEN now() END) RETURNING id INTO rid;
+ ELSE UPDATE public.professional_receipts SET amount_cents=amount,received_on=received,method=payment_method,status=target_status,note=CASE WHEN _payload ? 'note' THEN left(_payload->>'note',1000) ELSE note END,confirmed_at=CASE WHEN target_status='confirmed' THEN coalesce(confirmed_at,now()) ELSE confirmed_at END,confirmed_by=CASE WHEN target_status='confirmed' THEN coalesce(confirmed_by,auth.uid()) ELSE confirmed_by END,updated_at=now() WHERE id=r.id RETURNING id INTO rid; END IF; RETURN rid;
+END $$;
+REVOKE ALL ON FUNCTION public.finance_receipt_action(jsonb) FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.finance_receipt_action(jsonb) TO authenticated,service_role;

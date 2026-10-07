@@ -253,6 +253,13 @@
       "when": 1791412677162,
       "tag": "0035_harden_professional_contract_scheduling_and_permissions",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1791412808383,
+      "tag": "0036_fix_receipt_confirmation_method_binding",
+      "breakpoints": true
     }
   ]
 }
