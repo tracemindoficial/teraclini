@@ -4,6 +4,9 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { PackageDialog } from "@/components/packages/PackageDialog";
+import { PackageScheduleDialog } from "@/components/packages/PackageScheduleDialog";
+import { FinanceLedger } from "@/components/finance/FinanceLedger";
+import { useImportContract } from "@/lib/data/finance";
 import { PackageStatusBadge } from "@/components/packages/PackageStatusBadge";
 import { Button } from "@/components/ui/button";
 import { DetailRow } from "@/components/ui/detail-row";
@@ -32,6 +35,8 @@ function PackageDetailsPage() {
   const cancelPackage = useCancelPackage();
   const [editOpen, setEditOpen] = useState(false);
   const [renewOpen, setRenewOpen] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const importContract = useImportContract();
   if (isLoading || !item)
     return (
       <AppShell title="Pacote">
@@ -129,6 +134,12 @@ function PackageDetailsPage() {
           </div>
         </section>
         <div className="space-y-5 lg:col-span-2">
+          <section className="border-y py-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4"><h2 className="font-semibold">Agendamentos e financeiro</h2>{item.lifecycle_status === "ativo" && item.appointments.length < item.quantity && <Button variant="outline" onClick={() => setScheduleOpen(true)}>Agendar sessões</Button>}</div>
+            <ol className="mb-5 space-y-2">{item.appointments.map(a => <li key={a.id} className="text-sm"><Link to="/atendimentos/$id" params={{ id: a.id }} className="hover:underline">{formatDate(a.starts_at)} · {formatTime(a.starts_at)} · {a.status}</Link></li>)}</ol>
+            {item.finance_mode === "none" && item.total_value_cents !== null && <div className="mb-4 flex flex-wrap gap-2">{[["prepaid", "Incluir como pré-pago"], ["per_session", "Incluir por sessão"]].map(([mode, label]) => <Button key={mode} variant="outline" disabled={importContract.isPending} onClick={async () => { if (!window.confirm("Incluir este contrato no financeiro sem alterar seu valor?")) return; try { await importContract.mutateAsync({ _package_id: id, _mode: mode }); toast.success("Contrato incluído."); } catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível incluir."); } }}>{label}</Button>)}</div>}
+            <FinanceLedger filters={{ package_id: id }} />
+          </section>
           <section className="surface p-5">
             <h2 className="font-semibold">Sessões realizadas</h2>
             {completed.length ? (
@@ -197,6 +208,7 @@ function PackageDetailsPage() {
         </div>
       </div>
       <PackageDialog open={editOpen} onOpenChange={setEditOpen} item={item} />
+      <PackageScheduleDialog open={scheduleOpen} onOpenChange={setScheduleOpen} item={item} />
       <PackageDialog open={renewOpen} onOpenChange={setRenewOpen} renewFrom={item} />
     </AppShell>
   );
