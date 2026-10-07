@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { DetailRow } from "@/components/ui/detail-row";
 import { Progress } from "@/components/ui/progress";
 import { formatDate, formatTime } from "@/lib/domain";
+import { localParts } from "@/lib/agenda-rules";
 import { packageUsage, useCancelPackage, usePackage, usePackageEvents } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/pacotes/$id")({
@@ -136,7 +137,7 @@ function PackageDetailsPage() {
         <div className="space-y-5 lg:col-span-2">
           <section className="border-y py-5">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4"><h2 className="font-semibold">Agendamentos e financeiro</h2>{item.lifecycle_status === "ativo" && item.appointments.length < item.quantity && <Button variant="outline" onClick={() => setScheduleOpen(true)}>Agendar sessões</Button>}</div>
-            <ol className="mb-5 space-y-2">{item.appointments.map(a => <li key={a.id} className="text-sm"><Link to="/atendimentos/$id" params={{ id: a.id }} className="hover:underline">{formatDate(a.starts_at)} · {formatTime(a.starts_at)} · {a.status}</Link></li>)}</ol>
+            <ol className="mb-5 space-y-2">{item.appointments.map(a => <li key={a.id} className="text-sm"><Link to="/atendimentos/$id" params={{ id: a.id }} className="hover:underline">{formatDate(localParts(a.starts_at).date)} · {localParts(a.starts_at).time} · {a.status}</Link></li>)}</ol>
             {item.finance_mode === "none" && item.total_value_cents !== null && <div className="mb-4 flex flex-wrap gap-2">{([["prepaid", "Incluir como pré-pago"], ["per_session", "Incluir por sessão"]] as const).map(([mode, label]) => <Button key={mode} variant="outline" disabled={importContract.isPending} onClick={async () => { if (!window.confirm("Incluir este contrato no financeiro sem alterar seu valor?")) return; try { await importContract.mutateAsync({ _package_id: id, _mode: mode }); toast.success("Contrato incluído."); } catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível incluir."); } }}>{label}</Button>)}</div>}
             <FinanceLedger filters={{ package_id: id }} />
           </section>
