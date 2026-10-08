@@ -18,8 +18,9 @@ import {
   UsersRound,
 } from "lucide-react";
 
-import dashboardAsset from "@/assets/teraclini-dashboard-mobile.png.asset.json";
-import experienceAsset from "@/assets/teraclini-brand-experience.png.asset.json";
+import dashboardAsset from "@/assets/teraclini-dashboard-mobile-640.webp.asset.json";
+import experienceAsset from "@/assets/teraclini-brand-experience-1280.webp.asset.json";
+import experienceSmallAsset from "@/assets/teraclini-brand-experience-640.webp.asset.json";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 import {
@@ -143,6 +144,10 @@ export function MarketingLanding({ plans }: { plans: PublicPlan[] }) {
         >
           <img
             src={dashboardAsset.url}
+            width={340}
+            height={625}
+            fetchPriority="high"
+            decoding="async"
             alt="Painel móvel do TeraClini com resumo da rotina e agenda do dia"
             className="absolute inset-y-0 right-[-7rem] h-full w-auto max-w-none object-contain opacity-35 sm:right-0 sm:opacity-55 lg:right-[5%] lg:opacity-90"
           />
@@ -307,6 +312,12 @@ export function MarketingLanding({ plans }: { plans: PublicPlan[] }) {
           <div className="overflow-hidden rounded-lg border bg-card shadow-lift">
             <img
               src={experienceAsset.url}
+              srcSet={`${experienceSmallAsset.url} 640w, ${experienceAsset.url} 1254w`}
+              sizes="(max-width: 640px) calc(100vw - 40px), (max-width: 1280px) calc(100vw - 64px), 1216px"
+              width={1254}
+              height={1254}
+              loading="lazy"
+              decoding="async"
               alt="Identidade visual e exemplos das telas do TeraClini no computador e no celular"
               className="h-auto w-full"
             />

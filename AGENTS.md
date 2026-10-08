@@ -13,6 +13,9 @@
 
 ## Project architecture
 
+- Gate dialog-owned queries by visibility and selected dependencies while preserving shared query keys, so closed forms do not fetch unrelated catalogues and reopening retains normal cache invalidation.
+- Serve optimized responsive derivatives of brand images while retaining original assets, so performance improvements never replace the approved identity.
+
 - Keep patient finance separate from platform billing, with database-serialized receipt actions, confirmed-only balances and append-only audit events to prevent double counting and cross-tenant exposure.
 - Schedule package appointments in one transactional RPC using the existing versioned price catalogue and exact-cent allocation so conflicts roll back the entire contract.
 

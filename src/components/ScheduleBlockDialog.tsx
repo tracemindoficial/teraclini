@@ -29,8 +29,8 @@ export function ScheduleBlockDialog({
   const [end, setEnd] = useState(toLocalInputValue(new Date(Date.now() + 3600000)));
   const [locationId, setLocationId] = useState("todos");
   const [roomId, setRoomId] = useState("todas");
-  const { data: locations } = useLocations();
-  const { data: rooms } = useRooms(locationId === "todos" ? undefined : locationId);
+  const { data: locations } = useLocations(open);
+  const { data: rooms } = useRooms(locationId === "todos" ? undefined : locationId, open);
   const save = useSaveScheduleBlock();
   useEffect(() => {
     if (open) {

@@ -27,9 +27,10 @@ export type CarePackageWithRefs = CarePackage & {
 const PACKAGE_SELECT =
   "*, patient:patients(id, full_name), appointment_type:appointment_types(id, name), appointments(id, starts_at, ends_at, status, modality, package_session_value)";
 
-export function usePackages(patientId?: string) {
+export function usePackages(patientId?: string, enabled = true) {
   return useQuery({
     queryKey: [...queryKeys.packages, patientId ?? "all"],
+    enabled,
     queryFn: async () => {
       let query = supabase
         .from("care_packages")
