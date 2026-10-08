@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
-import logoAsset from "@/assets/teraclini-logo-3d.png.asset.json";
+import logoAsset from "@/assets/teraclini-logo-3d-480.webp.asset.json";
+import logoLargeAsset from "@/assets/teraclini-logo-3d-960.webp.asset.json";
 import { cn } from "@/lib/utils";
 
 type BrandLogoProps = {
@@ -21,6 +22,11 @@ export function BrandLogo({ compact = false, className, to = "/" }: BrandLogoPro
       ) : (
         <img
           src={logoAsset.url}
+          srcSet={`${logoAsset.url} 480w, ${logoLargeAsset.url} 960w`}
+          sizes="(max-width: 640px) 144px, 192px"
+          width={2005}
+          height={784}
+          decoding="async"
           alt="TeraClini — Sua prática clínica. Em um só lugar."
           className="h-auto w-full object-contain drop-shadow-sm"
         />

@@ -3,9 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { currentUserId, unwrap, type Location, type Tables } from "./shared";
 import { queryKeys } from "@/lib/query-keys";
 
-export function useLocations() {
+export function useLocations(enabled = true) {
   return useQuery({
     queryKey: queryKeys.locations,
+    enabled,
     queryFn: async () =>
       unwrap(await supabase.from("locations").select("*").order("name")) as Location[],
   });

@@ -5,7 +5,8 @@
 - [x] Inventariar rotas, componentes, dependências, consultas, autenticação e esquema real sem alterações funcionais — relatório em docs/teraclini-performance-architecture-audit.md
 - [x] Medir página pública publicada e navegação profissional local; separar Vite de produção — administração autorizada, mobile e carga não medidos
 - [x] Documentar relatório em 12 seções, evidências, limitações e plano priorizado; 69 testes existentes passaram, sem validação CRUD integral
-- [ ] Executar otimizações estruturais somente após autorização — aguardando aprovação posterior ao relatório
+- [x] Executar lote autorizado de imagens WebP responsivas e consultas adiadas de diálogos fechados — 81 testes passaram; seleções dependentes e paciente pré-selecionado verificados sem salvar dados; build automático OK
+- [ ] Executar otimizações estruturais de acesso/perfil, paginação e RPCs somente após nova autorização
 
 ## Unificação de serviços, pacotes, agenda e financeiro profissional
 

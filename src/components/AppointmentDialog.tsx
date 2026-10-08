@@ -53,13 +53,13 @@ export function AppointmentDialog({
   defaultTime?: string;
   timeZone?: string;
 }) {
-  const { data: patients } = usePatients();
-  const { data: locations } = useLocations();
+  const { data: patients } = usePatients(undefined, open);
+  const { data: locations } = useLocations(open);
   const saveAppointment = useSaveAppointment();
   const [patientDialogOpen, setPatientDialogOpen] = useState(false);
   const [patientSearch, setPatientSearch] = useState("");
   const [cancellationReason, setCancellationReason] = useState("");
-  const { data: services } = useAppointmentTypes();
+  const { data: services } = useAppointmentTypes(open);
 
   const [values, setValues] = useState({
     patient_id: "",
@@ -76,9 +76,9 @@ export function AppointmentDialog({
     notes: "",
     package_id: "none",
   });
-  const { data: servicePrices } = useServicePrices(true, values.appointment_type_id || undefined);
-  const { data: rooms } = useRooms(values.location_id || undefined);
-  const { data: patientPackages } = usePackages(values.patient_id || undefined);
+  const { data: servicePrices } = useServicePrices(true, values.appointment_type_id || undefined, open && Boolean(values.appointment_type_id));
+  const { data: rooms } = useRooms(values.location_id || undefined, open && Boolean(values.location_id));
+  const { data: patientPackages } = usePackages(values.patient_id || undefined, open && Boolean(values.patient_id));
   const completedAppointment = appointment?.status === "realizado";
 
   useEffect(() => {

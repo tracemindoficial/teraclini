@@ -5,9 +5,10 @@ import { queryKeys } from "@/lib/query-keys";
 import { saveCompletePatient } from "@/lib/patient-registration.functions";
 import type { ProfessionalPatientPayload } from "@/lib/patient-registration-schema";
 
-export function usePatients(search?: string) {
+export function usePatients(search?: string, enabled = true) {
   return useQuery({
     queryKey: [...queryKeys.patients, search ?? ""],
+    enabled,
     queryFn: async () => {
       let query = supabase.from("patients").select("*").order("full_name");
       if (search && search.trim()) query = query.ilike("full_name", `%${search.trim()}%`);

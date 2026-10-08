@@ -15,9 +15,10 @@ function invalidateSchedule(qc: ReturnType<typeof useQueryClient>) {
   qc.invalidateQueries({ queryKey: queryKeys.onboardingTasks });
 }
 
-export function useRooms(locationId?: string) {
+export function useRooms(locationId?: string, enabled = true) {
   return useQuery({
     queryKey: [...queryKeys.rooms, locationId ?? "all"],
+    enabled,
     queryFn: async () => {
       let query = supabase.from("rooms").select("*").order("name");
       if (locationId) query = query.eq("location_id", locationId);
@@ -101,9 +102,10 @@ export function useDeleteScheduleBlock() {
   });
 }
 
-export function useAppointmentTypes() {
+export function useAppointmentTypes(enabled = true) {
   return useQuery({
     queryKey: queryKeys.appointmentTypes,
+    enabled,
     queryFn: async () =>
       unwrap(
         await supabase.from("appointment_types").select("*").eq("is_active", true).order("name"),

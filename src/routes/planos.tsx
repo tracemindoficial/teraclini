@@ -4,9 +4,10 @@ import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 import { PricingSection } from "@/components/marketing/MarketingLanding";
 import { getPublicPlans } from "@/lib/public-commercial.functions";
+import { loadPublicPlans } from "@/lib/public-plans-loader";
 
 export const Route = createFileRoute("/planos")({
-  loader: () => getPublicPlans(),
+  loader: () => loadPublicPlans(getPublicPlans),
   head: () => ({
     meta: [
       { title: "Planos e licenças — TeraClini" },
@@ -28,12 +29,12 @@ export const Route = createFileRoute("/planos")({
 });
 
 function PlansPage() {
-  const plans = Route.useLoaderData();
+  const { plans, unavailable } = Route.useLoaderData();
   return (
     <div className="min-h-screen bg-background">
       <MarketingHeader />
       <main>
-        <PricingSection plans={plans} standalone />
+        <PricingSection plans={plans} unavailable={unavailable} standalone />
       </main>
       <MarketingFooter />
     </div>

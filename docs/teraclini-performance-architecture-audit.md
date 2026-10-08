@@ -187,7 +187,7 @@ Evidências temporárias: `/tmp/browser/teraclini-audit/measurements.json`, `cli
 
 ## 12. PLANO DE OTIMIZAÇÃO
 
-Todas as ações abaixo aguardam autorização. Não há promessa de ganho percentual.
+O lote de prioridade 1 foi autorizado e implementado; as prioridades seguintes aguardam nova autorização. Não há promessa de ganho percentual.
 
 ### PRIORIDADE 1 — ALTO IMPACTO / BAIXO RISCO
 
@@ -213,3 +213,12 @@ Todas as ações abaixo aguardam autorização. Não há promessa de ganho perce
 3. Criar baseline autenticada publicada, mobile, percentis e testes de carga antes de decisões estruturais.
 
 **Critério de conclusão por lote:** inspecionar → reproduzir → alterar apenas o lote autorizado → testes automatizados e fluxos afetados → isolamento/segurança quando aplicável → mesma medição antes/depois → atualizar roadmap com evidência e limitações. Preservar dados reais e todos os históricos. A auditoria não declara cumprida a bateria inteira de regressão solicitada; ela exige execução dedicada durante os lotes aprovados.
+
+### Validação posterior — lote de prioridade 1
+
+- Cópias WebP responsivas aplicadas ao logo e às imagens públicas, mantendo os originais. Arquivos gerados: logo 480/960 (35.614/98.198 bytes), dashboard (19.588 bytes) e experiência 640/1280 (54.060/137.602 bytes). Tamanho de arquivo não equivale a ganho medido de latência em produção.
+- Consultas dos diálogos de agendamento, disponibilidade, bloqueio e pacote condicionadas à abertura; sala, preço e pacote do agendamento dependem das seleções correspondentes. Consumidores existentes continuam habilitados por padrão.
+- 81 testes em dez arquivos passaram, incluindo 12 testes de consultas desabilitadas, abertura, invalidação e reabertura. Build automático reportou OK após correção da tipagem do teste.
+- Playwright verificou apresentação pública, abertura/reabertura dos diálogos, requisições dependentes de paciente/local/serviço e paciente pré-selecionado pelo detalhe. Nenhum formulário foi salvo e nenhum erro de página foi observado.
+- A apresentação móvel foi inspecionada em viewport reduzido; isso não certifica paridade funcional completa, acessibilidade ou CRUD integral.
+- Não foram alterados banco, autorização, dados reais, regras financeiras ou conflitos; não houve nova medição publicada, teste de carga ou certificação integral de isolamento neste lote.

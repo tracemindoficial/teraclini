@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import {
   ArrowRight,
   CalendarDays,
@@ -18,8 +18,9 @@ import {
   UsersRound,
 } from "lucide-react";
 
-import dashboardAsset from "@/assets/teraclini-dashboard-mobile.png.asset.json";
-import experienceAsset from "@/assets/teraclini-brand-experience.png.asset.json";
+import dashboardAsset from "@/assets/teraclini-dashboard-mobile-640.webp.asset.json";
+import experienceAsset from "@/assets/teraclini-brand-experience-1280.webp.asset.json";
+import experienceSmallAsset from "@/assets/teraclini-brand-experience-640.webp.asset.json";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 import {
@@ -128,7 +129,7 @@ const faqs = [
   ],
 ] as const;
 
-export function MarketingLanding({ plans }: { plans: PublicPlan[] }) {
+export function MarketingLanding({ plans, plansUnavailable = false }: { plans: PublicPlan[]; plansUnavailable?: boolean }) {
   useEffect(() => {
     trackCommercialEvent("landing_view");
   }, []);
@@ -143,6 +144,10 @@ export function MarketingLanding({ plans }: { plans: PublicPlan[] }) {
         >
           <img
             src={dashboardAsset.url}
+            width={340}
+            height={625}
+            fetchPriority="high"
+            decoding="async"
             alt="Painel móvel do TeraClini com resumo da rotina e agenda do dia"
             className="absolute inset-y-0 right-[-7rem] h-full w-auto max-w-none object-contain opacity-35 sm:right-0 sm:opacity-55 lg:right-[5%] lg:opacity-90"
           />
@@ -307,6 +312,12 @@ export function MarketingLanding({ plans }: { plans: PublicPlan[] }) {
           <div className="overflow-hidden rounded-lg border bg-card shadow-lift">
             <img
               src={experienceAsset.url}
+              srcSet={`${experienceSmallAsset.url} 640w, ${experienceAsset.url} 1254w`}
+              sizes="(max-width: 640px) calc(100vw - 40px), (max-width: 1280px) calc(100vw - 64px), 1216px"
+              width={1254}
+              height={1254}
+              loading="lazy"
+              decoding="async"
               alt="Identidade visual e exemplos das telas do TeraClini no computador e no celular"
               className="h-auto w-full"
             />
@@ -355,7 +366,7 @@ export function MarketingLanding({ plans }: { plans: PublicPlan[] }) {
           </div>
         </section>
 
-        <PricingSection plans={plans} />
+        <PricingSection plans={plans} unavailable={plansUnavailable} />
 
         <section className="border-y bg-card py-20 sm:py-28">
           <div className="mx-auto grid max-w-7xl gap-10 px-5 sm:px-8 lg:grid-cols-2 lg:items-center">
@@ -445,11 +456,14 @@ export function MarketingLanding({ plans }: { plans: PublicPlan[] }) {
 
 export function PricingSection({
   plans,
+  unavailable = false,
   standalone = false,
 }: {
   plans: PublicPlan[];
+  unavailable?: boolean;
   standalone?: boolean;
 }) {
+  const router = useRouter();
   useEffect(() => {
     const section = document.getElementById("planos");
     if (!section) return;
@@ -474,7 +488,18 @@ export function PricingSection({
           title="Escolha a licença ideal para você."
           description="Valores e condições abaixo são publicados diretamente pela administração do TeraClini."
         />
-        {plans.length > 0 ? (
+        {unavailable ? (
+          <div className="mx-auto mt-12 max-w-2xl rounded-lg border bg-card p-8 text-center shadow-soft" role="status">
+            <h3 className="text-xl font-semibold">Licenças temporariamente indisponíveis</h3>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Não foi possível consultar os planos. Você pode tentar novamente ou acessar sua conta normalmente.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Button variant="outline" onClick={() => { void router.invalidate(); }}>Tentar consultar novamente</Button>
+              <Button asChild><Link to="/auth">Acessar minha conta</Link></Button>
+            </div>
+          </div>
+        ) : plans.length > 0 ? (
           <div className="mx-auto mt-12 grid max-w-5xl gap-5 md:grid-cols-2">
             {plans.map((plan) => (
               <article key={plan.id} className="rounded-lg border bg-card p-7 shadow-soft">
