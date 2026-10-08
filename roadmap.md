@@ -1,5 +1,12 @@
 # Roadmap
 
+## Auditoria geral, performance e preparação arquitetural
+
+- [ ] Inventariar rotas, componentes, dependências, consultas, autenticação e esquema real sem alterações funcionais
+- [ ] Medir navegação pública e autenticada, recursos e consultas; separar ambiente local de produção
+- [ ] Apresentar relatório em 12 seções, evidências, limitações e plano priorizado
+- [ ] Executar otimizações estruturais somente após autorização — aguardando aprovação posterior ao relatório
+
 ## Unificação de serviços, pacotes, agenda e financeiro profissional
 
 - [x] Auditar código e esquema real: serviços, preços, pacotes, agendamentos, consumo e financeiro existente; 26 testes de regras passaram
