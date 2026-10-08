@@ -2,9 +2,9 @@
 
 ## Auditoria geral, performance e preparação arquitetural
 
-- [ ] Inventariar rotas, componentes, dependências, consultas, autenticação e esquema real sem alterações funcionais
-- [ ] Medir navegação pública e autenticada, recursos e consultas; separar ambiente local de produção
-- [ ] Apresentar relatório em 12 seções, evidências, limitações e plano priorizado
+- [x] Inventariar rotas, componentes, dependências, consultas, autenticação e esquema real sem alterações funcionais — relatório em docs/teraclini-performance-architecture-audit.md
+- [x] Medir página pública publicada e navegação profissional local; separar Vite de produção — administração autorizada, mobile e carga não medidos
+- [x] Documentar relatório em 12 seções, evidências, limitações e plano priorizado; 69 testes existentes passaram, sem validação CRUD integral
 - [ ] Executar otimizações estruturais somente após autorização — aguardando aprovação posterior ao relatório
 
 ## Unificação de serviços, pacotes, agenda e financeiro profissional
