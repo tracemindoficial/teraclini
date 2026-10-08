@@ -2,9 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { MarketingLanding } from "@/components/marketing/MarketingLanding";
 import { getPublicPlans } from "@/lib/public-commercial.functions";
+import { loadPublicPlans } from "@/lib/public-plans-loader";
 
 export const Route = createFileRoute("/")({
-  loader: () => getPublicPlans(),
+  loader: () => loadPublicPlans(getPublicPlans),
   head: () => ({
     meta: [
       { title: "TeraClini — sua prática clínica, organizada para acompanhar você" },
@@ -27,6 +28,6 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingPage() {
-  const plans = Route.useLoaderData();
-  return <MarketingLanding plans={plans} />;
+  const { plans, unavailable } = Route.useLoaderData();
+  return <MarketingLanding plans={plans} plansUnavailable={unavailable} />;
 }

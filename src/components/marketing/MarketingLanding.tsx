@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import {
   ArrowRight,
   CalendarDays,
@@ -129,7 +129,7 @@ const faqs = [
   ],
 ] as const;
 
-export function MarketingLanding({ plans }: { plans: PublicPlan[] }) {
+export function MarketingLanding({ plans, plansUnavailable = false }: { plans: PublicPlan[]; plansUnavailable?: boolean }) {
   useEffect(() => {
     trackCommercialEvent("landing_view");
   }, []);
@@ -366,7 +366,7 @@ export function MarketingLanding({ plans }: { plans: PublicPlan[] }) {
           </div>
         </section>
 
-        <PricingSection plans={plans} />
+        <PricingSection plans={plans} unavailable={plansUnavailable} />
 
         <section className="border-y bg-card py-20 sm:py-28">
           <div className="mx-auto grid max-w-7xl gap-10 px-5 sm:px-8 lg:grid-cols-2 lg:items-center">
@@ -456,11 +456,14 @@ export function MarketingLanding({ plans }: { plans: PublicPlan[] }) {
 
 export function PricingSection({
   plans,
+  unavailable = false,
   standalone = false,
 }: {
   plans: PublicPlan[];
+  unavailable?: boolean;
   standalone?: boolean;
 }) {
+  const router = useRouter();
   useEffect(() => {
     const section = document.getElementById("planos");
     if (!section) return;
@@ -485,7 +488,18 @@ export function PricingSection({
           title="Escolha a licença ideal para você."
           description="Valores e condições abaixo são publicados diretamente pela administração do TeraClini."
         />
-        {plans.length > 0 ? (
+        {unavailable ? (
+          <div className="mx-auto mt-12 max-w-2xl rounded-lg border bg-card p-8 text-center shadow-soft" role="status">
+            <h3 className="text-xl font-semibold">Licenças temporariamente indisponíveis</h3>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Não foi possível consultar os planos. Você pode tentar novamente ou acessar sua conta normalmente.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Button variant="outline" onClick={() => { void router.invalidate(); }}>Tentar consultar novamente</Button>
+              <Button asChild><Link to="/auth">Acessar minha conta</Link></Button>
+            </div>
+          </div>
+        ) : plans.length > 0 ? (
           <div className="mx-auto mt-12 grid max-w-5xl gap-5 md:grid-cols-2">
             {plans.map((plan) => (
               <article key={plan.id} className="rounded-lg border bg-card p-7 shadow-soft">
