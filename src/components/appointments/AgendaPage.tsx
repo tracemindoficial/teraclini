@@ -14,7 +14,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAppointments, useAvailabilityRules, useDeleteAvailabilityRule, useDeleteScheduleBlock, useLocations, useScheduleBlocks, useUpdateAppointment, type AppointmentWithRefs, type AvailabilityRule, type ScheduleBlock } from "@/lib/data";
 import { APPOINTMENT_STATUSES, WEEKDAYS, formatDateLong } from "@/lib/domain";
-import { AGENDA_TIMEZONE, addDays, agendaRange, canMove, hasConflict, localParts, movedTimes } from "@/lib/agenda-rules";
+import { AGENDA_TIMEZONE, addDays, agendaRange, durationMinutes, localParts, moveIssue, movedTimes } from "@/lib/agenda-rules";
+import { MoveConfirmDialog } from "./MoveConfirmDialog";
+
 
 const AgendaCalendar = lazy(() => import("./AgendaCalendar").then((module) => ({ default: module.AgendaCalendar })));
 type View = "dia" | "semana" | "mes" | "lista";
@@ -37,6 +39,7 @@ export function AgendaPage() {
   const [editRule, setEditRule] = useState<AvailabilityRule>();
   const [blockOpen, setBlockOpen] = useState(false);
   const [editBlock, setEditBlock] = useState<ScheduleBlock>();
+  const [pendingMove, setPendingMove] = useState<{ appointment: AppointmentWithRefs; startsAt: string; resolve: () => void; reject: (error: unknown) => void }>();
   const { data: availability = [], error: availabilityError } = useAvailabilityRules();
   const timeZone = availability.find((rule) => rule.is_active)?.timezone ?? AGENDA_TIMEZONE;
   const range = useMemo(() => agendaRange(anchor, view, timeZone), [anchor, view, timeZone]);
@@ -60,12 +63,25 @@ export function AgendaPage() {
   function create(date: string, time: string) { setEdit(undefined); setCreateDate(date); setCreateTime(time); setDialogOpen(true); }
   async function move(appointment: AppointmentWithRefs, startsAt: string) {
     try {
-      if (!canMove(appointment)) throw new Error("Atendimentos históricos, concluídos ou em andamento não podem ser movimentados.");
+      const issue = moveIssue(appointment, startsAt, appointments, blocks);
+      if (issue) throw new Error(issue);
       const times = movedTimes(appointment, startsAt);
-      if (hasConflict(appointment, times.starts_at, times.ends_at, appointments)) throw new Error("Este horário conflita com outro atendimento.");
-      await update.mutateAsync({ id: appointment.id, ...times });
-      toast.success("Horário atualizado. Duração e vínculos preservados.");
+      await update.mutateAsync({ id: appointment.id, expectedUpdatedAt: appointment.updated_at, ...times });
+      toast.success("Agendamento atualizado com sucesso.");
     } catch (error) { toast.error(error instanceof Error ? error.message : "Não foi possível mover."); throw error; }
+  }
+  function requestDragMove(appointment: AppointmentWithRefs, startsAt: string) {
+    return new Promise<void>((resolve, reject) => {
+      const issue = moveIssue(appointment, startsAt, appointments, blocks);
+      if (issue) { toast.error(issue); reject(new Error(issue)); return; }
+      setPendingMove({ appointment, startsAt, resolve, reject });
+    });
+  }
+  function cancelPendingMove() { pendingMove?.reject(new Error("cancelled")); setPendingMove(undefined); }
+  async function confirmPendingMove() {
+    if (!pendingMove) return;
+    try { await move(pendingMove.appointment, pendingMove.startsAt); pendingMove.resolve(); setPendingMove(undefined); }
+    catch (error) { pendingMove.reject(error); setPendingMove(undefined); }
   }
   const dateLabel = view === "dia" ? formatDateLong(`${anchor}T12:00:00`) : view === "mes" ? new Date(`${anchor}T12:00:00`).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }) : `${new Date(`${range.start}T12:00:00`).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })} — ${new Date(`${addDays(range.end, -1)}T12:00:00`).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}`;
   return <AppShell title="Minha Agenda" action={<Button aria-label="Novo agendamento" onClick={() => create(anchor, "09:00")}><Plus /><span className="hidden sm:inline">Novo agendamento</span></Button>}>

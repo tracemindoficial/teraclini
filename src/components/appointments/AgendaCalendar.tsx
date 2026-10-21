@@ -10,7 +10,7 @@ import type { AppointmentWithRefs, AvailabilityRule, ScheduleBlock } from "@/lib
 import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES, labelOf } from "@/lib/domain";
 import { canMove, localParts } from "@/lib/agenda-rules";
 
-export function AgendaCalendar({ appointments, blocks, availability, anchor, view, timeZone, onSelect, onCreate, onMove, onBlock }: {
+export function AgendaCalendar({ appointments, blocks, availability, anchor, view, timeZone, onSelect, onCreate, onMove, onBlock, canDrop }: {
   appointments: AppointmentWithRefs[];
   blocks: ScheduleBlock[];
   availability: AvailabilityRule[];
@@ -19,8 +19,10 @@ export function AgendaCalendar({ appointments, blocks, availability, anchor, vie
   timeZone: string;
   onSelect: (appointment: AppointmentWithRefs) => void;
   onCreate: (date: string, time: string) => void;
+  /** Resolves after the user confirms and the save succeeds; rejects to restore the original position. */
   onMove: (appointment: AppointmentWithRefs, start: string) => Promise<void>;
   onBlock: (block: ScheduleBlock) => void;
+  canDrop?: (appointment: AppointmentWithRefs, start: string) => boolean;
 }) {
   const calendar = useRef<FullCalendar>(null);
   useEffect(() => {
@@ -45,7 +47,7 @@ export function AgendaCalendar({ appointments, blocks, availability, anchor, vie
         eventDisplay="block" eventMinHeight={0} eventShortHeight={58}
         slotEventOverlap={false} eventOverlap={false} nowIndicator
         editable eventDurationEditable={false} longPressDelay={650}
-        eventAllow={(_drop, event) => Boolean(event && event.extendedProps["kind"] === "appointment" && canMove(event.extendedProps["appointment"]))}
+        eventAllow={(drop, event) => Boolean(event && event.extendedProps["kind"] === "appointment" && canMove(event.extendedProps["appointment"]) && (!canDrop || canDrop(event.extendedProps["appointment"], drop.start.toISOString())))}
         events={[
           ...appointments.map((appointment) => ({ id: appointment.id, start: appointment.starts_at, end: appointment.ends_at, title: appointment.patient?.full_name ?? "Sem paciente", editable: canMove(appointment), classNames: [`agenda-status-${appointment.status}`], extendedProps: { kind: "appointment", appointment } })),
           ...blocks.map((block) => ({ id: `block-${block.id}`, start: block.starts_at, end: block.ends_at, title: block.reason, editable: false, classNames: ["agenda-block"], extendedProps: { kind: "block", block } })),
