@@ -14,6 +14,116 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_grant_events: {
+        Row: {
+          account_id: string
+          action: string
+          actor_user_id: string | null
+          created_at: string
+          grant_id: string | null
+          id: string
+          new_values: Json | null
+          previous_values: Json | null
+          reason: string | null
+        }
+        Insert: {
+          account_id: string
+          action: string
+          actor_user_id?: string | null
+          created_at?: string
+          grant_id?: string | null
+          id?: string
+          new_values?: Json | null
+          previous_values?: Json | null
+          reason?: string | null
+        }
+        Update: {
+          account_id?: string
+          action?: string
+          actor_user_id?: string | null
+          created_at?: string
+          grant_id?: string | null
+          id?: string
+          new_values?: Json | null
+          previous_values?: Json | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_grant_events_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "access_grant_events_grant_id_fkey"
+            columns: ["grant_id"]
+            isOneToOne: false
+            referencedRelation: "access_grants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      access_grants: {
+        Row: {
+          account_id: string
+          billing_starts_on: string | null
+          convertible: boolean
+          created_at: string
+          created_by: string | null
+          ends_at: string | null
+          expired_at: string | null
+          id: string
+          kind: string
+          notes: string | null
+          reason: string | null
+          revoked_at: string | null
+          starts_at: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          billing_starts_on?: string | null
+          convertible?: boolean
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string | null
+          expired_at?: string | null
+          id?: string
+          kind: string
+          notes?: string | null
+          reason?: string | null
+          revoked_at?: string | null
+          starts_at?: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          billing_starts_on?: string | null
+          convertible?: boolean
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string | null
+          expired_at?: string | null
+          id?: string
+          kind?: string
+          notes?: string | null
+          reason?: string | null
+          revoked_at?: string | null
+          starts_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_grants_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       account_access_events: {
         Row: {
           account_id: string
@@ -131,13 +241,18 @@ export type Database = {
           billing_period: string
           cancellation_requested_at: string | null
           cancelled_at: string | null
+          configured_at: string | null
+          configured_by: string | null
           contracted_price_cents: number
           created_at: string
           currency: string
           id: string
           next_due_on: string
           plan_id: string
+          promo_cycles: number
+          promo_price_cents: number
           provider_subscription_id: string | null
+          regular_price_cents: number
           restricted_at: string | null
           starts_on: string
           status: Database["public"]["Enums"]["subscription_status"]
@@ -148,13 +263,18 @@ export type Database = {
           billing_period: string
           cancellation_requested_at?: string | null
           cancelled_at?: string | null
+          configured_at?: string | null
+          configured_by?: string | null
           contracted_price_cents: number
           created_at?: string
           currency?: string
           id?: string
           next_due_on: string
           plan_id: string
+          promo_cycles?: number
+          promo_price_cents?: number
           provider_subscription_id?: string | null
+          regular_price_cents?: number
           restricted_at?: string | null
           starts_on: string
           status?: Database["public"]["Enums"]["subscription_status"]
@@ -165,13 +285,18 @@ export type Database = {
           billing_period?: string
           cancellation_requested_at?: string | null
           cancelled_at?: string | null
+          configured_at?: string | null
+          configured_by?: string | null
           contracted_price_cents?: number
           created_at?: string
           currency?: string
           id?: string
           next_due_on?: string
           plan_id?: string
+          promo_cycles?: number
+          promo_price_cents?: number
           provider_subscription_id?: string | null
+          regular_price_cents?: number
           restricted_at?: string | null
           starts_on?: string
           status?: Database["public"]["Enums"]["subscription_status"]
@@ -1933,6 +2058,7 @@ export type Database = {
           confirmed_by: string | null
           created_at: string
           currency: string
+          cycle_number: number | null
           due_on: string
           id: string
           method: string
@@ -1952,6 +2078,7 @@ export type Database = {
           confirmed_by?: string | null
           created_at?: string
           currency?: string
+          cycle_number?: number | null
           due_on: string
           id?: string
           method?: string
@@ -1971,6 +2098,7 @@ export type Database = {
           confirmed_by?: string | null
           created_at?: string
           currency?: string
+          cycle_number?: number | null
           due_on?: string
           id?: string
           method?: string
@@ -2125,6 +2253,65 @@ export type Database = {
             columns: ["receivable_id"]
             isOneToOne: false
             referencedRelation: "professional_receivables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professional_notifications: {
+        Row: {
+          account_id: string
+          action_path: string | null
+          attempts: number
+          body: string
+          created_at: string
+          event_key: string
+          external_status: string
+          id: string
+          in_app_status: string
+          kind: string
+          last_error: string | null
+          read_at: string | null
+          suppressed_at: string | null
+          title: string
+        }
+        Insert: {
+          account_id: string
+          action_path?: string | null
+          attempts?: number
+          body: string
+          created_at?: string
+          event_key: string
+          external_status?: string
+          id?: string
+          in_app_status?: string
+          kind: string
+          last_error?: string | null
+          read_at?: string | null
+          suppressed_at?: string | null
+          title: string
+        }
+        Update: {
+          account_id?: string
+          action_path?: string | null
+          attempts?: number
+          body?: string
+          created_at?: string
+          event_key?: string
+          external_status?: string
+          id?: string
+          in_app_status?: string
+          kind?: string
+          last_error?: string | null
+          read_at?: string | null
+          suppressed_at?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_notifications_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
         ]
@@ -2670,6 +2857,33 @@ export type Database = {
           },
         ]
       }
+      subscription_job_runs: {
+        Row: {
+          failures: number
+          finished_at: string | null
+          id: string
+          result: Json
+          started_at: string
+          trigger_source: string
+        }
+        Insert: {
+          failures?: number
+          finished_at?: string | null
+          id?: string
+          result?: Json
+          started_at?: string
+          trigger_source?: string
+        }
+        Update: {
+          failures?: number
+          finished_at?: string | null
+          id?: string
+          result?: Json
+          started_at?: string
+          trigger_source?: string
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           billing_interval_months: number
@@ -2885,6 +3099,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      account_commercial_state: {
+        Args: { _account_id: string }
+        Returns: string
+      }
+      account_commercial_summary: {
+        Args: { _account_id: string }
+        Returns: Json
+      }
       admin_change_account_status: {
         Args: {
           _account_id: string
@@ -2911,13 +3133,46 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_configure_billing: {
+        Args: {
+          _account_id: string
+          _actor_user_id: string
+          _first_due_on: string
+          _promo_cycles: number
+          _promo_price_cents: number
+          _regular_price_cents: number
+        }
+        Returns: string
+      }
       admin_confirm_payment: {
         Args: { _actor_user_id: string; _payment_id: string }
         Returns: boolean
       }
+      admin_extend_access: {
+        Args: {
+          _account_id: string
+          _actor_user_id: string
+          _days: number
+          _reason: string
+        }
+        Returns: string
+      }
       admin_finalize_client_deletion: {
         Args: { _actor_user_id: string; _target_user_id: string }
         Returns: boolean
+      }
+      admin_grant_trial: {
+        Args: {
+          _account_id: string
+          _actor_user_id: string
+          _billing_starts_on: string
+          _convertible: boolean
+          _days: number
+          _notes: string
+          _reason: string
+          _starts_at: string
+        }
+        Returns: string
       }
       admin_manage_subscription: {
         Args: {
@@ -2950,6 +3205,20 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_record_subscription_payment: {
+        Args: {
+          _account_id: string
+          _actor_user_id: string
+          _method: string
+          _paid_at: string
+          _transaction_id: string
+        }
+        Returns: string
+      }
+      admin_revoke_access_grant: {
+        Args: { _account_id: string; _actor_user_id: string; _reason: string }
+        Returns: number
+      }
       admin_set_account_block: {
         Args: {
           _account_id: string
@@ -2975,6 +3244,24 @@ export type Database = {
         Args: { _actor_user_id: string; _role: string; _target_user_id: string }
         Returns: boolean
       }
+      admin_subscription_detail: {
+        Args: { _account_id: string; _actor_user_id: string }
+        Returns: Json
+      }
+      admin_subscription_directory: {
+        Args: {
+          _actor_user_id: string
+          _page: number
+          _page_size: number
+          _search: string
+          _state: string
+        }
+        Returns: Json
+      }
+      admin_subscription_overview: {
+        Args: { _actor_user_id: string }
+        Returns: Json
+      }
       admin_update_user_profile: {
         Args: {
           _actor_user_id: string
@@ -2992,6 +3279,10 @@ export type Database = {
       approve_patient_registration: {
         Args: { _existing_patient_id?: string; _request_id: string }
         Returns: string
+      }
+      assert_billing_admin: {
+        Args: { _actor_user_id: string; _read_only?: boolean }
+        Returns: undefined
       }
       can_manage_professional_finance: {
         Args: { _account_id: string }
@@ -3026,11 +3317,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_commercial_access: { Args: { _account_id: string }; Returns: boolean }
       is_account_member: {
         Args: { _account_id: string; _user_id?: string }
         Returns: boolean
       }
       is_platform_admin: { Args: never; Returns: boolean }
+      mark_my_notification_read: { Args: { _id: string }; Returns: undefined }
+      my_commercial_status: { Args: never; Returns: Json }
       patient_registration_duplicates: {
         Args: { _request_id: string }
         Returns: {
@@ -3046,6 +3340,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["platform_admin_role"]
       }
+      process_trial_lifecycle: { Args: { _source?: string }; Returns: Json }
       reject_patient_registration: {
         Args: { _reason: string; _request_id: string }
         Returns: undefined
@@ -3054,6 +3349,7 @@ export type Database = {
         Args: { _message: string; _ticket_id: string }
         Returns: string
       }
+      request_subscription_contract: { Args: never; Returns: undefined }
       save_attendance_pricing: {
         Args: {
           _package_cents: number
@@ -3100,6 +3396,19 @@ export type Database = {
       submit_patient_registration: {
         Args: { _bucket_key: string; _payload: Json; _token_hash: string }
         Returns: string
+      }
+      subscription_cycle_price: {
+        Args: {
+          _cycle: number
+          _promo: number
+          _promo_cycles: number
+          _regular: number
+        }
+        Returns: number
+      }
+      suppress_resolved_trial_notifications: {
+        Args: { _account_id: string }
+        Returns: undefined
       }
     }
     Enums: {
