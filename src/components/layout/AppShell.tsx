@@ -1,3 +1,4 @@
+import { TrialNotice } from "@/components/subscription/TrialNotice";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
@@ -51,6 +52,7 @@ const NAV = [
   { to: "/configuracoes/cadastros-basicos", label: "Cadastros Básicos", icon: BookOpenCheck },
   { to: "/ajuda", label: "Ajuda", icon: HelpCircle },
   { to: "/suporte", label: "Suporte", icon: Headphones },
+  { to: "/assinatura", label: "Minha assinatura", icon: Wallet },
 ] as const;
 
 const PRIMARY_MOBILE_NAV = NAV.slice(0, 3);
@@ -336,6 +338,7 @@ export function AppShell({
           </header>
 
           <main className="mx-auto w-full max-w-[1480px] px-4 pb-28 pt-5 sm:px-6 md:pb-12 lg:px-8 lg:pt-7">
+            <TrialNotice />
             {children}
           </main>
         </div>
