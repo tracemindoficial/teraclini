@@ -7,7 +7,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { confirmedRevenue, expectedRevenue, type PaymentMetric } from "@/lib/admin-metrics";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-const requirePlatformAdmin = createMiddleware({ type: "function" })
+export const requirePlatformAdmin = createMiddleware({ type: "function" })
   .middleware([requireSupabaseAuth])
   .server(async ({ next, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

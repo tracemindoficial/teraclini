@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { getOnboardingProfile } from "@/lib/auth-session";
 import { getSessionAccess } from "@/lib/access.functions";
+import { hasCommercialAccess, type CommercialState } from "@/lib/subscription-rules";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -19,7 +20,13 @@ export const Route = createFileRoute("/_authenticated")({
     if (profile?.onboarding_completed && location.pathname === "/onboarding") {
       throw redirect({ to: "/meu-dia" });
     }
-    return { user: data.user, profile };
+    const commercialOk =
+      access.isPlatformAdmin || hasCommercialAccess(access.commercialState as CommercialState);
+    const allowedWithoutAccess = ["/assinatura", "/suporte", "/onboarding"];
+    if (!commercialOk && !allowedWithoutAccess.includes(location.pathname)) {
+      throw redirect({ to: "/assinatura" });
+    }
+    return { user: data.user, profile, commercialState: access.commercialState };
   },
   component: () => <Outlet />,
 });
