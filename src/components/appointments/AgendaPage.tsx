@@ -14,7 +14,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAppointments, useAvailabilityRules, useDeleteAvailabilityRule, useDeleteScheduleBlock, useLocations, useScheduleBlocks, useUpdateAppointment, type AppointmentWithRefs, type AvailabilityRule, type ScheduleBlock } from "@/lib/data";
 import { APPOINTMENT_STATUSES, WEEKDAYS, formatDateLong } from "@/lib/domain";
-import { AGENDA_TIMEZONE, addDays, agendaRange, canMove, hasConflict, localParts, movedTimes } from "@/lib/agenda-rules";
+import { AGENDA_TIMEZONE, addDays, agendaRange, durationMinutes, localParts, moveIssue, movedTimes } from "@/lib/agenda-rules";
+import { MoveConfirmDialog } from "./MoveConfirmDialog";
+
 
 const AgendaCalendar = lazy(() => import("./AgendaCalendar").then((module) => ({ default: module.AgendaCalendar })));
 type View = "dia" | "semana" | "mes" | "lista";
@@ -37,6 +39,7 @@ export function AgendaPage() {
   const [editRule, setEditRule] = useState<AvailabilityRule>();
   const [blockOpen, setBlockOpen] = useState(false);
   const [editBlock, setEditBlock] = useState<ScheduleBlock>();
+  const [pendingMove, setPendingMove] = useState<{ appointment: AppointmentWithRefs; startsAt: string; resolve: () => void; reject: (error: unknown) => void }>();
   const { data: availability = [], error: availabilityError } = useAvailabilityRules();
   const timeZone = availability.find((rule) => rule.is_active)?.timezone ?? AGENDA_TIMEZONE;
   const range = useMemo(() => agendaRange(anchor, view, timeZone), [anchor, view, timeZone]);
@@ -60,12 +63,25 @@ export function AgendaPage() {
   function create(date: string, time: string) { setEdit(undefined); setCreateDate(date); setCreateTime(time); setDialogOpen(true); }
   async function move(appointment: AppointmentWithRefs, startsAt: string) {
     try {
-      if (!canMove(appointment)) throw new Error("Atendimentos históricos, concluídos ou em andamento não podem ser movimentados.");
+      const issue = moveIssue(appointment, startsAt, appointments, blocks);
+      if (issue) throw new Error(issue);
       const times = movedTimes(appointment, startsAt);
-      if (hasConflict(appointment, times.starts_at, times.ends_at, appointments)) throw new Error("Este horário conflita com outro atendimento.");
-      await update.mutateAsync({ id: appointment.id, ...times });
-      toast.success("Horário atualizado. Duração e vínculos preservados.");
+      await update.mutateAsync({ id: appointment.id, expectedUpdatedAt: appointment.updated_at, ...times });
+      toast.success("Agendamento atualizado com sucesso.");
     } catch (error) { toast.error(error instanceof Error ? error.message : "Não foi possível mover."); throw error; }
+  }
+  function requestDragMove(appointment: AppointmentWithRefs, startsAt: string) {
+    return new Promise<void>((resolve, reject) => {
+      const issue = moveIssue(appointment, startsAt, appointments, blocks);
+      if (issue) { toast.error(issue); reject(new Error(issue)); return; }
+      setPendingMove({ appointment, startsAt, resolve, reject });
+    });
+  }
+  function cancelPendingMove() { pendingMove?.reject(new Error("cancelled")); setPendingMove(undefined); }
+  async function confirmPendingMove() {
+    if (!pendingMove) return;
+    try { await move(pendingMove.appointment, pendingMove.startsAt); pendingMove.resolve(); setPendingMove(undefined); }
+    catch (error) { pendingMove.reject(error); setPendingMove(undefined); }
   }
   const dateLabel = view === "dia" ? formatDateLong(`${anchor}T12:00:00`) : view === "mes" ? new Date(`${anchor}T12:00:00`).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }) : `${new Date(`${range.start}T12:00:00`).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })} — ${new Date(`${addDays(range.end, -1)}T12:00:00`).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}`;
   return <AppShell title="Minha Agenda" action={<Button aria-label="Novo agendamento" onClick={() => create(anchor, "09:00")}><Plus /><span className="hidden sm:inline">Novo agendamento</span></Button>}>
@@ -77,9 +93,10 @@ export function AgendaPage() {
     {settingsOpen ? <section className="mt-4 space-y-3 border-y py-4"><div className="flex flex-wrap gap-2"><Button variant="outline" size="sm" onClick={() => { setEditRule(undefined); setAvailabilityOpen(true); }}><Clock />Adicionar disponibilidade</Button><Button variant="outline" size="sm" onClick={() => { setEditBlock(undefined); setBlockOpen(true); }}><LockKeyhole />Bloquear horário</Button></div><ul className="space-y-2">{availability.map((rule) => <li key={rule.id} className="flex flex-wrap items-center justify-between gap-2 text-sm"><span>{WEEKDAYS[rule.weekday]} · {rule.start_time.slice(0, 5)}–{rule.end_time.slice(0, 5)}{rule.location_id ? ` · ${locations.find((item) => item.id === rule.location_id)?.name ?? "Local"}` : ""}</span><div className="flex gap-2"><Button variant="ghost" size="sm" onClick={() => { setEditRule(rule); setAvailabilityOpen(true); }}>Editar</Button><Button variant="ghost" size="sm" onClick={async () => { if (!window.confirm("Remover esta disponibilidade?")) return; try { await deleteRule.mutateAsync(rule.id); } catch { toast.error("Não foi possível remover."); } }}>Remover</Button></div></li>)}{visibleBlocks.map((block) => <li key={block.id} className="flex flex-wrap items-center justify-between gap-2 text-sm"><span>Bloqueio · {block.reason} · {localParts(block.starts_at, timeZone).date}</span><div className="flex gap-2"><Button variant="ghost" size="sm" onClick={() => { setEditBlock(block); setBlockOpen(true); }}>Editar</Button><Button variant="ghost" size="sm" onClick={async () => { if (!window.confirm("Remover este bloqueio?")) return; try { await deleteBlock.mutateAsync(block.id); } catch { toast.error("Não foi possível remover."); } }}>Remover</Button></div></li>)}</ul></section> : null}
     <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground"><div className="flex flex-wrap gap-4"><span className="flex items-center gap-1.5"><span className="size-2.5 rounded-sm bg-secondary" />Disponível</span><span className="flex items-center gap-1.5"><span className="size-2.5 rounded-sm border bg-card" />Sem disponibilidade definida</span><span className="flex items-center gap-1.5"><LockKeyhole className="size-3" />Bloqueado</span></div><span>{filtered.length} atendimentos · {timeZone}</span></div>
     {error || availabilityError || blockError ? <div role="alert" className="my-4 flex items-center gap-3 text-sm text-destructive">Não foi possível carregar toda a agenda.<Button variant="outline" size="sm" onClick={() => refetch()}>Tentar novamente</Button></div> : null}
-    <div className="mt-3" aria-busy={isLoading}>{isLoading ? <p className="py-12 text-center text-sm text-muted-foreground">Carregando agenda…</p> : view === "lista" ? <div className="space-y-6">{filtered.length === 0 ? <p className="py-12 text-center text-sm text-muted-foreground">Nenhum atendimento neste período.</p> : Object.entries(grouped).map(([day, items]) => <section key={day}><h2 className="mb-2 text-sm font-semibold capitalize">{formatDateLong(`${day}T12:00:00`)}</h2><ul className="space-y-2">{items.map((item) => <AppointmentRow key={item.id} appointment={item} />)}</ul></section>)}</div> : <ClientOnly fallback={<p>Carregando agenda…</p>}><Suspense fallback={<p>Carregando agenda…</p>}><AgendaCalendar appointments={filtered} blocks={visibleBlocks} availability={visibleAvailability} anchor={anchor} view={view} timeZone={timeZone} onSelect={(item) => setSelectedId(item.id)} onCreate={create} onMove={move} onBlock={(block) => { setEditBlock(block); setBlockOpen(true); }} /></Suspense></ClientOnly>}</div>
+    <div className="mt-3" aria-busy={isLoading}>{isLoading ? <p className="py-12 text-center text-sm text-muted-foreground">Carregando agenda…</p> : view === "lista" ? <div className="space-y-6">{filtered.length === 0 ? <p className="py-12 text-center text-sm text-muted-foreground">Nenhum atendimento neste período.</p> : Object.entries(grouped).map(([day, items]) => <section key={day}><h2 className="mb-2 text-sm font-semibold capitalize">{formatDateLong(`${day}T12:00:00`)}</h2><ul className="space-y-2">{items.map((item) => <AppointmentRow key={item.id} appointment={item} />)}</ul></section>)}</div> : <ClientOnly fallback={<p>Carregando agenda…</p>}><Suspense fallback={<p>Carregando agenda…</p>}><AgendaCalendar appointments={filtered} blocks={visibleBlocks} availability={visibleAvailability} anchor={anchor} view={view} timeZone={timeZone} onSelect={(item) => setSelectedId(item.id)} onCreate={create} onMove={requestDragMove} canDrop={(item, start) => !moveIssue(item, start, appointments, blocks)} onBlock={(block) => { setEditBlock(block); setBlockOpen(true); }} /></Suspense></ClientOnly>}</div>
     <AppointmentDialog open={dialogOpen} onOpenChange={setDialogOpen} appointment={edit} defaultDate={baseDate} defaultTime={createTime} timeZone={timeZone} />
     {selected ? <AppointmentQuickDetails key={selected.id} appointment={selected} timeZone={timeZone} onClose={() => setSelectedId(undefined)} onEdit={() => { setEdit(selected); setSelectedId(undefined); setDialogOpen(true); }} onMove={(start) => move(selected, start)} /> : null}
+    <MoveConfirmDialog pending={pendingMove ? { patient: pendingMove.appointment.patient?.full_name ?? "Sem paciente", from: pendingMove.appointment.starts_at, to: pendingMove.startsAt, minutes: durationMinutes(pendingMove.appointment.starts_at, pendingMove.appointment.ends_at) } : undefined} timeZone={timeZone} saving={update.isPending} onCancel={cancelPendingMove} onConfirm={confirmPendingMove} />
     <AvailabilityDialog open={availabilityOpen} onOpenChange={setAvailabilityOpen} {...(editRule ? { rule: editRule } : {})} />
     <ScheduleBlockDialog open={blockOpen} onOpenChange={setBlockOpen} {...(editBlock ? { block: editBlock } : {})} />
   </AppShell>;

@@ -209,3 +209,7 @@
 .agenda-calendar .fc-daygrid-event { white-space: normal; }
 .agenda-calendar .fc-highlight { background: color-mix(in oklch, var(--secondary) 50%, transparent); }
 .agenda-calendar .fc-event:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+.agenda-calendar .fc-event-draggable { cursor: grab; }
+.agenda-calendar .fc-event-dragging { cursor: grabbing; opacity: 0.85; box-shadow: 0 6px 16px color-mix(in oklab, var(--foreground) 18%, transparent); }
+.agenda-calendar .fc-event-mirror { outline: 2px dashed var(--primary); outline-offset: 1px; }

@@ -87,15 +87,19 @@ export function useSaveAppointment() {
 export function useUpdateAppointment() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...values }: Tables["appointments"]["Update"] & { id: string }) => {
-      const result = await supabase.from("appointments").update(values).eq("id", id).select().single();
+    mutationFn: async ({ id, expectedUpdatedAt, ...values }: Tables["appointments"]["Update"] & { id: string; expectedUpdatedAt?: string }) => {
+      let query = supabase.from("appointments").update(values).eq("id", id);
+      // Optimistic concurrency: only update if nobody changed the record since it was loaded.
+      if (expectedUpdatedAt) query = query.eq("updated_at", expectedUpdatedAt);
+      const result = await query.select().maybeSingle();
       if (result.error) {
-        if (result.error.code === "23P01") throw new Error("Este horário conflita com outro atendimento do profissional, paciente ou sala.");
+        if (result.error.code === "23P01") throw new Error("Este horário não está disponível. Escolha outro horário para continuar.");
         throw new Error(result.error.message);
       }
+      if (!result.data) throw new Error("Este agendamento foi alterado em outro lugar. A agenda foi atualizada; confira e tente novamente.");
       return result.data as Appointment;
     },
-    onSuccess: () => {
+    onSettled: () => {
       for (const key of [queryKeys.appointments, queryKeys.appointment, queryKeys.patientAppointments, queryKeys.packages, queryKeys.pendingEvolutions, ["appointment-events"]]) qc.invalidateQueries({ queryKey: key });
     },
   });
