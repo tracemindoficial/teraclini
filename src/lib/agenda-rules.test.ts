@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { agendaRange, canMove, durationMinutes, hasConflict, localParts, movedTimes, overlaps, statusActions, zonedDate } from "./agenda-rules";
+import { UNAVAILABLE_SLOT, agendaRange, canMove, durationMinutes, hasConflict, localParts, moveIssue, movedTimes, overlaps, statusActions, zonedDate } from "./agenda-rules";
 
 describe("weekly agenda rules", () => {
   for (const [end, minutes] of [["09:30", 30], ["10:00", 60], ["10:30", 90], ["11:00", 120]] as const) {
@@ -23,4 +23,15 @@ describe("weekly agenda rules", () => {
     expect(localParts("2026-10-10T01:30:00Z").date).toBe("2026-10-09");
     expect(localParts("2026-10-11T01:30:00Z").date).toBe("2026-10-10");
   });
+});
+
+describe("drag and drop move validation", () => {
+  const now = new Date("2026-10-01T12:00:00Z");
+  const appt = { id: "a", starts_at: "2026-10-09T12:00:00Z", ends_at: "2026-10-09T13:00:00Z", status: "agendado" };
+  const other = { id: "b", starts_at: "2026-10-09T15:00:00Z", ends_at: "2026-10-09T16:00:00Z", status: "confirmado" };
+  it("accepts a free slot", () => expect(moveIssue(appt, "2026-10-09T17:00:00Z", [appt, other], [], now)).toBeNull());
+  it("rejects an occupied slot", () => expect(moveIssue(appt, "2026-10-09T15:30:00Z", [appt, other], [], now)).toBe(UNAVAILABLE_SLOT));
+  it("rejects a blocked period", () => expect(moveIssue(appt, "2026-10-09T18:00:00Z", [appt], [{ starts_at: "2026-10-09T18:30:00Z", ends_at: "2026-10-09T20:00:00Z" }], now)).toBe(UNAVAILABLE_SLOT));
+  it("rejects a past destination", () => expect(moveIssue(appt, "2026-09-30T12:00:00Z", [appt], [], now)).not.toBeNull());
+  it("rejects completed appointments", () => expect(moveIssue({ ...appt, status: "realizado" }, "2026-10-09T17:00:00Z", [], [], now)).not.toBeNull());
 });

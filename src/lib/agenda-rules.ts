@@ -59,6 +59,18 @@ export function hasConflict(appointment: TimedAppointment, start: string, end: s
   return existing.some((item) => item.id !== appointment.id && item.status !== "cancelado" && overlaps(start, end, item.starts_at, item.ends_at));
 }
 
+export const UNAVAILABLE_SLOT = "Este horário não está disponível. Escolha outro horário para continuar.";
+
+/** Returns why a drag destination is invalid, or null when it may be offered for confirmation. */
+export function moveIssue(appointment: TimedAppointment, start: string, existing: TimedAppointment[], blocks: { starts_at: string; ends_at: string }[], now = new Date()) {
+  if (!canMove(appointment, now)) return "Atendimentos históricos, concluídos ou em andamento não podem ser movimentados.";
+  const times = movedTimes(appointment, start);
+  if (Date.parse(times.starts_at) < now.getTime()) return "Não é possível mover para um horário que já passou.";
+  if (hasConflict(appointment, times.starts_at, times.ends_at, existing)) return UNAVAILABLE_SLOT;
+  if (blocks.some((block) => overlaps(times.starts_at, times.ends_at, block.starts_at, block.ends_at))) return UNAVAILABLE_SLOT;
+  return null;
+}
+
 export function statusActions(status: string) {
   if (status === "agendado") return ["confirmado", "em_andamento", "realizado", "falta", "cancelado"];
   if (status === "confirmado") return ["em_andamento", "realizado", "falta", "cancelado"];
