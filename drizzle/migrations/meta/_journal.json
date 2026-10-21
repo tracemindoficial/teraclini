@@ -260,6 +260,13 @@
       "when": 1791412808383,
       "tag": "0036_fix_receipt_confirmation_method_binding",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1792599486954,
+      "tag": "0037_attendance_pricing_and_contract_package",
+      "breakpoints": true
     }
   ]
 }

@@ -12,13 +12,9 @@
 <!-- LOVABLE:END -->
 
 ## Project architecture
-
 - Gate dialog-owned queries by visibility and selected dependencies while preserving shared query keys, so closed forms do not fetch unrelated catalogues and reopening retains normal cache invalidation.
 - Serve optimized responsive derivatives of brand images while retaining original assets, so performance improvements never replace the approved identity.
-
 - Keep patient finance separate from platform billing, with database-serialized receipt actions, confirmed-only balances and append-only audit events to prevent double counting and cross-tenant exposure.
-- Schedule package appointments in one transactional RPC using the existing versioned price catalogue and exact-cent allocation so conflicts roll back the entire contract.
-
 - Keep route modules as page composition only; reusable UI belongs under `src/components` to prevent route-bundle coupling.
 - Keep browser data hooks grouped by domain under `src/lib/data`, with shared query keys in `src/lib/query-keys.ts` to make cache invalidation predictable.
 - Preserve client-side `user_id` stamping on legacy clinical tables because those columns remain required while `account_id` is supplied by the database.
@@ -34,13 +30,11 @@
 - Keep help content globally readable by its declared audience, but restrict authoring to platform-admin server functions and store only non-clinical help analytics.
 - Keep support conversations account-scoped and explicitly non-clinical; administrative actions may record metadata but never copy message text into audit logs.
 - Keep the public commercial layer data-driven: expose only active plans and anonymous allowlisted events, and never imply checkout or license activation before a real payment provider exists.
-- Keep administrative operations server-authorized by role, explicitly confirmed, and recorded in append-only non-clinical histories because support and billing actions are security-sensitive.
 - Keep operational account status, administrative security blocking, and subscription state separate; enforce each independently because they have different causes and recovery flows.
 - Keep patient preregistration review RPCs transactional and security-definer, with explicit account-membership checks and restricted execute grants, so approval cannot partially persist across clinical tables.
 - Keep manual registration, public preregistration, and professional review on the same complete patient field component and schema so no entry path silently loses intake data.
 - Keep specialties, services, and versioned integer-cent prices account-scoped; deactivate referenced catalog rows and preserve service/price snapshots on appointments and packages so historical records never drift.
-- Treat the administrative client as the professional account/tenant, never as a patient; client-directory reads are limited to operational platform roles and non-clinical projections.
 - Keep the visual agenda in reusable appointment components using a client-only FullCalendar engine, timezone-aware pure date rules, and partial updates for movement so SSR stays safe and unchanged appointment links and snapshots remain intact.
-
-- Keep administrative directory pagination and overview aggregates in protected database RPCs; return only bounded operational projections to avoid loading whole tenants and histories.
 - Definitive empty-client deletion uses a persisted prepare/Auth/finalize sequence and tenant write locks; retain a minimal archived account for immutable audit integrity and never cascade clinical or financial data.
+- Schedule packages only through transactional RPCs (`schedule_care_package`, `schedule_contract_package`) so any conflicting session rolls back the whole contract; client slot checks only preview. Account default prices are prefills; bookings snapshot agreed values.
+- Admin clients are professional accounts, never patients: admin operations are role-authorized server-side, confirmed, append-only audited, and read bounded non-clinical projections via protected RPCs.

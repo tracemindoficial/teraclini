@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -30,10 +30,14 @@ import {
   usePackages,
   useAppointmentTypes,
   useServicePrices,
-  useRooms,
+  useAttendancePricing,
+  useScheduleContractPackage,
   type AppointmentWithRefs,
 } from "@/lib/data";
-import { centsToReais, modalityMatches } from "@/lib/basic-registrations";
+import { centsToReais, modalityMatches, reaisToCents } from "@/lib/basic-registrations";
+const moneyToCents = (v: string) => { const c = reaisToCents(v); return c !== null && c >= 0 ? c : null; };
+import { PackageSessionsPreview } from "@/components/appointments/PackageSessionsPreview";
+import { weeklySlots, type ContractMode, type PackageSlot } from "@/lib/package-scheduling";
 import { AGENDA_TIMEZONE, DEFAULT_APPOINTMENT_MINUTES, DURATION_OPTIONS, endTimeFor, localParts, minutesBetween, selectableAppointmentTypes, zonedDate } from "@/lib/agenda-rules";
 
 export function AppointmentDialog({
@@ -78,7 +82,16 @@ export function AppointmentDialog({
     package_id: "none",
   });
   const { data: servicePrices } = useServicePrices(true, values.appointment_type_id || undefined, open && Boolean(values.appointment_type_id));
-  const { data: rooms } = useRooms(values.location_id || undefined, open && Boolean(values.location_id));
+  const { data: pricing } = useAttendancePricing(open && !appointment);
+  const schedulePackage = useScheduleContractPackage();
+  const [contract, setContract] = useState<ContractMode>("avulso");
+  const [priceText, setPriceText] = useState("");
+  const [slots, setSlots] = useState<PackageSlot[]>([]);
+  const [slotIssues, setSlotIssues] = useState(0);
+  const [requestKey, setRequestKey] = useState(() => crypto.randomUUID());
+  const onIssues = useCallback((count: number) => setSlotIssues(count), []);
+  const packageQty = pricing?.package_quantity ?? 4;
+  const isPackage = !appointment && contract === "pacote";
   const { data: patientPackages } = usePackages(values.patient_id || undefined, open && Boolean(values.patient_id));
   const completedAppointment = appointment?.status === "realizado";
 
@@ -108,6 +121,8 @@ export function AppointmentDialog({
       return;
     }
     const base = defaultDate ?? new Date();
+    setContract("avulso");
+    setRequestKey(crypto.randomUUID());
     setValues((current) => ({
       ...current,
       patient_id: defaultPatientId ?? "",
@@ -127,6 +142,16 @@ export function AppointmentDialog({
     }));
   }, [open, appointment, defaultDate, defaultPatientId, defaultTime, timeZone]);
 
+  useEffect(() => {
+    if (!open || appointment) return;
+    const cents = contract === "pacote" ? pricing?.package_total_cents ?? 68000 : pricing?.single_session_cents ?? 18000;
+    setPriceText((cents / 100).toFixed(2).replace(".", ","));
+  }, [open, appointment, contract, pricing]);
+
+  useEffect(() => {
+    if (isPackage) setSlots(weeklySlots(values.date, values.start, values.location_id, packageQty));
+  }, [isPackage, values.date, values.start, values.location_id, packageQty]);
+
   const currentMinutes = values.duration;
   const typeOptions = selectableAppointmentTypes(services ?? [], appointment?.appointment_type_id);
   const withDuration = (minutes: number) => ({ duration: minutes, end: values.start ? endTimeFor(values.date, values.start, minutes, timeZone) : values.end });
@@ -144,6 +169,35 @@ export function AppointmentDialog({
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    const priceCents = appointment ? null : moneyToCents(priceText);
+    if (!appointment && priceCents === null) {
+      toast.error("Informe um valor válido.");
+      return;
+    }
+    if (isPackage) {
+      if (!values.patient_id) return void toast.error("Selecione o paciente do pacote.");
+      if (slotIssues > 0) return void toast.error("Resolva os conflitos das sessões antes de confirmar.");
+      try {
+        await schedulePackage.mutateAsync({
+          request_key: requestKey,
+          patient_id: values.patient_id,
+          appointment_type_id: values.appointment_type_id || null,
+          total_cents: priceCents,
+          quantity: slots.length,
+          modality: values.modality,
+          duration_minutes: values.duration,
+          finance_mode: "prepaid",
+          frequency: slots.every((s, i) => s.date === weeklySlots(slots[0]?.date ?? "", slots[0]?.time ?? "", "", slots.length)[i]?.date && s.time === slots[0]?.time) ? "weekly" : "custom",
+          slots,
+        });
+        toast.success(`Pacote de ${slots.length} sessões agendado.`);
+        onOpenChange(false);
+      } catch (error) {
+        setRequestKey(crypto.randomUUID());
+        toast.error(error instanceof Error ? error.message : "Não foi possível agendar o pacote. Nenhuma sessão foi salva.");
+      }
+      return;
+    }
     try {
       const startsAt = zonedDate(values.date, values.start, timeZone);
       const endsAt = zonedDate(values.date, values.end, timeZone);
@@ -166,6 +220,7 @@ export function AppointmentDialog({
         notes: values.notes || null,
         cancellation_reason: values.status === "cancelado" ? cancellationReason.trim() : null,
         package_id: values.package_id === "none" ? null : values.package_id,
+        ...(!appointment && values.service_price_id === "none" && values.package_id === "none" ? { price_cents_snapshot: priceCents } : {}),
       });
       toast.success(appointment ? "Agendamento atualizado." : "Atendimento agendado.");
       onOpenChange(false);
@@ -248,7 +303,7 @@ export function AppointmentDialog({
             <div className="space-y-1.5"><Label>Duração</Label><Select disabled={completedAppointment} value={String(currentMinutes)} onValueChange={(minutes) => setValues({ ...values, ...withDuration(Number(minutes)) })}><SelectTrigger aria-label="Duração"><SelectValue placeholder="Personalizada" /></SelectTrigger><SelectContent>{[...new Set([...DURATION_OPTIONS, ...(currentMinutes > 0 ? [currentMinutes] : [])])].sort((a, b) => a - b).map((minutes) => <SelectItem key={minutes} value={String(minutes)}>{minutes} min</SelectItem>)}</SelectContent></Select></div>
 
             <div className="space-y-1.5">
-              <Label>Local de atendimento</Label>
+              <Label>Local/Clínica</Label>
               <Select
                 value={values.location_id}
                 onValueChange={(value) => setValues({ ...values, location_id: value, room_id: "none" })}
@@ -266,7 +321,6 @@ export function AppointmentDialog({
               </Select>
             </div>
 
-            {values.location_id ? <div className="space-y-1.5"><Label>Sala</Label><Select value={values.room_id} onValueChange={(room_id) => setValues({ ...values, room_id })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="none">Sem sala vinculada</SelectItem>{(rooms ?? []).filter((room) => room.is_active || room.id === values.room_id).map((room) => <SelectItem key={room.id} value={room.id}>{room.name}</SelectItem>)}</SelectContent></Select></div> : null}
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
@@ -288,7 +342,7 @@ export function AppointmentDialog({
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>Modalidade</Label>
+                <Label>Modalidade de atendimento</Label>
                 <Select
                   value={values.modality}
                   onValueChange={(value) =>
@@ -309,9 +363,27 @@ export function AppointmentDialog({
               </div>
             </div>
 
-            {values.appointment_type_id ? <div className="space-y-1.5"><Label>Valor sugerido (opcional)</Label><Select value={values.service_price_id} onValueChange={selectPrice}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="none">Sem valor vinculado</SelectItem>{(servicePrices ?? []).filter((price) => price.billing_type === "avulso" && modalityMatches(price.modality, values.modality)).map((price) => <SelectItem key={price.id} value={price.id}>{price.duration_minutes} min · {price.modality === "todas" ? "Todas as modalidades" : price.modality} · {centsToReais(price.price_cents)}</SelectItem>)}</SelectContent></Select></div> : null}
+            {!appointment ? (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label>Modalidade de Contratação</Label>
+                  <Select value={contract} onValueChange={(v) => setContract(v as ContractMode)}>
+                    <SelectTrigger aria-label="Modalidade de Contratação"><SelectValue /></SelectTrigger>
+                    <SelectContent><SelectItem value="avulso">Sessão avulsa</SelectItem><SelectItem value="pacote">Pacote de {packageQty} sessões</SelectItem></SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="appointment-price">{isPackage ? "Valor total do pacote (R$)" : "Valor da sessão (R$)"}</Label>
+                  <Input id="appointment-price" inputMode="decimal" value={priceText} onChange={(e) => setPriceText(e.target.value)} />
+                </div>
+              </div>
+            ) : null}
 
-            {values.patient_id ? (
+            {appointment && values.appointment_type_id ? <div className="space-y-1.5"><Label>Valor sugerido (opcional)</Label><Select value={values.service_price_id} onValueChange={selectPrice}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="none">Sem valor vinculado</SelectItem>{(servicePrices ?? []).filter((price) => price.billing_type === "avulso" && modalityMatches(price.modality, values.modality)).map((price) => <SelectItem key={price.id} value={price.id}>{price.duration_minutes} min · {price.modality === "todas" ? "Todas as modalidades" : price.modality} · {centsToReais(price.price_cents)}</SelectItem>)}</SelectContent></Select></div> : null}
+
+            {isPackage ? <PackageSessionsPreview slots={slots} onChange={setSlots} durationMinutes={values.duration} modality={values.modality} locations={locations ?? []} onIssues={onIssues} onFirstSlot={(slot) => setValues((c) => ({ ...c, date: slot.date, start: slot.time, end: endTimeFor(slot.date, slot.time, c.duration, timeZone) }))} /> : null}
+
+            {values.patient_id && !isPackage ? (
               <div className="space-y-1.5">
                 <Label>Pacote de sessões (opcional)</Label>
                 <Select
@@ -379,8 +451,8 @@ export function AppointmentDialog({
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={saveAppointment.isPending}>
-                Salvar
+              <Button type="submit" disabled={saveAppointment.isPending || schedulePackage.isPending || (isPackage && slotIssues > 0)}>
+                {isPackage ? `Confirmar pacote de ${slots.length} sessões` : "Salvar"}
               </Button>
             </div>
           </form>
