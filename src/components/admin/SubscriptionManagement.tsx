@@ -206,7 +206,7 @@ export function SubscriptionManagement() {
   );
 }
 
-function SubscriptionDetailPanel({ accountId }: { accountId: string }) {
+export function SubscriptionDetailPanel({ accountId }: { accountId: string }) {
   const { data, isLoading, error } = useAdminSubscriptionDetail(accountId);
   const actions = useAdminSubscriptionActions();
   const qc = useQueryClient();
@@ -251,7 +251,7 @@ function SubscriptionDetailPanel({ accountId }: { accountId: string }) {
   return (
     <div className="space-y-5">
       <DialogHeader>
-        <DialogTitle>{data.full_name ?? "Profissional"}</DialogTitle>
+        <h3 className="text-base font-semibold">{data.full_name ?? "Profissional"}</h3>
         <p className="text-sm text-muted-foreground">{data.email}</p>
       </DialogHeader>
       <dl className="grid gap-3 text-sm sm:grid-cols-3">

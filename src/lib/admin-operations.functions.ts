@@ -526,7 +526,7 @@ export const getAdminNotifications = createServerFn({ method: "GET" })
         .limit(30),
       context.supabaseAdmin
         .from("account_subscriptions")
-        .select("id, account_id, status, next_due_on, account:accounts(name)")
+        .select("id, account_id, status, next_due_on, account:accounts(name, owner_user_id)")
         .lte("next_due_on", in30.toISOString().slice(0, 10))
         .neq("status", "cancelled")
         .order("next_due_on")
@@ -554,7 +554,7 @@ export const getAdminNotifications = createServerFn({ method: "GET" })
           title: "Novo cadastro",
           detail: a.name,
           date: a.created_at,
-          to: `/admin/usuarios/${a.owner_user_id}`,
+          to: `/admin/profissionais/${a.owner_user_id}`,
         })),
       ...(accounts.data ?? [])
         .filter((a) => a.status === "suspended")
@@ -564,7 +564,7 @@ export const getAdminNotifications = createServerFn({ method: "GET" })
           title: "Conta suspensa",
           detail: a.name,
           date: a.created_at,
-          to: `/admin/usuarios/${a.owner_user_id}`,
+          to: `/admin/profissionais/${a.owner_user_id}`,
         })),
       ...(tickets.data ?? []).map((t) => ({
         key: `ticket:${t.id}:${t.last_message_at}`,
@@ -580,7 +580,7 @@ export const getAdminNotifications = createServerFn({ method: "GET" })
         title: "Licença próxima do vencimento",
         detail: s.account?.name ?? "Conta",
         date: `${s.next_due_on}T12:00:00Z`,
-        to: `/admin/assinaturas?account=${s.account_id}`,
+        to: s.account?.owner_user_id ? `/admin/profissionais/${s.account.owner_user_id}` : "/admin/profissionais",
       })),
       ...(payments.data ?? []).map((p) => ({
         key: `payment:${p.id}:${p.status}`,

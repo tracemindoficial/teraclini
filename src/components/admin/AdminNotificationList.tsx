@@ -33,11 +33,13 @@ export function AdminNotificationList({
       });
       return;
     }
-    if (target.pathname === "/admin/assinaturas") {
-      await navigate({
-        to: "/admin/assinaturas",
-        search: { account: target.searchParams.get("account") ?? undefined },
-      });
+    const professional = target.pathname.match(/^\/admin\/profissionais\/([0-9a-f-]{36})$/);
+    if (professional) {
+      await navigate({ to: "/admin/profissionais/$id", params: { id: professional[1] ?? "" } });
+      return;
+    }
+    if (target.pathname === "/admin/profissionais" || target.pathname === "/admin/assinaturas") {
+      await navigate({ to: "/admin/profissionais" });
       return;
     }
     if (target.pathname === "/admin/pagamentos") {

@@ -281,6 +281,20 @@
       "when": 1792616004792,
       "tag": "0039_deletion_ignore_commercial_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1792619297888,
+      "tag": "0040_professional_lifecycle_central",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1792619910987,
+      "tag": "0041_professional_status_awaiting_first_payment",
+      "breakpoints": true
     }
   ]
 }
