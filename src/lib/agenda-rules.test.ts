@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { UNAVAILABLE_SLOT, agendaRange, canMove, durationMinutes, hasConflict, localParts, moveIssue, movedTimes, overlaps, statusActions, zonedDate } from "./agenda-rules";
+import { UNAVAILABLE_SLOT, OUTSIDE_AVAILABILITY, agendaRange, canMove, durationMinutes, hasConflict, localParts, moveIssue, movedTimes, overlaps, statusActions, zonedDate } from "./agenda-rules";
 
 describe("weekly agenda rules", () => {
   for (const [end, minutes] of [["09:30", 30], ["10:00", 60], ["10:30", 90], ["11:00", 120]] as const) {
@@ -34,4 +34,14 @@ describe("drag and drop move validation", () => {
   it("rejects a blocked period", () => expect(moveIssue(appt, "2026-10-09T18:00:00Z", [appt], [{ starts_at: "2026-10-09T18:30:00Z", ends_at: "2026-10-09T20:00:00Z" }], now)).toBe(UNAVAILABLE_SLOT));
   it("rejects a past destination", () => expect(moveIssue(appt, "2026-09-30T12:00:00Z", [appt], [], now)).not.toBeNull());
   it("rejects completed appointments", () => expect(moveIssue({ ...appt, status: "realizado" }, "2026-10-09T17:00:00Z", [], [], now)).not.toBeNull());
+});
+describe("drag and drop availability", () => {
+  const now = new Date("2026-10-01T12:00:00Z");
+  // Friday 2026-10-09, 09:00–10:00 São Paulo
+  const appt = { id: "a", starts_at: "2026-10-09T12:00:00Z", ends_at: "2026-10-09T13:00:00Z", status: "agendado", location_id: null, room_id: null, modality: "online" };
+  const friday = { weekday: 5, start_time: "08:00:00", end_time: "12:00:00", timezone: "America/Sao_Paulo", is_active: true, valid_from: null, valid_until: null, location_id: null, room_id: null, modality: null };
+  it("accepts a destination inside the window", () => expect(moveIssue(appt, "2026-10-09T13:00:00Z", [appt], [], now, [friday])).toBeNull());
+  it("rejects a destination ending after the window", () => expect(moveIssue(appt, "2026-10-09T14:30:00Z", [appt], [], now, [friday])).toBe(OUTSIDE_AVAILABILITY));
+  it("rejects another weekday", () => expect(moveIssue(appt, "2026-10-08T12:00:00Z", [appt], [], now, [friday])).toBe(OUTSIDE_AVAILABILITY));
+  it("allows anything when no window is active", () => expect(moveIssue(appt, "2026-10-08T22:00:00Z", [appt], [], now, [{ ...friday, is_active: false }])).toBeNull());
 });
