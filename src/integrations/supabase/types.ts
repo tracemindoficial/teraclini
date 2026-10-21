@@ -52,6 +52,44 @@ export type Database = {
           },
         ]
       }
+      account_attendance_pricing: {
+        Row: {
+          account_id: string
+          created_at: string
+          package_quantity: number
+          package_total_cents: number
+          single_session_cents: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          package_quantity?: number
+          package_total_cents?: number
+          single_session_cents?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          package_quantity?: number
+          package_total_cents?: number
+          single_session_cents?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_attendance_pricing_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: true
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       account_members: {
         Row: {
           account_id: string
@@ -2979,6 +3017,7 @@ export type Database = {
       }
       finance_query: { Args: { _filters?: Json }; Returns: Json }
       finance_receipt_action: { Args: { _payload: Json }; Returns: string }
+      get_attendance_pricing: { Args: never; Returns: Json }
       has_account_role: {
         Args: {
           _account_id: string
@@ -3015,6 +3054,14 @@ export type Database = {
         Args: { _message: string; _ticket_id: string }
         Returns: string
       }
+      save_attendance_pricing: {
+        Args: {
+          _package_cents: number
+          _quantity: number
+          _single_cents: number
+        }
+        Returns: undefined
+      }
       save_complete_patient: {
         Args: { _patient_id?: string; _payload: Json }
         Returns: string
@@ -3037,6 +3084,7 @@ export type Database = {
         Returns: string
       }
       schedule_care_package: { Args: { _payload: Json }; Returns: string }
+      schedule_contract_package: { Args: { _payload: Json }; Returns: string }
       seed_basic_registrations: {
         Args: { target_account_id: string }
         Returns: undefined
