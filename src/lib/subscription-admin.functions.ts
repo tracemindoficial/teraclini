@@ -135,8 +135,8 @@ export const adminGrantTrial = createServerFn({ method: "POST" })
       _reason: data.reason,
       _notes: data.notes,
       _convertible: data.convertible,
-      ...(data.billingStartsOn ? { _billing_starts_on: data.billingStartsOn } : {}),
-    } as never);
+      _billing_starts_on: data.billingStartsOn as string,
+    });
     fail(error);
     return { id };
   });
