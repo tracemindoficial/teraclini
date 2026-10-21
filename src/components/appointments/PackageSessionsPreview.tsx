@@ -9,7 +9,8 @@ import { slotIssue, suggestAlternatives, type PackageSlot } from "@/lib/package-
 
 const br = (date: string) => date.split("-").reverse().join("/");
 
-export function PackageSessionsPreview({ slots, onChange, durationMinutes, modality, locations, onIssues }: {
+export function PackageSessionsPreview({ slots, onChange, durationMinutes, modality, locations, onIssues, onFirstSlot }: {
+  onFirstSlot: (slot: PackageSlot) => void;
   slots: PackageSlot[];
   onChange: (slots: PackageSlot[]) => void;
   durationMinutes: number;
@@ -61,7 +62,7 @@ export function PackageSessionsPreview({ slots, onChange, durationMinutes, modal
               {issue ? (
                 <div className="flex flex-wrap gap-2">
                   {alternatives.length ? alternatives.map((alt) => (
-                    <Button key={`${alt.date}${alt.time}`} type="button" size="sm" variant="outline" onClick={() => update(i, { date: alt.date, time: alt.time })} disabled={i === 0}>Usar {br(alt.date)} {alt.time}</Button>
+                    <Button key={`${alt.date}${alt.time}`} type="button" size="sm" variant="outline" onClick={() => (i === 0 ? onFirstSlot(alt) : update(i, { date: alt.date, time: alt.time }))}>Usar {br(alt.date)} {alt.time}</Button>
                   )) : <span className="text-xs text-muted-foreground">Sem sugestões próximas; escolha outra data manualmente.</span>}
                 </div>
               ) : null}
