@@ -45,3 +45,10 @@ describe("drag and drop availability", () => {
   it("rejects another weekday", () => expect(moveIssue(appt, "2026-10-08T12:00:00Z", [appt], [], now, [friday])).toBe(OUTSIDE_AVAILABILITY));
   it("allows anything when no window is active", () => expect(moveIssue(appt, "2026-10-08T22:00:00Z", [appt], [], now, [{ ...friday, is_active: false }])).toBeNull());
 });
+
+import { DEFAULT_APPOINTMENT_MINUTES, endTimeFor } from "./agenda-rules";
+describe("duração padrão", () => {
+  it("novos atendimentos começam com 60 minutos", () => expect(DEFAULT_APPOINTMENT_MINUTES).toBe(60));
+  it("13h + 60 min termina às 14h", () => expect(endTimeFor("2026-10-21", "13:00", 60)).toBe("14:00"));
+  it("14h + 90 min termina às 15h30", () => expect(endTimeFor("2026-10-21", "14:00", 90)).toBe("15:30"));
+});
