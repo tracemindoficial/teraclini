@@ -187,7 +187,7 @@ export function AppointmentDialog({
           modality: values.modality,
           duration_minutes: values.duration,
           finance_mode: "prepaid",
-          frequency: slots.every((s, i) => s.date === weeklySlots(slots[0].date, slots[0].time, "", slots.length)[i].date && s.time === slots[0].time) ? "weekly" : "custom",
+          frequency: slots.every((s, i) => s.date === weeklySlots(slots[0]?.date ?? "", slots[0]?.time ?? "", "", slots.length)[i]?.date && s.time === slots[0]?.time) ? "weekly" : "custom",
           slots,
         });
         toast.success(`Pacote de ${slots.length} sessões agendado.`);

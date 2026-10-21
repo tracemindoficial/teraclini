@@ -20,7 +20,7 @@ export function AttendancePricingCard() {
   async function submit(event: FormEvent) {
     event.preventDefault();
     const s = reaisToCents(single);
-    if (s === null || s < 0 || pkgCents === null || pkgCents < 0 || !Number.isInteger(q) || q < 2) return toast.error("Revise os valores informados.");
+    if (s === null || s < 0 || pkgCents === null || pkgCents < 0 || !Number.isInteger(q) || q < 2) { toast.error("Revise os valores informados."); return; }
     try { await save.mutateAsync({ single_session_cents: s, package_total_cents: pkgCents, package_quantity: q }); toast.success("Valores de atendimento salvos."); }
     catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível salvar."); }
   }

@@ -14,17 +14,17 @@ describe("pacote de 4 sessões", () => {
   });
   it("detecta conflito na terceira sessão", () => {
     const slots = weeklySlots("2026-11-02", "09:00", "", 4);
-    const busy = { id: "x", status: "agendado", ...slotTimes(slots[2], 60) };
+    const busy = { id: "x", status: "agendado", ...slotTimes(slots[2]!, 60) };
     const c = { ...ctx, existing: [busy] };
     expect(slots.map((_, i) => slotIssue(slots, i, c))).toEqual([null, null, "Já existe um atendimento neste horário.", null]);
   });
   it("ignora atendimentos cancelados", () => {
     const slots = weeklySlots("2026-11-02", "09:00", "", 1);
-    expect(slotIssue(slots, 0, { ...ctx, existing: [{ id: "x", status: "cancelado", ...slotTimes(slots[0], 60) }] })).toBeNull();
+    expect(slotIssue(slots, 0, { ...ctx, existing: [{ id: "x", status: "cancelado", ...slotTimes(slots[0]!, 60) }] })).toBeNull();
   });
   it("sugestões são livres de conflito", () => {
     const slots = weeklySlots("2026-11-02", "09:00", "", 4);
-    const c = { ...ctx, existing: [{ id: "x", status: "agendado", ...slotTimes(slots[1], 60) }] };
+    const c = { ...ctx, existing: [{ id: "x", status: "agendado", ...slotTimes(slots[1]!, 60) }] };
     const alts = suggestAlternatives(slots, 1, c);
     expect(alts.length).toBeGreaterThan(0);
     for (const alt of alts) expect(slotIssue(slots.map((s, i) => (i === 1 ? alt : s)), 1, c)).toBeNull();

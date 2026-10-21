@@ -37,7 +37,7 @@ export function slotIssue(slots: PackageSlot[], index: number, ctx: SlotContext)
 }
 
 function shiftTime(time: string, minutes: number) {
-  const [h, m] = time.split(":").map(Number);
+  const [h = 0, m = 0] = time.split(":").map(Number);
   const total = h * 60 + m + minutes;
   if (total < 6 * 60 || total > 22 * 60) return null;
   return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
@@ -46,6 +46,7 @@ function shiftTime(time: string, minutes: number) {
 /** Validated alternatives: same day nearby hours, then same hour on nearby days, then the following weeks. */
 export function suggestAlternatives(slots: PackageSlot[], index: number, ctx: SlotContext, limit = 3): PackageSlot[] {
   const base = slots[index];
+  if (!base) return [];
   const candidates: PackageSlot[] = [];
   for (const delta of [60, -60, 120, -120, 30, -30, 180, -180]) { const time = shiftTime(base.time, delta); if (time) candidates.push({ ...base, time }); }
   for (const days of [1, -1, 2, -2, 3, -3]) candidates.push({ ...base, date: addDays(base.date, days) });
