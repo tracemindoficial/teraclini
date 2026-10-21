@@ -132,8 +132,8 @@ export function AppointmentDialog({
   const withDuration = (minutes: number) => ({ duration: minutes, end: values.start ? endTimeFor(values.date, values.start, minutes, timeZone) : values.end });
 
   function selectService(serviceId: string) {
-    const service = services?.find((item) => item.id === serviceId);
-    setValues({ ...values, appointment_type_id: serviceId, service_price_id: "none", ...withDuration(service?.default_duration_minutes || values.duration) });
+    // Type is a classification only: never touches start, end or duration.
+    setValues((current) => ({ ...current, appointment_type_id: serviceId, service_price_id: "none" }));
   }
 
   function selectPrice(priceId: string) {
@@ -281,7 +281,7 @@ export function AppointmentDialog({
                   <SelectContent>
                     {typeOptions.map((service) => (
                       <SelectItem key={service.id} value={service.id}>
-                        {service.name} · {service.default_duration_minutes} min
+                        {service.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
