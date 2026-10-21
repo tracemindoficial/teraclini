@@ -99,9 +99,8 @@ export function useUpdateAppointment() {
       if (!result.data) throw new Error("Este agendamento foi alterado em outro lugar. A agenda foi atualizada; confira e tente novamente.");
       return result.data as Appointment;
     },
-    onSettled: () => {
-      for (const key of [queryKeys.appointments, queryKeys.appointment, queryKeys.patientAppointments, queryKeys.packages, queryKeys.pendingEvolutions, ["appointment-events"]]) qc.invalidateQueries({ queryKey: key });
-    },
+    // Returned promise makes mutateAsync wait until the agenda has reloaded the saved times.
+    onSettled: () => Promise.all([queryKeys.appointments, queryKeys.appointment, queryKeys.patientAppointments, queryKeys.packages, queryKeys.pendingEvolutions, ["appointment-events"]].map((key) => qc.invalidateQueries({ queryKey: key }))),
   });
 }
 
