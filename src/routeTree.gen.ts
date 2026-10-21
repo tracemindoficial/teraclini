@@ -21,6 +21,7 @@ import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AdminAdminRouteImport } from './routes/_admin/admin'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedAjudaRouteImport } from './routes/_authenticated/ajuda'
+import { Route as AuthenticatedAssinaturaRouteImport } from './routes/_authenticated/assinatura'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedDocumentosRouteImport } from './routes/_authenticated/documentos'
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
@@ -36,6 +37,7 @@ import { Route as AdminAdminAjudaRouteImport } from './routes/_admin/admin.ajuda
 import { Route as AdminAdminAssinaturasRouteImport } from './routes/_admin/admin.assinaturas'
 import { Route as AdminAdminAuditoriaRouteImport } from './routes/_admin/admin.auditoria'
 import { Route as AdminAdminConfiguracoesRouteImport } from './routes/_admin/admin.configuracoes'
+import { Route as AdminAdminDegustacoesRouteImport } from './routes/_admin/admin.degustacoes'
 import { Route as AdminAdminMetricasRouteImport } from './routes/_admin/admin.metricas'
 import { Route as AdminAdminNotificacoesRouteImport } from './routes/_admin/admin.notificacoes'
 import { Route as AdminAdminPagamentosRouteImport } from './routes/_admin/admin.pagamentos'
@@ -58,6 +60,7 @@ import { Route as AdminAdminUsuariosIndexRouteImport } from './routes/_admin/adm
 import { Route as AdminAdminUsuariosIdRouteImport } from './routes/_admin/admin.usuarios.$id'
 import { Route as AuthenticatedPacientesPreCadastrosIndexRouteImport } from './routes/_authenticated/pacientes.pre-cadastros.index'
 import { Route as AuthenticatedPacientesPreCadastrosIdRouteImport } from './routes/_authenticated/pacientes.pre-cadastros.$id'
+import { Route as ApiPublicJobsTrialLifecycleRouteImport } from './routes/api/public/jobs/trial-lifecycle'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -115,6 +118,11 @@ const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
 const AuthenticatedAjudaRoute = AuthenticatedAjudaRouteImport.update({
   id: '/ajuda',
   path: '/ajuda',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAssinaturaRoute = AuthenticatedAssinaturaRouteImport.update({
+  id: '/assinatura',
+  path: '/assinatura',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedConfiguracoesRoute =
@@ -191,6 +199,11 @@ const AdminAdminAuditoriaRoute = AdminAdminAuditoriaRouteImport.update({
 const AdminAdminConfiguracoesRoute = AdminAdminConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
+const AdminAdminDegustacoesRoute = AdminAdminDegustacoesRouteImport.update({
+  id: '/degustacoes',
+  path: '/degustacoes',
   getParentRoute: () => AdminAdminRoute,
 } as any)
 const AdminAdminMetricasRoute = AdminAdminMetricasRouteImport.update({
@@ -311,6 +324,12 @@ const AuthenticatedPacientesPreCadastrosIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedPacientesPreCadastrosRoute,
   } as any)
+const ApiPublicJobsTrialLifecycleRoute =
+  ApiPublicJobsTrialLifecycleRouteImport.update({
+    id: '/api/public/jobs/trial-lifecycle',
+    path: '/api/public/jobs/trial-lifecycle',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -323,6 +342,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminAdminRouteWithChildren
   '/agenda': typeof AuthenticatedAgendaRoute
   '/ajuda': typeof AuthenticatedAjudaRouteWithChildren
+  '/assinatura': typeof AuthenticatedAssinaturaRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRouteWithChildren
   '/documentos': typeof AuthenticatedDocumentosRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
@@ -337,6 +357,7 @@ export interface FileRoutesByFullPath {
   '/admin/assinaturas': typeof AdminAdminAssinaturasRoute
   '/admin/auditoria': typeof AdminAdminAuditoriaRoute
   '/admin/configuracoes': typeof AdminAdminConfiguracoesRoute
+  '/admin/degustacoes': typeof AdminAdminDegustacoesRoute
   '/admin/metricas': typeof AdminAdminMetricasRoute
   '/admin/notificacoes': typeof AdminAdminNotificacoesRoute
   '/admin/pagamentos': typeof AdminAdminPagamentosRoute
@@ -358,6 +379,7 @@ export interface FileRoutesByFullPath {
   '/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
+  '/api/public/jobs/trial-lifecycle': typeof ApiPublicJobsTrialLifecycleRoute
   '/admin/usuarios/': typeof AdminAdminUsuariosIndexRoute
   '/pacientes/pre-cadastros/': typeof AuthenticatedPacientesPreCadastrosIndexRoute
 }
@@ -370,6 +392,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
   '/agenda': typeof AuthenticatedAgendaRoute
+  '/assinatura': typeof AuthenticatedAssinaturaRoute
   '/documentos': typeof AuthenticatedDocumentosRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/locais': typeof AuthenticatedLocaisRoute
@@ -383,6 +406,7 @@ export interface FileRoutesByTo {
   '/admin/assinaturas': typeof AdminAdminAssinaturasRoute
   '/admin/auditoria': typeof AdminAdminAuditoriaRoute
   '/admin/configuracoes': typeof AdminAdminConfiguracoesRoute
+  '/admin/degustacoes': typeof AdminAdminDegustacoesRoute
   '/admin/metricas': typeof AdminAdminMetricasRoute
   '/admin/notificacoes': typeof AdminAdminNotificacoesRoute
   '/admin/pagamentos': typeof AdminAdminPagamentosRoute
@@ -402,6 +426,7 @@ export interface FileRoutesByTo {
   '/pacientes': typeof AuthenticatedPacientesIndexRoute
   '/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
+  '/api/public/jobs/trial-lifecycle': typeof ApiPublicJobsTrialLifecycleRoute
   '/admin/usuarios': typeof AdminAdminUsuariosIndexRoute
   '/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosIndexRoute
 }
@@ -419,6 +444,7 @@ export interface FileRoutesById {
   '/_admin/admin': typeof AdminAdminRouteWithChildren
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/ajuda': typeof AuthenticatedAjudaRouteWithChildren
+  '/_authenticated/assinatura': typeof AuthenticatedAssinaturaRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRouteWithChildren
   '/_authenticated/documentos': typeof AuthenticatedDocumentosRoute
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
@@ -433,6 +459,7 @@ export interface FileRoutesById {
   '/_admin/admin/assinaturas': typeof AdminAdminAssinaturasRoute
   '/_admin/admin/auditoria': typeof AdminAdminAuditoriaRoute
   '/_admin/admin/configuracoes': typeof AdminAdminConfiguracoesRoute
+  '/_admin/admin/degustacoes': typeof AdminAdminDegustacoesRoute
   '/_admin/admin/metricas': typeof AdminAdminMetricasRoute
   '/_admin/admin/notificacoes': typeof AdminAdminNotificacoesRoute
   '/_admin/admin/pagamentos': typeof AdminAdminPagamentosRoute
@@ -454,6 +481,7 @@ export interface FileRoutesById {
   '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/_admin/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/_authenticated/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
+  '/api/public/jobs/trial-lifecycle': typeof ApiPublicJobsTrialLifecycleRoute
   '/_admin/admin/usuarios/': typeof AdminAdminUsuariosIndexRoute
   '/_authenticated/pacientes/pre-cadastros/': typeof AuthenticatedPacientesPreCadastrosIndexRoute
 }
@@ -470,6 +498,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/agenda'
     | '/ajuda'
+    | '/assinatura'
     | '/configuracoes'
     | '/documentos'
     | '/financeiro'
@@ -484,6 +513,7 @@ export interface FileRouteTypes {
     | '/admin/assinaturas'
     | '/admin/auditoria'
     | '/admin/configuracoes'
+    | '/admin/degustacoes'
     | '/admin/metricas'
     | '/admin/notificacoes'
     | '/admin/pagamentos'
@@ -505,6 +535,7 @@ export interface FileRouteTypes {
     | '/pacientes/'
     | '/admin/usuarios/$id'
     | '/pacientes/pre-cadastros/$id'
+    | '/api/public/jobs/trial-lifecycle'
     | '/admin/usuarios/'
     | '/pacientes/pre-cadastros/'
   fileRoutesByTo: FileRoutesByTo
@@ -517,6 +548,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/termos'
     | '/agenda'
+    | '/assinatura'
     | '/documentos'
     | '/financeiro'
     | '/locais'
@@ -530,6 +562,7 @@ export interface FileRouteTypes {
     | '/admin/assinaturas'
     | '/admin/auditoria'
     | '/admin/configuracoes'
+    | '/admin/degustacoes'
     | '/admin/metricas'
     | '/admin/notificacoes'
     | '/admin/pagamentos'
@@ -549,6 +582,7 @@ export interface FileRouteTypes {
     | '/pacientes'
     | '/admin/usuarios/$id'
     | '/pacientes/pre-cadastros/$id'
+    | '/api/public/jobs/trial-lifecycle'
     | '/admin/usuarios'
     | '/pacientes/pre-cadastros'
   id:
@@ -565,6 +599,7 @@ export interface FileRouteTypes {
     | '/_admin/admin'
     | '/_authenticated/agenda'
     | '/_authenticated/ajuda'
+    | '/_authenticated/assinatura'
     | '/_authenticated/configuracoes'
     | '/_authenticated/documentos'
     | '/_authenticated/financeiro'
@@ -579,6 +614,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/assinaturas'
     | '/_admin/admin/auditoria'
     | '/_admin/admin/configuracoes'
+    | '/_admin/admin/degustacoes'
     | '/_admin/admin/metricas'
     | '/_admin/admin/notificacoes'
     | '/_admin/admin/pagamentos'
@@ -600,6 +636,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pacientes/'
     | '/_admin/admin/usuarios/$id'
     | '/_authenticated/pacientes/pre-cadastros/$id'
+    | '/api/public/jobs/trial-lifecycle'
     | '/_admin/admin/usuarios/'
     | '/_authenticated/pacientes/pre-cadastros/'
   fileRoutesById: FileRoutesById
@@ -615,6 +652,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermosRoute: typeof TermosRoute
   PreCadastroTokenRoute: typeof PreCadastroTokenRoute
+  ApiPublicJobsTrialLifecycleRoute: typeof ApiPublicJobsTrialLifecycleRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -701,6 +739,13 @@ declare module '@tanstack/react-router' {
       path: '/ajuda'
       fullPath: '/ajuda'
       preLoaderRoute: typeof AuthenticatedAjudaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/assinatura': {
+      id: '/_authenticated/assinatura'
+      path: '/assinatura'
+      fullPath: '/assinatura'
+      preLoaderRoute: typeof AuthenticatedAssinaturaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/configuracoes': {
@@ -806,6 +851,13 @@ declare module '@tanstack/react-router' {
       path: '/configuracoes'
       fullPath: '/admin/configuracoes'
       preLoaderRoute: typeof AdminAdminConfiguracoesRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
+    '/_admin/admin/degustacoes': {
+      id: '/_admin/admin/degustacoes'
+      path: '/degustacoes'
+      fullPath: '/admin/degustacoes'
+      preLoaderRoute: typeof AdminAdminDegustacoesRouteImport
       parentRoute: typeof AdminAdminRoute
     }
     '/_admin/admin/metricas': {
@@ -962,6 +1014,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPacientesPreCadastrosIdRouteImport
       parentRoute: typeof AuthenticatedPacientesPreCadastrosRoute
     }
+    '/api/public/jobs/trial-lifecycle': {
+      id: '/api/public/jobs/trial-lifecycle'
+      path: '/api/public/jobs/trial-lifecycle'
+      fullPath: '/api/public/jobs/trial-lifecycle'
+      preLoaderRoute: typeof ApiPublicJobsTrialLifecycleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -983,6 +1042,7 @@ interface AdminAdminRouteChildren {
   AdminAdminAssinaturasRoute: typeof AdminAdminAssinaturasRoute
   AdminAdminAuditoriaRoute: typeof AdminAdminAuditoriaRoute
   AdminAdminConfiguracoesRoute: typeof AdminAdminConfiguracoesRoute
+  AdminAdminDegustacoesRoute: typeof AdminAdminDegustacoesRoute
   AdminAdminMetricasRoute: typeof AdminAdminMetricasRoute
   AdminAdminNotificacoesRoute: typeof AdminAdminNotificacoesRoute
   AdminAdminPagamentosRoute: typeof AdminAdminPagamentosRoute
@@ -1000,6 +1060,7 @@ const AdminAdminRouteChildren: AdminAdminRouteChildren = {
   AdminAdminAssinaturasRoute: AdminAdminAssinaturasRoute,
   AdminAdminAuditoriaRoute: AdminAdminAuditoriaRoute,
   AdminAdminConfiguracoesRoute: AdminAdminConfiguracoesRoute,
+  AdminAdminDegustacoesRoute: AdminAdminDegustacoesRoute,
   AdminAdminMetricasRoute: AdminAdminMetricasRoute,
   AdminAdminNotificacoesRoute: AdminAdminNotificacoesRoute,
   AdminAdminPagamentosRoute: AdminAdminPagamentosRoute,
@@ -1090,6 +1151,7 @@ const AuthenticatedPacientesPreCadastrosRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedAjudaRoute: typeof AuthenticatedAjudaRouteWithChildren
+  AuthenticatedAssinaturaRoute: typeof AuthenticatedAssinaturaRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRouteWithChildren
   AuthenticatedDocumentosRoute: typeof AuthenticatedDocumentosRoute
   AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
@@ -1108,6 +1170,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedAjudaRoute: AuthenticatedAjudaRouteWithChildren,
+  AuthenticatedAssinaturaRoute: AuthenticatedAssinaturaRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRouteWithChildren,
   AuthenticatedDocumentosRoute: AuthenticatedDocumentosRoute,
   AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,
@@ -1138,6 +1201,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   TermosRoute: TermosRoute,
   PreCadastroTokenRoute: PreCadastroTokenRoute,
+  ApiPublicJobsTrialLifecycleRoute: ApiPublicJobsTrialLifecycleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
