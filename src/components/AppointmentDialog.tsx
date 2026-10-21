@@ -34,7 +34,7 @@ import {
   type AppointmentWithRefs,
 } from "@/lib/data";
 import { centsToReais, modalityMatches } from "@/lib/basic-registrations";
-import { AGENDA_TIMEZONE, localParts, zonedDate } from "@/lib/agenda-rules";
+import { AGENDA_TIMEZONE, DEFAULT_APPOINTMENT_MINUTES, DURATION_OPTIONS, endTimeFor, localParts, zonedDate } from "@/lib/agenda-rules";
 
 export function AppointmentDialog({
   open,
@@ -229,7 +229,7 @@ export function AppointmentDialog({
                   disabled={completedAppointment}
                   required
                   value={values.start}
-                  onChange={(event) => setValues({ ...values, start: event.target.value })}
+                  onChange={(event) => setValues({ ...values, start: event.target.value, end: event.target.value && currentMinutes > 0 ? endTimeFor(values.date, event.target.value, currentMinutes, timeZone) : values.end })}
                 />
               </div>
               <div className="space-y-1.5">

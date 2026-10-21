@@ -44,7 +44,7 @@ export function AgendaCalendar({ appointments, blocks, availability, anchor, vie
         slotLabelFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
         dayHeaderFormat={{ weekday: "short", day: "2-digit", month: "2-digit" }}
         eventTimeFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
-        eventDisplay="block" eventMinHeight={0} eventShortHeight={58}
+        eventDisplay="block" eventMinHeight={0} eventShortHeight={36}
         slotEventOverlap={false} eventOverlap={false} nowIndicator
         editable eventDurationEditable={false} longPressDelay={650}
         eventAllow={(drop, event) => Boolean(event && event.extendedProps["kind"] === "appointment" && canMove(event.extendedProps["appointment"]) && (!canDrop || canDrop(event.extendedProps["appointment"], drop.start.toISOString())))}
