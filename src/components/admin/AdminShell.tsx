@@ -18,7 +18,6 @@ import {
   Settings,
   UserRound,
   Users,
-  WalletCards,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -34,13 +33,11 @@ import { cn } from "@/lib/utils";
 
 const links = [
   { to: "/admin", label: "Visão geral", icon: LayoutDashboard },
-  { to: "/admin/usuarios", label: "Clientes", icon: Users, operationalOnly: true },
+  { to: "/admin/profissionais", label: "Profissionais e Assinaturas", icon: Users, operationalOnly: true },
   { to: "/admin/notificacoes", label: "Notificações", icon: Bell },
   { to: "/admin/uso", label: "Uso do Sistema", icon: Activity },
   { to: "/admin/metricas", label: "Métricas", icon: LineChart },
   { to: "/admin/suporte", label: "Suporte", icon: Headphones },
-  { to: "/admin/degustacoes", label: "Assinaturas e Degustações", icon: WalletCards },
-  { to: "/admin/assinaturas", label: "Licenças", icon: WalletCards },
   { to: "/admin/pagamentos", label: "Pagamentos", icon: CreditCard },
   { to: "/admin/vencimentos", label: "Vencimentos", icon: CalendarClock },
   { to: "/admin/relatorios", label: "Relatórios", icon: FileBarChart },
@@ -70,7 +67,7 @@ export function AdminShell({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const adminSelf = useAdminSelf();
-  const canManageClients = ["super_admin", "support_admin"].includes(
+  const canManageClients = ["super_admin", "support_admin", "finance_admin"].includes(
     adminSelf.data?.role ?? "",
   );
 

@@ -3196,6 +3196,22 @@ export type Database = {
         }
         Returns: string
       }
+      admin_professional_directory: {
+        Args: {
+          _access: string
+          _actor_user_id: string
+          _financial: string
+          _from: string
+          _page: number
+          _page_size: number
+          _search: string
+          _sort: string
+          _status: string
+          _to: string
+        }
+        Returns: Json
+      }
+      admin_professional_row: { Args: { _account_id: string }; Returns: Json }
       admin_record_email_change: {
         Args: {
           _actor_user_id: string

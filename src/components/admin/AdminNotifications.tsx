@@ -7,7 +7,10 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { useAdminNotifications, useMarkAdminNotificationRead } from "@/lib/data/admin-operations";
 
 export function AdminNotifications() {
-  const { data = [], isLoading } = useAdminNotifications();
+  const query = useAdminNotifications();
+  const isLoading = query.isLoading;
+  // A refused request must not crash the whole admin page.
+  const data = Array.isArray(query.data) ? query.data : [];
   const markRead = useMarkAdminNotificationRead();
   const unread = data.filter((item) => !item.read).length;
   async function read(key: string) {

@@ -42,6 +42,7 @@ import { Route as AdminAdminMetricasRouteImport } from './routes/_admin/admin.me
 import { Route as AdminAdminNotificacoesRouteImport } from './routes/_admin/admin.notificacoes'
 import { Route as AdminAdminPagamentosRouteImport } from './routes/_admin/admin.pagamentos'
 import { Route as AdminAdminPerfilRouteImport } from './routes/_admin/admin.perfil'
+import { Route as AdminAdminProfissionaisRouteImport } from './routes/_admin/admin.profissionais'
 import { Route as AdminAdminRelatoriosRouteImport } from './routes/_admin/admin.relatorios'
 import { Route as AdminAdminSuporteRouteImport } from './routes/_admin/admin.suporte'
 import { Route as AdminAdminUsoRouteImport } from './routes/_admin/admin.uso'
@@ -56,6 +57,8 @@ import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedPacientesIdRouteImport } from './routes/_authenticated/pacientes.$id'
 import { Route as AuthenticatedPacientesPreCadastrosRouteImport } from './routes/_authenticated/pacientes.pre-cadastros'
 import { Route as AuthenticatedPacotesIdRouteImport } from './routes/_authenticated/pacotes.$id'
+import { Route as AdminAdminProfissionaisIndexRouteImport } from './routes/_admin/admin.profissionais.index'
+import { Route as AdminAdminProfissionaisIdRouteImport } from './routes/_admin/admin.profissionais.$id'
 import { Route as AdminAdminUsuariosIndexRouteImport } from './routes/_admin/admin.usuarios.index'
 import { Route as AdminAdminUsuariosIdRouteImport } from './routes/_admin/admin.usuarios.$id'
 import { Route as AuthenticatedPacientesPreCadastrosIndexRouteImport } from './routes/_authenticated/pacientes.pre-cadastros.index'
@@ -226,6 +229,11 @@ const AdminAdminPerfilRoute = AdminAdminPerfilRouteImport.update({
   path: '/perfil',
   getParentRoute: () => AdminAdminRoute,
 } as any)
+const AdminAdminProfissionaisRoute = AdminAdminProfissionaisRouteImport.update({
+  id: '/profissionais',
+  path: '/profissionais',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
 const AdminAdminRelatoriosRoute = AdminAdminRelatoriosRouteImport.update({
   id: '/relatorios',
   path: '/relatorios',
@@ -302,6 +310,18 @@ const AuthenticatedPacotesIdRoute = AuthenticatedPacotesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedPacotesRoute,
 } as any)
+const AdminAdminProfissionaisIndexRoute =
+  AdminAdminProfissionaisIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AdminAdminProfissionaisRoute,
+  } as any)
+const AdminAdminProfissionaisIdRoute =
+  AdminAdminProfissionaisIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AdminAdminProfissionaisRoute,
+  } as any)
 const AdminAdminUsuariosIndexRoute = AdminAdminUsuariosIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -362,6 +382,7 @@ export interface FileRoutesByFullPath {
   '/admin/notificacoes': typeof AdminAdminNotificacoesRoute
   '/admin/pagamentos': typeof AdminAdminPagamentosRoute
   '/admin/perfil': typeof AdminAdminPerfilRoute
+  '/admin/profissionais': typeof AdminAdminProfissionaisRouteWithChildren
   '/admin/relatorios': typeof AdminAdminRelatoriosRoute
   '/admin/suporte': typeof AdminAdminSuporteRoute
   '/admin/uso': typeof AdminAdminUsoRoute
@@ -377,9 +398,11 @@ export interface FileRoutesByFullPath {
   '/ajuda/': typeof AuthenticatedAjudaIndexRoute
   '/configuracoes/': typeof AuthenticatedConfiguracoesIndexRoute
   '/pacientes/': typeof AuthenticatedPacientesIndexRoute
+  '/admin/profissionais/$id': typeof AdminAdminProfissionaisIdRoute
   '/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
   '/api/public/jobs/trial-lifecycle': typeof ApiPublicJobsTrialLifecycleRoute
+  '/admin/profissionais/': typeof AdminAdminProfissionaisIndexRoute
   '/admin/usuarios/': typeof AdminAdminUsuariosIndexRoute
   '/pacientes/pre-cadastros/': typeof AuthenticatedPacientesPreCadastrosIndexRoute
 }
@@ -424,9 +447,11 @@ export interface FileRoutesByTo {
   '/ajuda': typeof AuthenticatedAjudaIndexRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesIndexRoute
   '/pacientes': typeof AuthenticatedPacientesIndexRoute
+  '/admin/profissionais/$id': typeof AdminAdminProfissionaisIdRoute
   '/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
   '/api/public/jobs/trial-lifecycle': typeof ApiPublicJobsTrialLifecycleRoute
+  '/admin/profissionais': typeof AdminAdminProfissionaisIndexRoute
   '/admin/usuarios': typeof AdminAdminUsuariosIndexRoute
   '/pacientes/pre-cadastros': typeof AuthenticatedPacientesPreCadastrosIndexRoute
 }
@@ -464,6 +489,7 @@ export interface FileRoutesById {
   '/_admin/admin/notificacoes': typeof AdminAdminNotificacoesRoute
   '/_admin/admin/pagamentos': typeof AdminAdminPagamentosRoute
   '/_admin/admin/perfil': typeof AdminAdminPerfilRoute
+  '/_admin/admin/profissionais': typeof AdminAdminProfissionaisRouteWithChildren
   '/_admin/admin/relatorios': typeof AdminAdminRelatoriosRoute
   '/_admin/admin/suporte': typeof AdminAdminSuporteRoute
   '/_admin/admin/uso': typeof AdminAdminUsoRoute
@@ -479,9 +505,11 @@ export interface FileRoutesById {
   '/_authenticated/ajuda/': typeof AuthenticatedAjudaIndexRoute
   '/_authenticated/configuracoes/': typeof AuthenticatedConfiguracoesIndexRoute
   '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
+  '/_admin/admin/profissionais/$id': typeof AdminAdminProfissionaisIdRoute
   '/_admin/admin/usuarios/$id': typeof AdminAdminUsuariosIdRoute
   '/_authenticated/pacientes/pre-cadastros/$id': typeof AuthenticatedPacientesPreCadastrosIdRoute
   '/api/public/jobs/trial-lifecycle': typeof ApiPublicJobsTrialLifecycleRoute
+  '/_admin/admin/profissionais/': typeof AdminAdminProfissionaisIndexRoute
   '/_admin/admin/usuarios/': typeof AdminAdminUsuariosIndexRoute
   '/_authenticated/pacientes/pre-cadastros/': typeof AuthenticatedPacientesPreCadastrosIndexRoute
 }
@@ -518,6 +546,7 @@ export interface FileRouteTypes {
     | '/admin/notificacoes'
     | '/admin/pagamentos'
     | '/admin/perfil'
+    | '/admin/profissionais'
     | '/admin/relatorios'
     | '/admin/suporte'
     | '/admin/uso'
@@ -533,9 +562,11 @@ export interface FileRouteTypes {
     | '/ajuda/'
     | '/configuracoes/'
     | '/pacientes/'
+    | '/admin/profissionais/$id'
     | '/admin/usuarios/$id'
     | '/pacientes/pre-cadastros/$id'
     | '/api/public/jobs/trial-lifecycle'
+    | '/admin/profissionais/'
     | '/admin/usuarios/'
     | '/pacientes/pre-cadastros/'
   fileRoutesByTo: FileRoutesByTo
@@ -580,9 +611,11 @@ export interface FileRouteTypes {
     | '/ajuda'
     | '/configuracoes'
     | '/pacientes'
+    | '/admin/profissionais/$id'
     | '/admin/usuarios/$id'
     | '/pacientes/pre-cadastros/$id'
     | '/api/public/jobs/trial-lifecycle'
+    | '/admin/profissionais'
     | '/admin/usuarios'
     | '/pacientes/pre-cadastros'
   id:
@@ -619,6 +652,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/notificacoes'
     | '/_admin/admin/pagamentos'
     | '/_admin/admin/perfil'
+    | '/_admin/admin/profissionais'
     | '/_admin/admin/relatorios'
     | '/_admin/admin/suporte'
     | '/_admin/admin/uso'
@@ -634,9 +668,11 @@ export interface FileRouteTypes {
     | '/_authenticated/ajuda/'
     | '/_authenticated/configuracoes/'
     | '/_authenticated/pacientes/'
+    | '/_admin/admin/profissionais/$id'
     | '/_admin/admin/usuarios/$id'
     | '/_authenticated/pacientes/pre-cadastros/$id'
     | '/api/public/jobs/trial-lifecycle'
+    | '/_admin/admin/profissionais/'
     | '/_admin/admin/usuarios/'
     | '/_authenticated/pacientes/pre-cadastros/'
   fileRoutesById: FileRoutesById
@@ -888,6 +924,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminPerfilRouteImport
       parentRoute: typeof AdminAdminRoute
     }
+    '/_admin/admin/profissionais': {
+      id: '/_admin/admin/profissionais'
+      path: '/profissionais'
+      fullPath: '/admin/profissionais'
+      preLoaderRoute: typeof AdminAdminProfissionaisRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
     '/_admin/admin/relatorios': {
       id: '/_admin/admin/relatorios'
       path: '/relatorios'
@@ -986,6 +1029,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPacotesIdRouteImport
       parentRoute: typeof AuthenticatedPacotesRoute
     }
+    '/_admin/admin/profissionais/': {
+      id: '/_admin/admin/profissionais/'
+      path: '/'
+      fullPath: '/admin/profissionais/'
+      preLoaderRoute: typeof AdminAdminProfissionaisIndexRouteImport
+      parentRoute: typeof AdminAdminProfissionaisRoute
+    }
+    '/_admin/admin/profissionais/$id': {
+      id: '/_admin/admin/profissionais/$id'
+      path: '/$id'
+      fullPath: '/admin/profissionais/$id'
+      preLoaderRoute: typeof AdminAdminProfissionaisIdRouteImport
+      parentRoute: typeof AdminAdminProfissionaisRoute
+    }
     '/_admin/admin/usuarios/': {
       id: '/_admin/admin/usuarios/'
       path: '/'
@@ -1024,6 +1081,22 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminAdminProfissionaisRouteChildren {
+  AdminAdminProfissionaisIdRoute: typeof AdminAdminProfissionaisIdRoute
+  AdminAdminProfissionaisIndexRoute: typeof AdminAdminProfissionaisIndexRoute
+}
+
+const AdminAdminProfissionaisRouteChildren: AdminAdminProfissionaisRouteChildren =
+  {
+    AdminAdminProfissionaisIdRoute: AdminAdminProfissionaisIdRoute,
+    AdminAdminProfissionaisIndexRoute: AdminAdminProfissionaisIndexRoute,
+  }
+
+const AdminAdminProfissionaisRouteWithChildren =
+  AdminAdminProfissionaisRoute._addFileChildren(
+    AdminAdminProfissionaisRouteChildren,
+  )
+
 interface AdminAdminUsuariosRouteChildren {
   AdminAdminUsuariosIdRoute: typeof AdminAdminUsuariosIdRoute
   AdminAdminUsuariosIndexRoute: typeof AdminAdminUsuariosIndexRoute
@@ -1047,6 +1120,7 @@ interface AdminAdminRouteChildren {
   AdminAdminNotificacoesRoute: typeof AdminAdminNotificacoesRoute
   AdminAdminPagamentosRoute: typeof AdminAdminPagamentosRoute
   AdminAdminPerfilRoute: typeof AdminAdminPerfilRoute
+  AdminAdminProfissionaisRoute: typeof AdminAdminProfissionaisRouteWithChildren
   AdminAdminRelatoriosRoute: typeof AdminAdminRelatoriosRoute
   AdminAdminSuporteRoute: typeof AdminAdminSuporteRoute
   AdminAdminUsoRoute: typeof AdminAdminUsoRoute
@@ -1065,6 +1139,7 @@ const AdminAdminRouteChildren: AdminAdminRouteChildren = {
   AdminAdminNotificacoesRoute: AdminAdminNotificacoesRoute,
   AdminAdminPagamentosRoute: AdminAdminPagamentosRoute,
   AdminAdminPerfilRoute: AdminAdminPerfilRoute,
+  AdminAdminProfissionaisRoute: AdminAdminProfissionaisRouteWithChildren,
   AdminAdminRelatoriosRoute: AdminAdminRelatoriosRoute,
   AdminAdminSuporteRoute: AdminAdminSuporteRoute,
   AdminAdminUsoRoute: AdminAdminUsoRoute,
