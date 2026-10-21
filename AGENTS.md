@@ -26,6 +26,7 @@
 - Keep pure business calculations in browser-independent modules with Vitest regression coverage so domain rules can be verified without customer data.
 - Keep platform administration separate from tenant roles and therapist navigation; every cross-tenant read or write requires server-side platform-admin authorization because UI guards do not secure data.
 - Store commercial billing and immutable platform audits in dedicated non-clinical tables; never expose clinical content to platform administration because business operations require data minimization.
+- Compute the admin professional lifecycle status only in `admin_professional_row` and serve daily admin operations from the single `/admin/profissionais` central; retired admin URLs redirect there so status wording never diverges between screens.
 - Enforce professional-account status in both database membership helpers and authenticated navigation; only platform-admin server functions may change account status.
 - Keep help content globally readable by its declared audience, but restrict authoring to platform-admin server functions and store only non-clinical help analytics.
 - Keep support conversations account-scoped and explicitly non-clinical; administrative actions may record metadata but never copy message text into audit logs.
