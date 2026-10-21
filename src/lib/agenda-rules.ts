@@ -62,13 +62,35 @@ export function hasConflict(appointment: TimedAppointment, start: string, end: s
 export const UNAVAILABLE_SLOT = "Este horário não está disponível. Escolha outro horário para continuar.";
 
 /** Returns why a drag destination is invalid, or null when it may be offered for confirmation. */
-export function moveIssue(appointment: TimedAppointment, start: string, existing: TimedAppointment[], blocks: { starts_at: string; ends_at: string }[], now = new Date()) {
+export function moveIssue(appointment: TimedAppointment, start: string, existing: TimedAppointment[], blocks: { starts_at: string; ends_at: string }[], now = new Date(), rules?: AvailabilityWindow[]) {
+  // Callers that know the availability windows pass them so invalid drops are refused before confirmation.
   if (!canMove(appointment, now)) return "Atendimentos históricos, concluídos ou em andamento não podem ser movimentados.";
   const times = movedTimes(appointment, start);
   if (Date.parse(times.starts_at) < now.getTime()) return "Não é possível mover para um horário que já passou.";
   if (hasConflict(appointment, times.starts_at, times.ends_at, existing)) return UNAVAILABLE_SLOT;
   if (blocks.some((block) => overlaps(times.starts_at, times.ends_at, block.starts_at, block.ends_at))) return UNAVAILABLE_SLOT;
+  if (rules && !fitsAvailability({ ...appointment, ...times }, rules)) return OUTSIDE_AVAILABILITY;
   return null;
+}
+
+export const OUTSIDE_AVAILABILITY = "Este horário está fora da disponibilidade configurada.";
+export type AvailabilityWindow = { weekday: number; start_time: string; end_time: string; timezone: string; is_active: boolean; valid_from: string | null; valid_until: string | null; location_id: string | null; room_id: string | null; modality: string | null };
+
+/** Mirrors the database rule: with no active windows anything fits; otherwise one window must contain the whole appointment. */
+export function fitsAvailability(appointment: TimedAppointment & { location_id?: string | null; room_id?: string | null; modality?: string | null }, rules: AvailabilityWindow[]) {
+  const active = rules.filter((rule) => rule.is_active);
+  if (active.length === 0) return true;
+  return active.some((rule) => {
+    const start = localParts(appointment.starts_at, rule.timezone);
+    const end = localParts(appointment.ends_at, rule.timezone);
+    const weekday = new Date(`${start.date}T12:00:00Z`).getUTCDay();
+    return weekday === rule.weekday && start.date === end.date
+      && start.time >= rule.start_time.slice(0, 5) && end.time <= rule.end_time.slice(0, 5)
+      && (!rule.valid_from || start.date >= rule.valid_from) && (!rule.valid_until || start.date <= rule.valid_until)
+      && (!rule.location_id || rule.location_id === appointment.location_id)
+      && (!rule.room_id || rule.room_id === appointment.room_id)
+      && (!rule.modality || rule.modality === appointment.modality);
+  });
 }
 
 export function statusActions(status: string) {
