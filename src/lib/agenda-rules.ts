@@ -1,4 +1,13 @@
 export const AGENDA_TIMEZONE = "America/Sao_Paulo";
+/** Initial duration for every newly created appointment; existing appointments keep their stored duration. */
+export const DEFAULT_APPOINTMENT_MINUTES = 60;
+export const DURATION_OPTIONS = [30, 45, 60, 90, 120];
+
+/** End time (HH:mm, local) derived from a local start and a duration. */
+export function endTimeFor(date: string, start: string, minutes: number, timeZone = AGENDA_TIMEZONE) {
+  return localParts(new Date(zonedDate(date, start, timeZone).getTime() + minutes * 60_000), timeZone).time;
+}
+
 export type TimedAppointment = { id: string; starts_at: string; ends_at: string; status: string };
 
 export function localParts(value: Date | string, timeZone = AGENDA_TIMEZONE) {

@@ -113,7 +113,7 @@ export function AppointmentDialog({
       room_id: "none",
       date: toDateInput(base),
       start: defaultTime ?? "09:00",
-      end: localParts(new Date(zonedDate(toDateInput(base), defaultTime ?? "09:00", timeZone).getTime() + 60 * 60_000), timeZone).time,
+      end: endTimeFor(toDateInput(base), defaultTime ?? "09:00", DEFAULT_APPOINTMENT_MINUTES, timeZone),
       type: "atendimento_clinico",
       appointment_type_id: services?.[0]?.id ?? "",
       service_price_id: "none",
@@ -124,10 +124,12 @@ export function AppointmentDialog({
     }));
   }, [open, appointment, defaultDate, defaultPatientId, defaultTime, timeZone]);
 
+  const currentMinutes = Math.round((zonedDate(values.date, values.end, timeZone).getTime() - zonedDate(values.date, values.start, timeZone).getTime()) / 60_000);
+
   function selectService(serviceId: string) {
     const service = services?.find((item) => item.id === serviceId);
     const start = zonedDate(values.date, values.start, timeZone);
-    const end = new Date(start.getTime() + (service?.default_duration_minutes ?? 60) * 60_000);
+    const end = new Date(start.getTime() + (service?.default_duration_minutes ?? DEFAULT_APPOINTMENT_MINUTES) * 60_000);
     setValues({ ...values, appointment_type_id: serviceId, service_price_id: "none", end: localParts(end, timeZone).time });
   }
 
@@ -242,7 +244,7 @@ export function AppointmentDialog({
               </div>
             </div>
 
-            <div className="space-y-1.5"><Label>Duração</Label><Select disabled={completedAppointment} value={String(Math.round((zonedDate(values.date, values.end, timeZone).getTime() - zonedDate(values.date, values.start, timeZone).getTime()) / 60_000))} onValueChange={(minutes) => setValues({ ...values, end: localParts(new Date(zonedDate(values.date, values.start, timeZone).getTime() + Number(minutes) * 60_000), timeZone).time })}><SelectTrigger><SelectValue placeholder="Personalizada" /></SelectTrigger><SelectContent>{[30,45,60,90,120].map((minutes) => <SelectItem key={minutes} value={String(minutes)}>{minutes} min</SelectItem>)}</SelectContent></Select></div>
+            <div className="space-y-1.5"><Label>Duração</Label><Select disabled={completedAppointment} value={String(currentMinutes)} onValueChange={(minutes) => setValues({ ...values, end: endTimeFor(values.date, values.start, Number(minutes), timeZone) })}><SelectTrigger aria-label="Duração"><SelectValue placeholder="Personalizada" /></SelectTrigger><SelectContent>{[...new Set([...DURATION_OPTIONS, ...(currentMinutes > 0 ? [currentMinutes] : [])])].sort((a, b) => a - b).map((minutes) => <SelectItem key={minutes} value={String(minutes)}>{minutes} min</SelectItem>)}</SelectContent></Select></div>
 
             <div className="space-y-1.5">
               <Label>Local de atendimento</Label>
