@@ -1,6 +1,7 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { Edit2, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
+import { AttendancePricingCard } from "@/components/settings/AttendancePricingCard";
 import { AppShell } from "@/components/layout/AppShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,7 @@ export function BasicRegistrationsPage() {
       <div className="my-5 grid gap-3 sm:grid-cols-[minmax(0,24rem)_12rem]"><div className="relative"><Search className="absolute left-3 top-3 size-4 text-muted-foreground"/><Input className="pl-9" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Pesquisar"/></div><Select value={status} onValueChange={(value) => setStatus(value as StatusFilter)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="active">Ativos</SelectItem><SelectItem value="inactive">Inativos</SelectItem></SelectContent></Select></div>
       <TabsContent value="specialties"><RecordList items={filteredSpecialties} empty="Nenhuma especialidade encontrada." title={(item) => item.name} detail={() => "Especialidade profissional"} onEdit={setSpecialty}/></TabsContent>
       <TabsContent value="services"><RecordList items={filteredServices} empty="Nenhum serviço encontrado." title={(item) => item.name} detail={(item) => `${SERVICE_CATEGORIES.find(([key]) => key === item.category)?.[1] ?? "Outro"}`} onEdit={setService}/></TabsContent>
-      <TabsContent value="prices"><RecordList items={filteredPrices} empty="Nenhum valor encontrado." title={(item) => item.appointment_type.name} detail={(item) => `${item.duration_minutes} min · ${PRICE_MODALITIES.find(([key]) => key === item.modality)?.[1] ?? item.modality} · ${item.billing_type === "pacote" ? `Pacote ${item.package_quantity}` : "Avulso"} · ${centsToReais(item.price_cents)}`} onEdit={setPrice}/></TabsContent>
+      <TabsContent value="prices"><AttendancePricingCard/><RecordList items={filteredPrices} empty="Nenhum valor encontrado." title={(item) => item.appointment_type.name} detail={(item) => `${item.duration_minutes} min · ${PRICE_MODALITIES.find(([key]) => key === item.modality)?.[1] ?? item.modality} · ${item.billing_type === "pacote" ? `Pacote ${item.package_quantity}` : "Avulso"} · ${centsToReais(item.price_cents)}`} onEdit={setPrice}/></TabsContent>
     </Tabs>
     <SpecialtyDialog item={specialty} open={specialty !== undefined} onClose={() => setSpecialty(undefined)}/>
     <ServiceDialog item={service} open={service !== undefined} onClose={() => setService(undefined)}/>
