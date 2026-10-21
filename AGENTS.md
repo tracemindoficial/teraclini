@@ -44,3 +44,5 @@
 
 - Keep administrative directory pagination and overview aggregates in protected database RPCs; return only bounded operational projections to avoid loading whole tenants and histories.
 - Definitive empty-client deletion uses a persisted prepare/Auth/finalize sequence and tenant write locks; retain a minimal archived account for immutable audit integrity and never cascade clinical or financial data.
+- Account-level default attendance prices (single session, package total and quantity) live in `account_attendance_pricing` and are only prefills; each appointment or package snapshots its agreed value so later edits never rewrite history.
+- New-appointment packages are created by the transactional `schedule_contract_package` RPC (one package, one prepaid receivable, N linked appointments, per-session location); client-side slot validation in `src/lib/package-scheduling.ts` only previews conflicts, the database remains authoritative.
