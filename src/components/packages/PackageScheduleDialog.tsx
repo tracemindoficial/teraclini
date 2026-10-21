@@ -15,7 +15,6 @@ import {
 import { useFinanceLookup, useSchedulePackage } from "@/lib/data/finance";
 import { useServicePrices } from "@/lib/data/basic-registrations";
 import { useLocations } from "@/lib/data/locations";
-import { useRooms } from "@/lib/data/schedule";
 import type { CarePackageWithRefs } from "@/lib/data/packages";
 import { contractedTotal, currency, moneyCents, packageDates } from "@/lib/finance-rules";
 export function PackageScheduleDialog({
@@ -59,12 +58,10 @@ function ScheduleForm({
   const [slots, setSlots] = useState<{ date: string; time: string }[]>([]);
   const [modality, setModality] = useState(item?.scheduled_modality ?? "online");
   const [location, setLocation] = useState("none");
-  const [room, setRoom] = useState("none");
   const [key] = useState(() => crypto.randomUUID());
   const patients = useFinanceLookup("patients", search);
   const prices = useServicePrices(true);
   const locations = useLocations();
-  const rooms = useRooms(location === "none" ? undefined : location);
   const mutation = useSchedulePackage();
   const price = prices.data?.find((p) => p.id === priceId);
   let total: number | undefined;
@@ -110,7 +107,7 @@ function ScheduleForm({
           frequency,
           modality,
           location_id: location === "none" ? null : location,
-          room_id: room === "none" ? null : room,
+          room_id: null,
           slots,
           duration_minutes: item?.contracted_duration_minutes ?? 50,
         })
@@ -224,10 +221,9 @@ function ScheduleForm({
             value={location}
             onValueChange={(v) => {
               setLocation(v);
-              setRoom("none");
             }}
           >
-            <SelectTrigger aria-label="Local do pacote">
+            <SelectTrigger aria-label="Local/Clínica do pacote">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -241,23 +237,6 @@ function ScheduleForm({
                 ))}
             </SelectContent>
           </Select>
-          {location !== "none" && (
-            <Select value={room} onValueChange={setRoom}>
-              <SelectTrigger aria-label="Sala do pacote">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Sem sala</SelectItem>
-                {rooms.data
-                  ?.filter((r) => r.is_active && r.location_id === location)
-                  .map((r) => (
-                    <SelectItem key={r.id} value={r.id}>
-                      {r.name}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          )}
         </div>
         <Select
           value={frequency}
