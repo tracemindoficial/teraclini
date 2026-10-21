@@ -11,3 +11,4 @@ export * from "./data/patient-registration";
 export * from "./data/packages";
 export * from "./data/support";
 export * from "./data/basic-registrations";
+export * from "./data/attendance-pricing";
