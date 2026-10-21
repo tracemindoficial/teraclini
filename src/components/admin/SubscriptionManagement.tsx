@@ -544,7 +544,10 @@ function ExtendForm({ onSubmit, onCancel, busy }: {
       onCancel={onCancel}
       submitLabel="Prorrogar"
       onSubmit={() => {
-        if (reason.trim().length < 3) return toast.error("Informe o motivo.");
+        if (reason.trim().length < 3) {
+          toast.error("Informe o motivo.");
+          return;
+        }
         if (window.confirm(`Prorrogar o acesso gratuito por ${days} dias?`)) onSubmit({ days, reason });
       }}
     >

@@ -41,8 +41,8 @@ export type SubscriptionDetail = {
   summary: CommercialSummary;
   events: {
     action: string;
-    previous_values: Record<string, unknown> | null;
-    new_values: Record<string, unknown> | null;
+    previous_values: Record<string, string | number | boolean | null> | null;
+    new_values: Record<string, string | number | boolean | null> | null;
     reason: string | null;
     created_at: string;
   }[];
