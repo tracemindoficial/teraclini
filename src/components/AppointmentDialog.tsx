@@ -34,7 +34,7 @@ import {
   type AppointmentWithRefs,
 } from "@/lib/data";
 import { centsToReais, modalityMatches } from "@/lib/basic-registrations";
-import { AGENDA_TIMEZONE, DEFAULT_APPOINTMENT_MINUTES, DURATION_OPTIONS, endTimeFor, localParts, zonedDate } from "@/lib/agenda-rules";
+import { AGENDA_TIMEZONE, DEFAULT_APPOINTMENT_MINUTES, DURATION_OPTIONS, endTimeFor, localParts, minutesBetween, selectableAppointmentTypes, zonedDate } from "@/lib/agenda-rules";
 
 export function AppointmentDialog({
   open,
@@ -68,6 +68,7 @@ export function AppointmentDialog({
     date: toDateInput(new Date()),
     start: "09:00",
     end: "10:00",
+    duration: DEFAULT_APPOINTMENT_MINUTES,
     type: "atendimento_clinico" as AppointmentType,
     appointment_type_id: "",
     service_price_id: "none",
@@ -95,6 +96,7 @@ export function AppointmentDialog({
         date: start.date,
         start: start.time,
         end: end.time,
+        duration: minutesBetween(start.date, start.time, end.time, timeZone) ?? DEFAULT_APPOINTMENT_MINUTES,
         type: appointment.type,
         appointment_type_id: appointment.appointment_type_id ?? "",
         service_price_id: appointment.service_price_id ?? "none",
@@ -114,8 +116,9 @@ export function AppointmentDialog({
       date: toDateInput(base),
       start: defaultTime ?? "09:00",
       end: endTimeFor(toDateInput(base), defaultTime ?? "09:00", DEFAULT_APPOINTMENT_MINUTES, timeZone),
+      duration: DEFAULT_APPOINTMENT_MINUTES,
       type: "atendimento_clinico",
-      appointment_type_id: services?.[0]?.id ?? "",
+      appointment_type_id: "",
       service_price_id: "none",
       modality: "presencial",
       status: "agendado",
@@ -124,21 +127,19 @@ export function AppointmentDialog({
     }));
   }, [open, appointment, defaultDate, defaultPatientId, defaultTime, timeZone]);
 
-  const currentMinutes = Math.round((zonedDate(values.date, values.end, timeZone).getTime() - zonedDate(values.date, values.start, timeZone).getTime()) / 60_000);
+  const currentMinutes = values.duration;
+  const typeOptions = selectableAppointmentTypes(services ?? [], appointment?.appointment_type_id);
+  const withDuration = (minutes: number) => ({ duration: minutes, end: values.start ? endTimeFor(values.date, values.start, minutes, timeZone) : values.end });
 
   function selectService(serviceId: string) {
     const service = services?.find((item) => item.id === serviceId);
-    const start = zonedDate(values.date, values.start, timeZone);
-    const end = new Date(start.getTime() + (service?.default_duration_minutes ?? DEFAULT_APPOINTMENT_MINUTES) * 60_000);
-    setValues({ ...values, appointment_type_id: serviceId, service_price_id: "none", end: localParts(end, timeZone).time });
+    setValues({ ...values, appointment_type_id: serviceId, service_price_id: "none", ...withDuration(service?.default_duration_minutes || values.duration) });
   }
 
   function selectPrice(priceId: string) {
     const price = servicePrices?.find((item) => item.id === priceId);
     if (!price) return setValues({ ...values, service_price_id: priceId });
-    const start = zonedDate(values.date, values.start, timeZone);
-    const end = new Date(start.getTime() + price.duration_minutes * 60_000);
-    setValues({ ...values, service_price_id: priceId, end: localParts(end, timeZone).time });
+    setValues({ ...values, service_price_id: priceId, ...withDuration(price.duration_minutes || values.duration) });
   }
 
   async function handleSubmit(event: FormEvent) {
@@ -229,7 +230,7 @@ export function AppointmentDialog({
                   disabled={completedAppointment}
                   required
                   value={values.start}
-                  onChange={(event) => setValues({ ...values, start: event.target.value, end: event.target.value && currentMinutes > 0 ? endTimeFor(values.date, event.target.value, currentMinutes, timeZone) : values.end })}
+                  onChange={(event) => setValues({ ...values, start: event.target.value, end: event.target.value ? endTimeFor(values.date, event.target.value, values.duration, timeZone) : values.end })}
                 />
               </div>
               <div className="space-y-1.5">
@@ -239,12 +240,12 @@ export function AppointmentDialog({
                   disabled={completedAppointment}
                   required
                   value={values.end}
-                  onChange={(event) => setValues({ ...values, end: event.target.value })}
+                  onChange={(event) => setValues({ ...values, end: event.target.value, duration: minutesBetween(values.date, values.start, event.target.value, timeZone) ?? values.duration })}
                 />
               </div>
             </div>
 
-            <div className="space-y-1.5"><Label>Duração</Label><Select disabled={completedAppointment} value={String(currentMinutes)} onValueChange={(minutes) => setValues({ ...values, end: endTimeFor(values.date, values.start, Number(minutes), timeZone) })}><SelectTrigger aria-label="Duração"><SelectValue placeholder="Personalizada" /></SelectTrigger><SelectContent>{[...new Set([...DURATION_OPTIONS, ...(currentMinutes > 0 ? [currentMinutes] : [])])].sort((a, b) => a - b).map((minutes) => <SelectItem key={minutes} value={String(minutes)}>{minutes} min</SelectItem>)}</SelectContent></Select></div>
+            <div className="space-y-1.5"><Label>Duração</Label><Select disabled={completedAppointment} value={String(currentMinutes)} onValueChange={(minutes) => setValues({ ...values, ...withDuration(Number(minutes)) })}><SelectTrigger aria-label="Duração"><SelectValue placeholder="Personalizada" /></SelectTrigger><SelectContent>{[...new Set([...DURATION_OPTIONS, ...(currentMinutes > 0 ? [currentMinutes] : [])])].sort((a, b) => a - b).map((minutes) => <SelectItem key={minutes} value={String(minutes)}>{minutes} min</SelectItem>)}</SelectContent></Select></div>
 
             <div className="space-y-1.5">
               <Label>Local de atendimento</Label>
@@ -269,16 +270,16 @@ export function AppointmentDialog({
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label>Serviço / atendimento</Label>
+                <Label>Tipo de Atendimento</Label>
                 <Select
                   value={values.appointment_type_id}
                   onValueChange={selectService}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecionar serviço" />
+                    <SelectValue placeholder="Selecionar tipo de atendimento" />
                   </SelectTrigger>
                   <SelectContent>
-                    {(services ?? []).map((service) => (
+                    {typeOptions.map((service) => (
                       <SelectItem key={service.id} value={service.id}>
                         {service.name} · {service.default_duration_minutes} min
                       </SelectItem>

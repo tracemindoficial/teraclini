@@ -52,3 +52,18 @@ describe("duração padrão", () => {
   it("13h + 60 min termina às 14h", () => expect(endTimeFor("2026-10-21", "13:00", 60)).toBe("14:00"));
   it("14h + 90 min termina às 15h30", () => expect(endTimeFor("2026-10-21", "14:00", 90)).toBe("15:30"));
 });
+
+import { minutesBetween as _mb, selectableAppointmentTypes as _sel, endTimeFor as _end } from "./agenda-rules";
+describe("new appointment duration and type list", () => {
+  it.each([["08:00", "09:00"], ["09:00", "10:00"], ["10:30", "11:30"], ["13:00", "14:00"], ["16:30", "17:30"]])("%s + 60 min ends at %s", (start, end) => {
+    expect(_end("2026-10-26", start, 60)).toBe(end);
+  });
+  it("90 min from 09:00 ends at 10:30", () => expect(_end("2026-10-26", "09:00", 90)).toBe("10:30"));
+  it("keeps a saved 30 min length", () => expect(_mb("2026-10-26", "09:00", "09:30")).toBe(30));
+  it("rejects zero-length ranges", () => expect(_mb("2026-10-26", "09:00", "09:00")).toBeNull());
+  it("hides Acompanhamento and Outro for new appointments", () => {
+    const types = [{ id: "a", name: "Acompanhamento" }, { id: "o", name: "Outro" }, { id: "c", name: "Atendimento Clínico" }];
+    expect(_sel(types).map((t) => t.id)).toEqual(["c"]);
+    expect(_sel(types, "o").map((t) => t.id)).toEqual(["o", "c"]);
+  });
+});

@@ -8,6 +8,20 @@ export function endTimeFor(date: string, start: string, minutes: number, timeZon
   return localParts(new Date(zonedDate(date, start, timeZone).getTime() + minutes * 60_000), timeZone).time;
 }
 
+/** Positive minutes between two local times on the same date, or null when invalid. */
+export function minutesBetween(date: string, start: string, end: string, timeZone = AGENDA_TIMEZONE) {
+  if (!start || !end) return null;
+  const diff = Math.round((zonedDate(date, end, timeZone).getTime() - zonedDate(date, start, timeZone).getTime()) / 60_000);
+  return Number.isFinite(diff) && diff > 0 ? diff : null;
+}
+
+/** Appointment type names no longer offered for new scheduling (historical rows keep them). */
+export const RETIRED_APPOINTMENT_TYPE_NAMES = ["acompanhamento", "outro"];
+
+export function selectableAppointmentTypes<T extends { id: string; name: string }>(types: T[], currentId?: string | null) {
+  return types.filter((type) => type.id === currentId || !RETIRED_APPOINTMENT_TYPE_NAMES.includes(type.name.trim().toLocaleLowerCase("pt-BR")));
+}
+
 export type TimedAppointment = { id: string; starts_at: string; ends_at: string; status: string };
 
 export function localParts(value: Date | string, timeZone = AGENDA_TIMEZONE) {
