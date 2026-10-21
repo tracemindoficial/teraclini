@@ -99,7 +99,7 @@ export function useUpdateAppointment() {
       if (!result.data) throw new Error("Este agendamento foi alterado em outro lugar. A agenda foi atualizada; confira e tente novamente.");
       return result.data as Appointment;
     },
-    onSuccess: () => {
+    onSettled: () => {
       for (const key of [queryKeys.appointments, queryKeys.appointment, queryKeys.patientAppointments, queryKeys.packages, queryKeys.pendingEvolutions, ["appointment-events"]]) qc.invalidateQueries({ queryKey: key });
     },
   });
