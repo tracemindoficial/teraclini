@@ -502,7 +502,11 @@ export function PricingSection({
         ) : plans.length > 0 ? (
           <div className="mx-auto mt-12 grid max-w-5xl gap-5 md:grid-cols-2">
             {plans.map((plan) => (
-              <article key={plan.id} className="rounded-lg border bg-card p-7 shadow-soft">
+              <article
+                key={plan.id}
+                data-plan-code={plan.code}
+                className="rounded-lg border bg-card p-7 shadow-soft"
+              >
                 <Badge variant="secondary">Licença ativa</Badge>
                 <h3 className="mt-5 text-2xl font-semibold">{plan.name}</h3>
                 <p className="mt-4 text-3xl font-semibold">
