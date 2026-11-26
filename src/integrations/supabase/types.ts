@@ -2897,6 +2897,7 @@ export type Database = {
           name: string
           price_cents: number
           promotional_until: string | null
+          reference_price_cents: number | null
           updated_at: string
         }
         Insert: {
@@ -2911,6 +2912,7 @@ export type Database = {
           name: string
           price_cents: number
           promotional_until?: string | null
+          reference_price_cents?: number | null
           updated_at?: string
         }
         Update: {
@@ -2925,6 +2927,7 @@ export type Database = {
           name?: string
           price_cents?: number
           promotional_until?: string | null
+          reference_price_cents?: number | null
           updated_at?: string
         }
         Relationships: []
@@ -3147,6 +3150,15 @@ export type Database = {
       admin_confirm_payment: {
         Args: { _actor_user_id: string; _payment_id: string }
         Returns: boolean
+      }
+      admin_update_public_offer: {
+        Args: {
+          _actor_user_id: string
+          _price_cents: number
+          _reference_price_cents: number | null
+          _is_active: boolean
+        }
+        Returns: undefined
       }
       admin_extend_access: {
         Args: {

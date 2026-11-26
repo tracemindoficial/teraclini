@@ -44,9 +44,16 @@ export function inspectOffer(html, pageUrl) {
 
   const card = cards[0].body;
   const paragraphs = [...card.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)].map((match) => text(match[1]));
-  const prices = paragraphs.filter((paragraph) => /^R\$/.test(paragraph));
-  if (prices.length !== 1 || prices[0] !== expectedPrice) {
-    throw new Error(`Esperava ${expectedPrice}; encontrei ${prices.join(", ") || "nenhum preço"}.`);
+  const prices = paragraphs.filter((paragraph) => /^(?:Por\s*)?R\$/.test(paragraph));
+  if (prices.length !== 1 || !/^Por\s*/.test(prices[0]) || prices[0].replace(/^Por\s*/, "") !== expectedPrice) {
+    throw new Error(`Esperava Por ${expectedPrice}; encontrei ${prices.join(", ") || "nenhum preço"}.`);
+  }
+  const original = /<s\b[^>]*>([\s\S]*?)<\/s>/i.exec(card);
+  if (!original || text(original[1]) !== "R$ 120,00" || !text(card).includes("Economia de R$ 53,00")) {
+    throw new Error("Esperava o preço anterior riscado de R$ 120,00 e economia de R$ 53,00.");
+  }
+  if (text(markup).includes("Licenças em preparação")) {
+    throw new Error("O aviso de licenças em preparação aparece junto com a oferta ativa.");
   }
 
   const cta = [...card.matchAll(/<a\b[^>]*\shref="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi)].filter(

@@ -7,15 +7,23 @@ const signup = "/auth?mode=signup&amp;plan=teraclini_mensal";
 
 function card(price = "67,00", href = signup, code = "teraclini_mensal") {
   return `<article data-plan-code="${code}"><h3>Plano Completo</h3>
-    <p>R$&nbsp;<!-- -->${price}<span> / m&#234;s</span></p>
+    <p>De <s>R$&nbsp;120,00</s></p>
+    <p><span>Por </span><strong>R$&nbsp;<!-- -->${price}</strong><span> / m&#234;s</span></p>
+    <span>Economia de R$&nbsp;53,00</span>
     <a class="button" href="${href}">Quero assinar agora <svg></svg></a></article>`;
 }
 
-test("aceita preço mensal e cadastro no HTML anônimo da oferta", () => {
+test("aceita preço anterior, valor mensal, economia e cadastro no HTML anônimo", () => {
   expect(inspectOffer(card(), pageUrl)).toEqual({
-    price: "R$ 67,00 / mês",
+    price: "Por R$ 67,00 / mês",
     signup: "/auth?mode=signup&plan=teraclini_mensal",
   });
+});
+
+test("rejeita desconto incorreto e aviso de preparação junto da oferta", () => {
+  expect(() => inspectOffer(card().replace("120,00", "130,00"), pageUrl)).toThrow(/120,00/);
+  expect(() => inspectOffer(card().replace("53,00", "52,00"), pageUrl)).toThrow(/53,00/);
+  expect(() => inspectOffer(card() + "<p>Licenças em preparação</p>", pageUrl)).toThrow(/preparação/);
 });
 
 test("rejeita oferta antiga, oferta adicional ou rota sem o cartão publicado", () => {

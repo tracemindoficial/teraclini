@@ -500,22 +500,40 @@ export function PricingSection({
             </div>
           </div>
         ) : plans.length > 0 ? (
-          <div className="mx-auto mt-12 grid max-w-5xl gap-5 md:grid-cols-2">
+          <div className="mx-auto mt-12 grid max-w-xl gap-5">
             {plans.map((plan) => (
               <article
                 key={plan.id}
                 data-plan-code={plan.code}
-                className="rounded-lg border bg-card p-7 shadow-soft"
+                data-plan-price-cents={plan.price_cents}
+                data-plan-reference-price-cents={plan.reference_price_cents ?? undefined}
+                className="rounded-lg border bg-card p-5 shadow-soft sm:p-8"
               >
                 <Badge variant="secondary">Licença ativa</Badge>
                 <h3 className="mt-5 text-2xl font-semibold">{plan.name}</h3>
-                <p className="mt-4 text-3xl font-semibold">
-                  {formatPrice(plan)}
-                  <span className="text-sm font-normal text-muted-foreground">
-                    {" "}
-                    / {periodLabel(plan.billing_interval_months)}
-                  </span>
-                </p>
+                <div className="mt-5 rounded-lg bg-muted p-4 sm:p-5">
+                  {plan.reference_price_cents !== null && (
+                    <p className="text-sm font-medium text-muted-foreground">
+                      De <s>{formatPrice(plan, plan.reference_price_cents)}</s>
+                    </p>
+                  )}
+                  <p className="mt-1 text-primary">
+                    {plan.reference_price_cents !== null && (
+                      <span className="mr-2 text-sm font-medium">Por</span>
+                    )}
+                    <strong className="text-3xl tracking-tight tabular-nums sm:text-5xl">
+                      {formatPrice(plan)}
+                    </strong>
+                    <span className="text-sm text-muted-foreground">
+                      {" "}/ {periodLabel(plan.billing_interval_months)}
+                    </span>
+                  </p>
+                  {plan.reference_price_cents !== null && (
+                    <Badge variant="secondary" className="mt-3">
+                      Economia de {formatPrice(plan, plan.reference_price_cents - plan.price_cents)}
+                    </Badge>
+                  )}
+                </div>
                 <p className="mt-5 text-sm leading-6 text-muted-foreground">
                   O valor permanece o mesmo enquanto a assinatura estiver ativa, sem aumento
                   automático após determinado número de meses.
@@ -566,9 +584,9 @@ export function PricingSection({
   );
 }
 
-function formatPrice(plan: PublicPlan) {
+function formatPrice(plan: PublicPlan, cents = plan.price_cents) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: plan.currency }).format(
-    plan.price_cents / 100,
+    cents / 100,
   );
 }
 function periodLabel(months: number) {

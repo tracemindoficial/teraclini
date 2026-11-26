@@ -478,7 +478,36 @@ export const getAdminSettings = createServerFn({ method: "GET" })
     ]);
     if (plans.error || settings.error)
       throw new Error("Não foi possível carregar as configurações.");
-    return { plans: plans.data ?? [], settings: settings.data ?? [] };
+    return {
+      plans: plans.data ?? [],
+      settings: settings.data ?? [],
+      canEditOffer: context.platformAdminRole === "super_admin",
+    };
+  });
+
+const publicOfferInput = z.object({
+  priceCents: z.number().int().min(1).max(2_147_483_647),
+  referencePriceCents: z.number().int().min(1).max(2_147_483_647).nullable(),
+  isActive: z.boolean(),
+  confirm: z.literal(true),
+}).refine(({ priceCents, referencePriceCents }) =>
+  referencePriceCents === null || referencePriceCents > priceCents,
+);
+
+export const updateAdminPublicOffer = createServerFn({ method: "POST" })
+  .middleware([requirePlatformAdmin])
+  .inputValidator((input) => publicOfferInput.parse(input))
+  .handler(async ({ data, context }) => {
+    if (context.platformAdminRole !== "super_admin")
+      throw new Response("Forbidden", { status: 403 });
+    const { error } = await context.supabaseAdmin.rpc("admin_update_public_offer", {
+      _actor_user_id: context.userId,
+      _price_cents: data.priceCents,
+      _reference_price_cents: data.referencePriceCents,
+      _is_active: data.isActive,
+    });
+    if (error) throw new Error("Não foi possível salvar a oferta pública.");
+    return { ok: true as const };
   });
 
 const settingInput = z.object({

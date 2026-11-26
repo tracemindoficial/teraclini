@@ -13,8 +13,10 @@ import {
   setAdminAccountStatus,
   setAdminAccountBlock,
   setPlatformAdminRole,
+  updateAdminPublicOffer,
   upsertAdminSetting,
 } from "@/lib/platform-admin.functions";
+import { subscriptionKeys } from "@/lib/data/subscription";
 
 export const adminKeys = {
   overview: ["admin", "overview"] as const,
@@ -132,6 +134,26 @@ export function useSetPlatformAdminRole(userId: string) {
       queryClient.invalidateQueries({ queryKey: adminKeys.userDetail(userId) });
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "history", userId] });
+    },
+  });
+}
+
+export function useUpdateAdminPublicOffer() {
+  const queryClient = useQueryClient();
+  const mutation = useServerFn(updateAdminPublicOffer);
+  return useMutation({
+    mutationFn: (data: {
+      priceCents: number;
+      referencePriceCents: number | null;
+      isActive: boolean;
+      confirm: true;
+    }) => mutation({ data }),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: adminKeys.settings }),
+        queryClient.invalidateQueries({ queryKey: subscriptionKeys.offer }),
+        queryClient.invalidateQueries({ queryKey: ["admin", "audit"] }),
+      ]);
     },
   });
 }

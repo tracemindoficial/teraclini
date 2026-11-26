@@ -9,7 +9,15 @@ describe("optional public pricing", () => {
   });
   it("can recover on the next lookup without retaining the failed state", async () => {
     await loadPublicPlans(async () => { throw new Error("Unavailable"); });
-    const plans = [{ id: "plan", code: "basic", name: "Básico", price_cents: 1000, currency: "BRL", billing_interval_months: 1 }];
+    const plans = [{
+      id: "plan",
+      code: "teraclini_mensal",
+      name: "Plano Completo",
+      price_cents: 6700,
+      reference_price_cents: 12000,
+      currency: "BRL",
+      billing_interval_months: 1,
+    }];
     expect(await loadPublicPlans(async () => plans)).toEqual({ plans, unavailable: false });
   });
 });

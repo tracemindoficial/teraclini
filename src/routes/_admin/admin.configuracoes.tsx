@@ -3,8 +3,10 @@ import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
 import { AdminShell, AdminState } from "@/components/admin/AdminShell";
+import { PublicOfferForm } from "@/components/admin/PublicOfferForm";
 import { brlFromCents } from "@/lib/admin-metrics";
 import { useAdminSettings, useUpsertAdminSetting } from "@/lib/data/admin";
+import { COMPLETE_PLAN_CODE } from "@/lib/subscription-rules";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +31,7 @@ function AdminSettingsPage() {
   const [key, setKey] = useState("");
   const [value, setValue] = useState("");
   const [description, setDescription] = useState("");
+  const offer = data?.plans.find((plan) => plan.code === COMPLETE_PLAN_CODE);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -66,11 +69,18 @@ function AdminSettingsPage() {
                       <div>
                         <p className="font-medium">{plan.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          Primeiro pagamento em {plan.first_payment_days} dias · tolerância de{" "}
-                          {plan.grace_period_days} dias
+                          {plan.is_active ? "Ativo" : "Inativo"} · Primeiro pagamento em{" "}
+                          {plan.first_payment_days} dias · tolerância de {plan.grace_period_days} dias
                         </p>
                       </div>
-                      <strong>{brlFromCents(plan.price_cents)}</strong>
+                      <div className="shrink-0 text-right">
+                        {plan.reference_price_cents != null && (
+                          <s className="block text-xs text-muted-foreground">
+                            {brlFromCents(plan.reference_price_cents)}
+                          </s>
+                        )}
+                        <strong>{brlFromCents(plan.price_cents)}</strong>
+                      </div>
                     </div>
                   </li>
                 ))}
@@ -79,6 +89,9 @@ function AdminSettingsPage() {
               <p className="mt-3 text-sm text-muted-foreground">
                 Nenhum plano foi ativado. Os parâmetros comerciais aguardam confirmação.
               </p>
+            )}
+            {offer && data?.canEditOffer && (
+              <PublicOfferForm key={`${offer.id}:${offer.updated_at}`} plan={offer} />
             )}
           </section>
           <section className="surface p-5">
@@ -104,8 +117,7 @@ function AdminSettingsPage() {
           <section className="surface p-5 lg:col-span-2">
             <h2 className="font-semibold">Adicionar configuração global</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Use apenas parâmetros operacionais não secretos. Planos e cobranças automáticas
-              permanecem desativados.
+              Use apenas parâmetros operacionais não secretos. A oferta pública é gerenciada na seção Planos; esta área não ativa cobranças automáticas.
             </p>
             <form onSubmit={submit} className="mt-4 grid gap-4 md:grid-cols-3">
               <div className="space-y-1.5">
