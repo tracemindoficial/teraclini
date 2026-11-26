@@ -181,9 +181,6 @@ export const adminConfigureBilling = createServerFn({ method: "POST" })
   .inputValidator(
     accountInput.extend({
       firstDueOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-      promoPriceCents: z.number().int().min(100).max(10_000_000),
-      promoCycles: z.number().int().min(0).max(24),
-      regularPriceCents: z.number().int().min(100).max(10_000_000),
       confirm: z.literal(true),
     }),
   )
@@ -192,9 +189,6 @@ export const adminConfigureBilling = createServerFn({ method: "POST" })
       _actor_user_id: context.userId,
       _account_id: data.accountId,
       _first_due_on: data.firstDueOn,
-      _promo_price_cents: data.promoPriceCents,
-      _promo_cycles: data.promoCycles,
-      _regular_price_cents: data.regularPriceCents,
     });
     fail(error);
     return { ok: true };

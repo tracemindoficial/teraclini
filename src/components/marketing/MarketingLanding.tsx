@@ -513,8 +513,12 @@ export function PricingSection({
                   </span>
                 </p>
                 <p className="mt-5 text-sm leading-6 text-muted-foreground">
-                  Os detalhes e as condições desta licença serão apresentados antes da confirmação
-                  da contratação.
+                  O valor permanece o mesmo enquanto a assinatura estiver ativa, sem aumento
+                  automático após determinado número de meses.
+                </p>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  Crie sua conta e solicite a contratação em Assinatura. A equipe TeraClini conclui
+                  o processo com você; o cadastro não gera cobrança automática.
                 </p>
                 <Button
                   asChild
@@ -527,7 +531,7 @@ export function PricingSection({
                   }
                 >
                   <Link to="/auth" search={{ mode: "signup", plan: plan.code }}>
-                    Escolher este plano <ArrowRight />
+                    Quero assinar agora <ArrowRight />
                   </Link>
                 </Button>
               </article>

@@ -23,15 +23,12 @@ import {
   useAdminSubscriptionDetail,
   useAdminSubscriptionDirectory,
   useAdminSubscriptionOverview,
+  useCompletePlan,
   type CommercialSummary,
 } from "@/lib/data/subscription";
 import { setAdminAccountStatus } from "@/lib/platform-admin.functions";
 import {
   COMMERCIAL_STATE_LABELS,
-  PROMO_CYCLES,
-  PROMO_PRICE_CENTS,
-  REGULAR_PRICE_CENTS,
-  cyclePriceCents,
   daysRemaining,
   formatBrasilia,
   type CommercialState,
@@ -311,9 +308,11 @@ export function SubscriptionDetailPanel({ accountId }: { accountId: string }) {
             Prorrogar acesso
           </Button>
         ) : null}
-        <Button size="sm" variant="outline" onClick={() => setMode("billing")}>
-          Configurar cobrança
-        </Button>
+        {s.subscription?.status !== "cancelled" ? (
+          <Button size="sm" variant="outline" onClick={() => setMode("billing")}>
+            {s.subscription ? "Alterar vencimento" : "Configurar assinatura"}
+          </Button>
+        ) : null}
         {s.subscription ? (
           <Button size="sm" variant="outline" onClick={() => setMode("pay")}>
             Registrar pagamento
@@ -355,7 +354,7 @@ export function SubscriptionDetailPanel({ accountId }: { accountId: string }) {
       ) : null}
       {mode === "billing" ? (
         <BillingForm
-          stateLabel={COMMERCIAL_STATE_LABELS[s.state]}
+          subscription={s.subscription}
           busy={actions.configure.isPending}
           onCancel={() => setMode(null)}
           onSubmit={(v) =>
@@ -565,48 +564,47 @@ function ExtendForm({ onSubmit, onCancel, busy }: {
   );
 }
 
-function BillingForm({ onSubmit, onCancel, busy, stateLabel }: {
+function BillingForm({ onSubmit, onCancel, busy, subscription }: {
   busy: boolean;
-  stateLabel: string;
+  subscription: CommercialSummary["subscription"];
   onCancel: () => void;
-  onSubmit: (v: { firstDueOn: string; promoPriceCents: number; promoCycles: number; regularPriceCents: number }) => void;
+  onSubmit: (v: { firstDueOn: string }) => void;
 }) {
-  const [first, setFirst] = useState(todayISO());
-  const [promo, setPromo] = useState(PROMO_PRICE_CENTS / 100);
-  const [cycles, setCycles] = useState(PROMO_CYCLES);
-  const [regular, setRegular] = useState(REGULAR_PRICE_CENTS / 100);
-  const promoCents = Math.round(promo * 100);
-  const regularCents = Math.round(regular * 100);
+  const offer = useCompletePlan(!subscription);
+  const [first, setFirst] = useState(() =>
+    subscription && subscription.next_due_on >= todayISO() ? subscription.next_due_on : todayISO(),
+  );
+  const amount = subscription?.next_amount_cents ?? (offer.isError ? undefined : offer.data?.price_cents);
+  const dateLabel = subscription ? "Próximo vencimento" : "Primeiro vencimento";
+  const submitLabel = subscription ? "Salvar vencimento" : "Configurar assinatura";
+  const terms = subscription
+    ? `Valor da próxima cobrança: ${amount === undefined ? "—" : brlFromCents(amount)}. As condições do contrato serão mantidas.`
+    : amount === undefined ? null : `${offer.data?.name}: ${brlFromCents(amount)} por mês, sem aumento automático por ciclo.`;
+
   return (
     <FormBox
-      busy={busy}
+      busy={busy || amount === undefined}
       onCancel={onCancel}
-      submitLabel="Confirmar cobrança"
+      submitLabel={submitLabel}
       onSubmit={() => {
-        const summary = `Confirmar cobrança?\n\nPrimeira cobrança: ${formatBrasilia(first, false)}\nValor do 1º ciclo: ${brlFromCents(cyclePriceCents(1, promoCents, cycles, regularCents))}\nPeríodo promocional: ${cycles} ciclo(s) a ${brlFromCents(promoCents)}\nPreço regular depois: ${brlFromCents(regularCents)}\nSituação atual: ${stateLabel}\nRenovação: mensal, registrada manualmente a cada pagamento.`;
-        if (window.confirm(summary)) onSubmit({ firstDueOn: first, promoPriceCents: promoCents, promoCycles: cycles, regularPriceCents: regularCents });
+        if (!first || amount === undefined) return;
+        const summary = `${submitLabel}?\n\n${dateLabel}: ${formatBrasilia(first, false)}\n${terms}\nO pagamento é registrado manualmente após o recebimento.`;
+        if (window.confirm(summary)) onSubmit({ firstDueOn: first });
       }}
     >
-      <div className="grid gap-3 sm:grid-cols-4">
-        <div>
-          <Label>Primeira cobrança</Label>
-          <Input type="date" min={todayISO()} value={first} onChange={(e) => setFirst(e.target.value)} />
-        </div>
-        <div>
-          <Label>Preço promocional (R$)</Label>
-          <Input type="number" step="0.01" min={1} value={promo} onChange={(e) => setPromo(Number(e.target.value))} />
-        </div>
-        <div>
-          <Label>Ciclos promocionais</Label>
-          <Input type="number" min={0} max={24} value={cycles} onChange={(e) => setCycles(Number(e.target.value))} />
-        </div>
-        <div>
-          <Label>Preço regular (R$)</Label>
-          <Input type="number" step="0.01" min={1} value={regular} onChange={(e) => setRegular(Number(e.target.value))} />
-        </div>
+      <div className="max-w-xs">
+        <Label htmlFor="subscription-due-on">{dateLabel}</Label>
+        <Input id="subscription-due-on" type="date" required min={todayISO()} value={first} onChange={(e) => setFirst(e.target.value)} />
       </div>
+      {terms ? (
+        <p className="text-sm">{terms}</p>
+      ) : offer.isPending ? (
+        <p className="text-sm text-muted-foreground">Consultando a oferta vigente...</p>
+      ) : (
+        <p className="text-sm text-muted-foreground">Oferta indisponível. <Button type="button" size="sm" variant="link" onClick={() => void offer.refetch()}>Tentar novamente</Button></p>
+      )}
       <p className="text-xs text-muted-foreground">
-        Resumo: {cycles} ciclo(s) a {brlFromCents(promoCents)}, depois {brlFromCents(regularCents)} por mês. Nenhuma cobrança automática é feita; cada pagamento é registrado aqui.
+        Esta operação não cobra nem registra pagamentos. Registre o pagamento somente após confirmar o recebimento.
       </p>
     </FormBox>
   );

@@ -1,8 +1,6 @@
 export const TRIAL_DAYS = 7;
 export const TRIAL_FIRST_NOTICE_DAY = 5;
-export const PROMO_PRICE_CENTS = 4700;
-export const PROMO_CYCLES = 3;
-export const REGULAR_PRICE_CENTS = 5990;
+export const COMPLETE_PLAN_CODE = "teraclini_mensal";
 export const DISPLAY_TIMEZONE = "America/Sao_Paulo";
 
 const DAY_MS = 86_400_000;
@@ -48,9 +46,9 @@ export function hasCommercialAccess(state: CommercialState | null | undefined) {
 /** Price for a 1-based paid cycle. Mirrors public.subscription_cycle_price. */
 export function cyclePriceCents(
   cycle: number,
-  promo = PROMO_PRICE_CENTS,
-  promoCycles = PROMO_CYCLES,
-  regular = REGULAR_PRICE_CENTS,
+  promo: number,
+  promoCycles: number,
+  regular: number,
 ) {
   if (!Number.isInteger(cycle) || cycle < 1) throw new Error("Ciclo inválido");
   return cycle <= promoCycles ? promo : regular;

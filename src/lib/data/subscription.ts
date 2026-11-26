@@ -2,7 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { supabase } from "@/integrations/supabase/client";
-import type { CommercialState } from "@/lib/subscription-rules";
+import { getPublicPlans } from "@/lib/public-commercial.functions";
+import { COMPLETE_PLAN_CODE, type CommercialState } from "@/lib/subscription-rules";
 import {
   adminConfigureBilling,
   adminExtendAccess,
@@ -52,12 +53,22 @@ export type MyCommercialStatus = CommercialSummary & {
 };
 
 export const subscriptionKeys = {
+  offer: ["subscription", "offer"] as const,
   mine: ["subscription", "mine"] as const,
   adminOverview: ["admin", "subscriptions-v2", "overview"] as const,
   adminDirectory: (search: string, state: string, page: number) =>
     ["admin", "subscriptions-v2", "directory", search, state, page] as const,
   adminDetail: (accountId: string) => ["admin", "subscriptions-v2", "detail", accountId] as const,
 };
+
+export function useCompletePlan(enabled: boolean) {
+  const fetchPlans = useServerFn(getPublicPlans);
+  return useQuery({
+    queryKey: subscriptionKeys.offer,
+    enabled,
+    queryFn: async () => (await fetchPlans()).find((plan) => plan.code === COMPLETE_PLAN_CODE) ?? null,
+  });
+}
 
 export function useMyCommercialStatus() {
   return useQuery({

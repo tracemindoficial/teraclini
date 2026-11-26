@@ -10,8 +10,16 @@ import {
 } from "./subscription-rules";
 
 describe("política comercial", () => {
-  it("cobra R$ 47,00 nos três primeiros ciclos e R$ 59,90 a partir do quarto", () => {
-    expect([1, 2, 3, 4, 5].map((c) => cyclePriceCents(c))).toEqual([4700, 4700, 4700, 5990, 5990]);
+  it("preserva a regra por ciclo de contratos antigos quando seus valores são informados", () => {
+    expect([1, 2, 3, 4, 5].map((cycle) => cyclePriceCents(cycle, 4700, 3, 5990))).toEqual([
+      4700, 4700, 4700, 5990, 5990,
+    ]);
+  });
+
+  it("mantém o valor contratado em todos os ciclos quando não há promoção", () => {
+    expect([1, 2, 3, 4, 12, 25].map((cycle) => cyclePriceCents(cycle, 6700, 0, 6700))).toEqual([
+      6700, 6700, 6700, 6700, 6700, 6700,
+    ]);
   });
 
   it("teste padrão termina exatamente 7 dias após a ativação", () => {

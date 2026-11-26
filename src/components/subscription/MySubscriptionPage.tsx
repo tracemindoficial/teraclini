@@ -4,31 +4,22 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { brlFromCents } from "@/lib/admin-metrics";
 import {
+  useCompletePlan,
   useMarkNotificationRead,
   useMyCommercialStatus,
   useRequestContract,
 } from "@/lib/data/subscription";
-import {
-  COMMERCIAL_STATE_LABELS,
-  PROMO_CYCLES,
-  PROMO_PRICE_CENTS,
-  REGULAR_PRICE_CENTS,
-  daysRemaining,
-  formatBrasilia,
-  hasCommercialAccess,
-} from "@/lib/subscription-rules";
+import { COMMERCIAL_STATE_LABELS, daysRemaining, formatBrasilia, hasCommercialAccess } from "@/lib/subscription-rules";
 
 export function MySubscriptionPage() {
   const { data, isLoading, error } = useMyCommercialStatus();
+  const offer = useCompletePlan(!!data && !data.subscription);
   const request = useRequestContract();
   const markRead = useMarkNotificationRead();
   if (isLoading) return <p className="text-sm text-muted-foreground">Carregando assinatura...</p>;
   if (error || !data)
     return <p className="text-sm text-destructive">Não foi possível carregar sua assinatura.</p>;
   const sub = data.subscription;
-  const promo = sub?.promo_price_cents ?? PROMO_PRICE_CENTS;
-  const cycles = sub?.promo_cycles ?? PROMO_CYCLES;
-  const regular = sub?.regular_price_cents ?? REGULAR_PRICE_CENTS;
   const blocked = !hasCommercialAccess(data.state);
 
   return (
@@ -86,26 +77,34 @@ export function MySubscriptionPage() {
       </section>
 
       <section className="surface space-y-3 p-5">
-        <h2 className="font-display text-lg font-semibold">Plano TeraClini</h2>
-        <p className="text-sm text-muted-foreground">
-          Plano único mensal, com todas as funcionalidades e futuras atualizações incluídas.
-        </p>
-        <ul className="space-y-1 text-sm">
-          <li>
-            1º ao {cycles}º ciclo: <strong>{brlFromCents(promo)}</strong> por mês
-          </li>
-          <li>
-            A partir do {cycles + 1}º ciclo: <strong>{brlFromCents(regular)}</strong> por mês
-          </li>
-          <li>Teste gratuito de 7 dias para novos cadastros</li>
-        </ul>
+        <h2 className="font-display text-lg font-semibold">
+          {sub ? "Condições da sua assinatura" : offer.data?.name ?? "Assinatura TeraClini"}
+        </h2>
+        {sub ? (
+          <div className="space-y-1 text-sm">
+            {sub.promo_cycles > 0 ? (
+              <>
+                <p>Primeiros {sub.promo_cycles} ciclos: <strong>{brlFromCents(sub.promo_price_cents)}</strong> por mês.</p>
+                <p>Depois: <strong>{brlFromCents(sub.regular_price_cents)}</strong> por mês.</p>
+              </>
+            ) : (
+              <p><strong>{brlFromCents(sub.regular_price_cents)}</strong> por mês, sem aumento automático por ciclo.</p>
+            )}
+          </div>
+        ) : offer.isPending ? (
+          <p className="text-sm text-muted-foreground">Consultando a oferta vigente...</p>
+        ) : offer.isError || !offer.data ? (
+          <p className="text-sm text-muted-foreground">Oferta indisponível no momento. <Button type="button" variant="link" size="sm" onClick={() => void offer.refetch()}>Tentar novamente</Button></p>
+        ) : (
+          <p className="text-sm"><strong>{brlFromCents(offer.data.price_cents)}</strong> por mês, sem aumento automático por ciclo enquanto a assinatura estiver ativa.</p>
+        )}
         <p className="text-xs text-muted-foreground">
           A contratação é concluída com a equipe TeraClini. Nenhuma cobrança é feita
           automaticamente ao fim do período gratuito.
         </p>
         <Button
           className="w-full"
-          disabled={request.isPending || data.state === "active"}
+          disabled={request.isPending || data.state === "active" || (!sub && (!offer.data || offer.isError))}
           onClick={() =>
             request.mutate(undefined, {
               onSuccess: () =>

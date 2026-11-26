@@ -3138,9 +3138,9 @@ export type Database = {
           _account_id: string
           _actor_user_id: string
           _first_due_on: string
-          _promo_cycles: number
-          _promo_price_cents: number
-          _regular_price_cents: number
+          _promo_cycles?: number
+          _promo_price_cents?: number
+          _regular_price_cents?: number
         }
         Returns: string
       }
