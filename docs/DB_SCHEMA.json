@@ -7354,7 +7354,7 @@
       "trigger": "guard_client_deletion"
     }
   ],
-  "gerado_em": "2026-11-26T15:51:21.937745+00:00",
+  "gerado_em": "2026-11-26T15:51:36.539647+00:00",
   "rls_ativo": {
     "rooms": true,
     "accounts": true,
@@ -8157,5 +8157,5 @@
       "trigger": "on_auth_user_created"
     }
   ],
-  "geckoai_sincronizado_em": "2026-11-26T15:51:24.661Z"
+  "geckoai_sincronizado_em": "2026-11-26T15:51:39.210Z"
 }
