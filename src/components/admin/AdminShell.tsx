@@ -13,6 +13,7 @@ import {
   Headphones,
   LineChart,
   Bell,
+  Mail,
   LogOut,
   Menu,
   Settings,
@@ -35,6 +36,7 @@ const links = [
   { to: "/admin", label: "Visão geral", icon: LayoutDashboard },
   { to: "/admin/profissionais", label: "Profissionais e Assinaturas", icon: Users, operationalOnly: true },
   { to: "/admin/notificacoes", label: "Notificações", icon: Bell },
+  { to: "/admin/comunicacao", label: "Central de Comunicação", icon: Mail, masterOnly: true },
   { to: "/admin/uso", label: "Uso do Sistema", icon: Activity },
   { to: "/admin/metricas", label: "Métricas", icon: LineChart },
   { to: "/admin/suporte", label: "Suporte", icon: Headphones },
@@ -81,7 +83,10 @@ export function AdminShell({
   const navigation = (close?: () => void) => (
     <nav className="space-y-1" aria-label="Administração master">
       {links
-        .filter((item) => !("operationalOnly" in item && item.operationalOnly) || canManageClients)
+        .filter((item) => {
+          if ("masterOnly" in item && item.masterOnly) return adminSelf.data?.role === "super_admin";
+          return !("operationalOnly" in item && item.operationalOnly) || canManageClients;
+        })
         .map((item) => (
         <Link
           key={item.to}

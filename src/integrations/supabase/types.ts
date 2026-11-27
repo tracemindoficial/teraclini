@@ -2271,6 +2271,7 @@ export type Database = {
           kind: string
           last_error: string | null
           read_at: string | null
+          recipient_user_id: string | null
           suppressed_at: string | null
           title: string
         }
@@ -2287,6 +2288,7 @@ export type Database = {
           kind: string
           last_error?: string | null
           read_at?: string | null
+          recipient_user_id?: string | null
           suppressed_at?: string | null
           title: string
         }
@@ -2303,6 +2305,7 @@ export type Database = {
           kind?: string
           last_error?: string | null
           read_at?: string | null
+          recipient_user_id?: string | null
           suppressed_at?: string | null
           title?: string
         }
@@ -3102,6 +3105,37 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      communication_archive: {
+        Args: { _id: string; _archived: boolean }
+        Returns: boolean
+      }
+      communication_is_admin: { Args: Record<never, never>; Returns: boolean }
+      communication_list: {
+        Args: { _admin: boolean; _filter?: string; _search?: string; _offset?: number }
+        Returns: Json
+      }
+      communication_open: {
+        Args: { _id: string; _admin: boolean }
+        Returns: Json
+      }
+      communication_recipients: { Args: { _search?: string }; Returns: Json }
+      communication_reply: {
+        Args: { _id: string; _admin: boolean; _request: string; _body: string }
+        Returns: string
+      }
+      communication_send: {
+        Args: {
+          _request: string
+          _audience: string
+          _recipient: string | null
+          _subject: string
+          _category: string
+          _priority: boolean
+          _body: string
+        }
+        Returns: number
+      }
+      communication_unread: { Args: { _admin: boolean }; Returns: number }
       account_commercial_state: {
         Args: { _account_id: string }
         Returns: string

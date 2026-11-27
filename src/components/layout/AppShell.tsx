@@ -15,6 +15,7 @@ import {
   Headphones,
   ShieldCheck,
   LogOut,
+  Mail,
   MapPin,
   Menu,
   PackageCheck,
@@ -37,6 +38,7 @@ import { useProfile } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { recordUsageEvent } from "@/lib/usage.functions";
 import { getSessionAccess } from "@/lib/access.functions";
+import { useCommunicationUnread } from "@/lib/data/communication";
 
 const NAV = [
   { to: "/meu-dia", label: "Meu Dia", mobileLabel: "Início", icon: Home },
@@ -84,6 +86,7 @@ export function AppShell({
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const { data: profile } = useProfile();
+  const { data: unread = 0 } = useCommunicationUnread(false, Boolean(profile?.id));
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const recordUsage = useServerFn(recordUsageEvent);
@@ -312,6 +315,17 @@ export function AppShell({
                 ) : null}
               </div>
               <div className="flex shrink-0 items-center gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button asChild variant={pathname === "/mensagens" ? "secondary" : "ghost"} size="icon" className="relative">
+                      <Link to="/mensagens" aria-label={`Mensagens da Administração${unread ? `, ${unread} não lidas` : ""}`} aria-current={pathname === "/mensagens" ? "page" : undefined}>
+                        <Mail className="size-4.5" />
+                        {unread > 0 && <span aria-hidden="true" className="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">{unread > 99 ? "99+" : unread}</span>}
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Mensagens da Administração</TooltipContent>
+                </Tooltip>
                 {!pathname.startsWith("/ajuda") ? (
                   <Tooltip>
                     <TooltipTrigger asChild>
